@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 // src/app/page.tsx
 import Link from "next/link"
-import { ArrowRight, GraduationCap, ShieldCheck, LayoutDashboard } from "lucide-react"
+import { ArrowRight, GraduationCap, ShieldCheck, LayoutDashboard, BookOpen } from "lucide-react"
 import { Footer } from "../components/ui/Footer"
 
 export default function WelcomePage() {
@@ -44,10 +44,16 @@ export default function WelcomePage() {
                   Plateforme centralisée pour la gestion des inscriptions et le suivi de l'ESPA.
                 </p>
               </div>
-              <Link href="/login" className="inline-flex bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transition-all items-center gap-3">
-                Accéder au Portail
-                <LayoutDashboard className="w-5 h-5" />
-              </Link>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/login" className="inline-flex bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-lg transition-all items-center gap-3">
+                  Accéder au Portail
+                  <LayoutDashboard className="w-5 h-5" />
+                </Link>
+                <Link href="/notes" className="inline-flex bg-white border border-slate-200 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-md hover:border-blue-300 transition-all items-center gap-3">
+                  Module Notes
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                </Link>
+              </div>
             </div>
 
             {/* IMAGE AVEC INCLINAISON DYNAMIQUE (GAUCHE / DROITE) */}
