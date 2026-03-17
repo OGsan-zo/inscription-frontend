@@ -330,6 +330,14 @@ export interface StatusEtudiant {
   id: number;
   nom: string;
 }
+
+export interface Parcours {
+  id: number;
+  nom: string;
+  createdAt?: string;
+  mention: { id: number; nom: string; abr?: string };
+  niveau: { id: number; nom: string; grade?: number };
+}
 export interface InitialData {
   niveaux: Niveau[];
   mentions: Mention[]; // Changé de 'formations' à 'mentions'

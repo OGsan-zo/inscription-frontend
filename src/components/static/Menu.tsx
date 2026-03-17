@@ -108,6 +108,11 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <UserPlus size={18} />,
       },
       {
+        key: "/admin/parcours",
+        label: "Parcours",
+        icon: <ShieldCheck size={18} />,
+      },
+      {
         key: "/admin/export",
         label: "Exportation des données",
         icon: <Download size={18} />,
