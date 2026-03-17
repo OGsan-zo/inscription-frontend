@@ -1,0 +1,418 @@
+// Simple in-memory database for demonstration
+// In production, replace with a real database like Supabase or Neon
+
+import { Parentheses } from "lucide-react"
+
+export interface User {
+  id?: string
+  name?: string
+  nom?: string
+  prenom?: string
+  email: string
+  password?: string
+  role?: "Admin" | "Utilisateur" | "Ecolage"
+  createdAt?: Date
+  status?: string
+}
+
+export interface Event {
+  id?: string | number
+  titre: string
+  description: string
+  debut?: string
+  fin?: string
+  type?: string | number
+  typeEventId?: string | number
+  photoId?: string | number | null
+  photoBinaire?: string
+  user?: User
+  datePublication?: string
+}
+export interface News {
+  id: string
+  title: string
+  content: string
+  image?: string
+  publishedDate: Date
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+}
+export interface Contact {
+  id?: number | string;
+  adresse?: string;
+  email?: string;
+  telephone?: string; // "?" signifie optionnel
+  nomPere?: string;
+  nomMere?: string;
+
+}
+export interface Nationalite {
+  id?: number | string;
+  nom: string;
+  type: number;
+  typeNationaliteNom?: string;
+}
+
+export interface Cin {
+  id?: number | string;
+  numero: string;
+  dateDelivrance: string;
+  lieuDelivrance: string;
+}
+
+export interface Baccalaureat {
+  id?: number | string;
+  serie: string;
+  anneeObtention: string;
+  numero?: string;
+}
+// Structure de l'objet identité (basée sur votre JSON)
+export interface Identite {
+  id: number | string;
+  nom: string;
+  prenom: string;
+  dateNaissance: string;
+  lieuNaissance: string;
+  sexe: string;
+  nomPere?: string;
+  nomMere?: string;
+  nationalite?: Nationalite;
+  contact: Contact;
+  cin?: Cin;
+  bacc?: Baccalaureat;
+}
+export interface Formation {
+  idFormation: string | number;
+  formation: string;
+  formationType: string;
+  idNiveau: string | number;
+  typeNiveau: number;
+  gradeNiveau: number
+  niveau: string;
+  idMention?: string | number;
+  mention?: string;
+  idStatusEtudiant?: string | number;
+  statusEtudiant?: string;
+  id?: string | number;
+  nom?: string;
+  typeFormation?: string;
+  matricule?: string;
+  estBoursier?: number;
+  remarque?: string;
+  annee?: number
+
+
+}
+
+export interface Mention {
+  id: number;
+  nom: string;
+  abr?: string;
+}
+
+export interface PaiementData {
+  refAdmin: string;
+  dateAdmin: string;
+  montantAdmin: string;
+  refPedag: string;
+  datePedag: string;
+  montantPedag: string;
+  montantEcolage?: string;
+  refEcolage?: string;
+  dateEcolage?: string;
+  idNiveau: string | number;
+  idFormation: string | number;
+  passant?: boolean;
+  estBoursier?: number;
+}
+export interface EtudiantRecherche {
+  id: number | string;
+  nom: string;
+  prenom: string;
+}
+
+export interface InscriptionData {
+  refAdmin: string;
+  dateAdmin: string;
+  montantAdmin: string;
+  refPedag: string;
+  datePedag: string;
+  montantPedag: string;
+  montantEcolage?: string;
+  refEcolage?: string;
+  dateEcolage?: string;
+  idEtudiant: string;
+  typeFormation: string;
+  passant?: boolean;
+  estBoursier: number;
+}
+export interface Inscription {
+  id: number | string;
+  matricule: string;
+  dateInscription: string | Date;
+  description: string
+}
+export interface Niveau {
+  id: number | string;
+  nom: string;
+  grade?: number;
+  type?: number;
+}
+
+// Refactorisation Liste etudiant 
+export interface PaiementEtudiant {
+  id?: number;
+  montant: number;
+  datePaiement: string;
+  typeDroit: string;
+  reference: string;
+  modePaiement?: string;
+  libelle?: string;
+  statut?: string;
+}
+
+export interface StatsData {
+  total_etudiants: number;
+  total_paiements: number;
+  nouvelles_inscriptions: number;
+}
+
+// 1. Interface pour la réponse globale de l'API
+export interface ApiResponse {
+  status: string;
+  annee: number;
+  data: Student;
+}
+
+// 2. Interface principale de l'étudiant
+export interface Student {
+  id: number;
+  nom: string;
+  prenom: string;
+  dateNaissance: string;
+  lieuNaissance?: string;
+  sexe?: string;
+  nomPere?: string;
+  nomMere?: string;
+  matricule?: string;
+  estBoursier?: number | string;
+  contact?: Contact
+
+  formation?: {
+    id: number;
+    nom: string;
+    type?: {
+      id: number;
+      nom: string;
+    };
+    dateFormation?: string;
+  };
+  typeFormation?: {
+
+    nom: string;
+
+  };
+
+  niveau?: Niveau
+
+  mention?: Mention
+
+  // Changement ici : correspond à la clé "payments" du JSON
+  payments?: Array<PaiementEtudiant>;
+
+  // Optionnel : Garder les anciennes propriétés si vous faites 
+  // une transformation de données après la réception
+  parcours?: {
+    nom: string;
+  };
+  inscription?: {
+    matricule?: string;
+    anneeUniversitaire?: string;
+  };
+  dateInscription?: string;
+  cin?: Cin
+}
+
+// Nouvelle structure imbriquée correspondant au retour réel de l'API
+export interface ApiStudent {
+  id?: number;
+  identite: {
+    id?: number;
+    nom: string;
+    prenom: string;
+    sexe: string;
+    dateNaissance: string;
+    lieuNaissance?: string;
+    nationalite?: {
+      id?: number;
+      nom: string;
+    };
+    contact: {
+      adresse?: string;
+      telephone?: string;
+      email?: string;
+      nomMere?: string;
+    };
+    cin?: {
+      numero?: string;
+      dateDelivrance?: string;
+      lieuDelivrance?: string;
+    };
+    bacc?: {
+      annee?: string;           // Clé API confirmée
+      anneeObtention?: string;  // Fallback
+      serie?: string;
+    };
+  };
+  formation: {
+    matricule: string;
+    mention?: {
+      id: number;
+      nom: string;
+      abr?: string;
+    };
+    niveau?: {
+      id: number;
+      nom: string;
+      type?: string;
+      grade?: number;
+    };
+    etablissement?: {
+      nom: string;
+    };
+    isBoursier?: number;
+    tauxBourse?: string;
+    remarque?: string;
+    label?: string;
+  };
+  dateInsertion?: string;
+  dateInscription?: string;
+}
+
+// Structure plate retournée par /api/filtres/etudiant (endpoint de filtrage standard)
+export interface FlatStudent {
+  id: number;
+  matricule?: string;
+  nom: string;
+  prenom: string;
+  sexe?: string;
+  dateNaissance?: string;
+  mention?: string;
+  mentionAbr?: string;
+  idMention?: number;
+  niveau?: string;
+  idNiveau?: number;
+  dateInsertion?: string;
+  // Champs supplémentaires éventuels (selon le backend)
+  adresse?: string;
+  telephone?: string;
+  email?: string;
+  cin?: string;
+  nationalite?: string;
+  nomMere?: string;
+  isBoursier?: number | string;
+  tauxBourse?: string;
+  anneeObtention?: string;
+  serieBacc?: string;
+  lieuDelivrance?: string;
+  dateDelivrance?: string;
+  institution?: string;
+  typeFormation?: string;
+  remarque?: string;
+}
+export interface Parent {
+  nomPere: string;
+  nomMere: string;
+}
+export interface StatusEtudiant {
+  id: number;
+  nom: string;
+}
+export interface InitialData {
+  niveaux: Niveau[];
+  mentions: Mention[]; // Changé de 'formations' à 'mentions'
+  formations: Formation[];
+  nationalites: Nationalite[];
+}
+
+// In-memory storage (replace with database)
+let users: User[] = [
+  {
+    id: "1",
+    name: "Admin User",
+    email: "admin@espa.mg",
+    password: "admin123", // In production, use bcrypt
+    role: "Admin",
+    createdAt: new Date(),
+  },
+]
+
+let events: Event[] = []
+let news: News[] = []
+
+// User operations
+export const db = {
+  users: {
+    findByEmail: (email: string) => users.find((u) => u.email === email),
+    create: (user: Omit<User, "id" | "createdAt">) => {
+      const newUser = { ...user, id: Date.now().toString(), createdAt: new Date() }
+      users.push(newUser)
+      return newUser
+    },
+    getAll: () => users,
+    delete: (id: string) => {
+      users = users.filter((u) => u.id !== id)
+    },
+  },
+  events: {
+    getAll: () => events,
+    getById: (id: string) => events.find((e) => e.id === id),
+    create: (event: Omit<Event, "id" | "createdAt" | "updatedAt">) => {
+      const newEvent = {
+        ...event,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      events.push(newEvent)
+      return newEvent
+    },
+    update: (id: string, event: Partial<Event>) => {
+      const index = events.findIndex((e) => e.id === id)
+      if (index !== -1) {
+        events[index] = { ...events[index], ...event }
+        return events[index]
+      }
+    },
+    delete: (id: string) => {
+      events = events.filter((e) => e.id !== id)
+    },
+  },
+  news: {
+    getAll: () => news,
+    getById: (id: string) => news.find((n) => n.id === id),
+    create: (article: Omit<News, "id" | "createdAt" | "updatedAt">) => {
+      const newNews = {
+        ...article,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      news.push(newNews)
+      return newNews
+    },
+    update: (id: string, article: Partial<News>) => {
+      const index = news.findIndex((n) => n.id === id)
+      if (index !== -1) {
+        news[index] = { ...news[index], ...article, updatedAt: new Date() }
+        return news[index]
+      }
+    },
+    delete: (id: string) => {
+      news = news.filter((n) => n.id !== id)
+    },
+  },
+}
+
+
