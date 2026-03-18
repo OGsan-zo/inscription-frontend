@@ -2,7 +2,7 @@
 
 import { useState, Fragment } from "react";
 import { rechercherEtudiants, getResultatEtudiant, getSemestres } from "../services/notesService";
-import type { EtudiantRecherche, ResultatEtudiant, Semestre } from "../types";
+import type { EtudiantRecherche, ResultatEtudiant, Semestre } from "../types/notes";
 
 type Step = "recherche" | "semestre" | "resultats";
 

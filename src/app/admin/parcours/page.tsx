@@ -3,7 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
-import { Parcours, Mention, Niveau } from "@/lib/db";
+import { Mention, Niveau } from "@/lib/db";
+import { Parcours } from "@/features/parcours/type/typeParcours";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
 import { useRouter } from "next/navigation";
