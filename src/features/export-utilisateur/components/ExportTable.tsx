@@ -58,6 +58,7 @@ export function ExportTable({
                             <th className="px-6 py-4">Nom & Prénoms</th>
                             <th className="px-6 py-4">Mention</th>
                             <th className="px-6 py-4">Niveau</th>
+                            <th className="px-6 py-4">Parcours</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -87,6 +88,11 @@ export function ExportTable({
                                     <td className="px-6 py-4">
                                         <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold text-xs">
                                             {et.formation?.niveau?.nom || et.niveau?.nom || "-"}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold text-xs">
+                                            {et.formation?.parcours || "-"}
                                         </span>
                                     </td>
                                 </tr>

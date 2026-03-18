@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
 import { Mention, Niveau } from "@/lib/db";
@@ -10,6 +10,7 @@ import Menu from "@/components/static/Menu";
 import { useRouter } from "next/navigation";
 import { useInitialData } from "@/context/DataContext";
 import { User } from "@/lib/db";
+import { Parcours } from "@/features/parcours/type/typeParcours";
 
 type FormData = { nom: string; idMention: string; idNiveau: string };
 const emptyForm: FormData = { nom: "", idMention: "", idNiveau: "" };
@@ -116,6 +117,7 @@ export default function ParcoursCrudPage() {
       }
       setModalOpen(false);
       await fetchParcours();
+      router.refresh();
     } catch {
       setFormError("Erreur réseau.");
     } finally {
@@ -136,6 +138,7 @@ export default function ParcoursCrudPage() {
       }
       setDeleteTarget(null);
       await fetchParcours();
+      router.refresh();
     } catch {
       alert("Erreur réseau.");
     } finally {
