@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { User } from "@/lib/db";
 
 export function ExportUtilisateurPage() {
-    const { mentions, niveaux } = useInitialData();
+    const { mentions, niveaux ,parcours} = useInitialData();
     const [user, setUser] = useState<User | null>(null);
     const [activeTab, setActiveTab] = useState("/utilisateur/export");
     const [loadingAuth, setLoadingAuth] = useState(true);
@@ -28,7 +28,9 @@ export function ExportUtilisateurPage() {
         setSortByDate,
         sortDesc,
         setSortDesc,
-        handleExport
+        handleExport,
+        selectedParcours,
+        setSelectedParcours
     } = useExportFilters();
 
     useEffect(() => {
@@ -86,6 +88,9 @@ export function ExportUtilisateurPage() {
                     sortDesc={sortDesc}
                     setSortDesc={setSortDesc}
                     loading={loading}
+                    selectedParcours={selectedParcours}
+                    setSelectedParcours={setSelectedParcours}
+                    parcours={parcours}
                 />
 
                 <ExportTable

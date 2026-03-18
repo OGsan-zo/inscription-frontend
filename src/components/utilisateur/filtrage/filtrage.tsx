@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Search, Users, Filter, Loader2, FileText, Hash, Eye, ArrowUpDown ,CalendarDays} from "lucide-react";
-// import { getInitialData } from "@/lib/appConfig";
+import { Search, Users, Filter, Loader2, FileText, Hash, Eye, ArrowUpDown, CalendarDays } from "lucide-react";
 import { Student } from "@/lib/db";
 import { toast } from "sonner";
 import { generateStudentPDF } from "@/lib/generateliste";
@@ -15,7 +14,9 @@ import { useRouter } from "next/navigation";
 import { useInitialData } from "@/context/DataContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-
+import { parcoursService } from "@/features/parcours/services/parcoursService";
+import { SelecteurParcours } from "@/features/parcours/form/SelecteurParcours";
+// --- Composant Principal ---
 interface EtudiantFiltre {
   id: number;
   matricule?: string;
@@ -27,10 +28,13 @@ interface EtudiantFiltre {
   niveau: string;
   idNiveau: number;
   dateInsertion: string;
+  nomParcours: string;
+  idParcours: number;
 }
 
 export function FiltrageEtudiants() {
   const router = useRouter();
+  const {assignerParcours} = parcoursService;
 
   // États pour les données
   const [resultats, setResultats] = useState<EtudiantFiltre[]>([]);
@@ -41,28 +45,34 @@ export function FiltrageEtudiants() {
   const [selectedNiveau, setSelectedNiveau] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Nouveaux états pour le Tri (Checkboxes)
+  // États pour le Tri (Checkboxes)
   const [sortByDate, setSortByDate] = useState(false); // false = par Nom/Prénom, true = par Date
   const [sortDesc, setSortDesc] = useState(false); // false = Croissant, true = Décroissant
+
+  // NOUVEAUX ÉTATS POUR L'ASSIGNATION
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedParcours, setSelectedParcours] = useState<number | "">("");
+  const [idParcours, setIdParcours] = useState<number | "">(""); 
+  const [isAssigning, setIsAssigning] = useState(false);
 
   // États de chargement
   const [loading, setLoading] = useState(false); 
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
   // Chargement initial des mentions et niveaux
-  const { mentions, niveaux } = useInitialData();
+  const { mentions, niveaux , parcours} = useInitialData();
 
   // Récupération de la liste des étudiants
   const fetchEtudiants = useCallback(async () => {
     setLoading(true);
-    // Optionnel mais recommandé : vider la liste dès qu'on commence à chercher
-    // pour bien montrer à l'utilisateur que le filtre a été pris en compte.
     setResultats([]); 
 
     try {
       const params = new URLSearchParams();
       if (selectedMention) params.append("idMention", selectedMention);
       if (selectedNiveau) params.append("idNiveau", selectedNiveau);
+      if (selectedParcours) params.append("idParcours", selectedParcours.toString());
+
 
       const response = await fetch(`/api/filtres/etudiant?${params.toString()}`);
 
@@ -78,12 +88,11 @@ export function FiltrageEtudiants() {
       setResultats(result.status === 'success' ? result.data : []);
     } catch (error) {
       toast.error("Impossible de joindre le serveur");
-      // CRUCIAL : Vider les résultats si la requête échoue
       setResultats([]); 
     } finally {
       setLoading(false);
     }
-  }, [selectedMention, selectedNiveau, router]);
+  }, [selectedMention, selectedNiveau, selectedParcours, router]);
 
   useEffect(() => {
     fetchEtudiants();
@@ -91,30 +100,25 @@ export function FiltrageEtudiants() {
 
   // Filtrage ET Tri (optimisé avec useMemo)
   const filteredData = useMemo(() => {
-    // 1. On filtre
     let data = resultats.filter(et =>
       et.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
       et.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (et.matricule && et.matricule.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
-    // 2. On trie
     data.sort((a, b) => {
       let comparison = 0;
       
       if (sortByDate) {
-        // Tri par dateInsertion
         const dateA = new Date(a.dateInsertion || 0).getTime();
         const dateB = new Date(b.dateInsertion || 0).getTime();
         comparison = dateA - dateB;
       } else {
-        // Tri par Nom puis Prénom
         const nameA = `${a.nom} ${a.prenom}`.toLowerCase();
         const nameB = `${b.nom} ${b.prenom}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
       }
 
-      // Inversion si ordre décroissant
       return sortDesc ? -comparison : comparison;
     });
 
@@ -158,6 +162,58 @@ export function FiltrageEtudiants() {
     }
   };
 
+  // --- NOUVELLES FONCTIONS DE SÉLECTION ET ASSIGNATION ---
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(filteredData.map(et => et.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+  const reinitialiserSelection = () => {
+    setSelectedIds([]);
+    setIdParcours("");
+  };
+
+  const handleSelectStudent = (id: number, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(studentId => studentId !== id));
+    }
+  };
+
+  const handleAssign = async () => {
+    if (selectedIds.length === 0) {
+      toast.error("Veuillez sélectionner au moins un étudiant.");
+      return;
+    }
+    if (!idParcours) {
+      toast.error("Veuillez indiquer un ID de parcours valide.");
+      return;
+    }
+
+    setIsAssigning(true);
+    try {
+      const res = await assignerParcours({
+        idParcours: Number(idParcours),
+        idEtudiants: selectedIds,
+      });
+
+      if (res.success) {
+        toast.success(`${selectedIds.length} étudiant(s) assigné(s) avec succès !`);
+        setSelectedIds([]); // On vide la sélection après succès
+      } else {
+        toast.error(res.error || "Erreur lors de l'assignation");
+      }
+    } catch (error) {
+      toast.error("Erreur inattendue lors de l'assignation.");
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4">
       {/* Header */}
@@ -177,7 +233,6 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedMention}
               onChange={(e) => setSelectedMention(e.target.value)}
-              // disabled={loading}
             >
               <option value="">Toutes les mentions</option>
               {mentions.map(m => <option key={m.id} value={m.id.toString()}>{m.nom}</option>)}
@@ -190,12 +245,23 @@ export function FiltrageEtudiants() {
               className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
               value={selectedNiveau}
               onChange={(e) => setSelectedNiveau(e.target.value)}
-              // disabled={loading}
             >
               <option value="">Tous les niveaux</option>
               {niveaux.map(n => <option key={n.id} value={n.id.toString()}>{n.nom}</option>)}
             </select>
           </div>
+          <div className="space-y-2">
+            <Label className="text-blue-900 font-bold">3. Parcours</Label>
+            <SelecteurParcours
+              parcours={parcours}
+              idMention={selectedMention}
+              idNiveau={selectedNiveau}
+              value={selectedParcours}
+              onChange={setSelectedParcours}
+            />
+            
+          </div>
+
 
           <div className="space-y-2">
             <Label className="text-blue-900 font-bold">3. Recherche par nom</Label>
@@ -210,16 +276,13 @@ export function FiltrageEtudiants() {
             </div>
           </div>
 
-          {/* NOUVELLE SECTION : Options de Tri (Checkboxes) */}
-
+          {/* Options de Tri (Checkboxes) */}
           <div className="col-span-full pt-6 mt-4 border-t border-slate-200">
             <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-5">
               Options d'affichage
             </p>
             
             <div className="flex flex-wrap items-center gap-10">
-              
-              {/* Option 1: Tri par Date (Utilisation de Checkbox shadcn) */}
               <div className="flex items-center space-x-3">
                 <Checkbox 
                   id="sortByDate" 
@@ -236,7 +299,6 @@ export function FiltrageEtudiants() {
                 </Label>
               </div>
 
-              {/* Option 2: Ordre Décroissant (Utilisation de Switch shadcn pour un look plus moderne) */}
               <div className="flex items-center space-x-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
                 <Switch 
                   id="sortDesc" 
@@ -252,7 +314,6 @@ export function FiltrageEtudiants() {
                   Ordre décroissant
                 </Label>
               </div>
-
             </div>
           </div>
 
@@ -261,11 +322,39 @@ export function FiltrageEtudiants() {
 
       {/* Liste des résultats */}
       <Card className="overflow-hidden shadow-xl">
-        <div className="bg-slate-50 px-6 py-4 border-b flex justify-between items-center">
+        <div className="bg-slate-50 px-6 py-4 border-b flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-blue-900" />
             <span className="font-bold text-blue-900">{filteredData.length} Étudiants</span>
           </div>
+
+          {/* NOUVELLE ZONE D'ASSIGNATION */}
+          <div className="flex items-center gap-2 border-r-2 border-slate-200 pr-4">
+            <SelecteurParcours
+              parcours={parcours}
+              idMention={selectedMention}
+              idNiveau={selectedNiveau}
+              value={idParcours}
+              onChange={setIdParcours}
+            />
+            <Button
+              onClick={handleAssign}
+              // Le bouton est désactivé si : 0 étudiant sélectionné, OU pas de parcours sélectionné, OU assignation en cours
+              disabled={selectedIds.length === 0 || idParcours === "" || isAssigning}
+              className="bg-green-600 text-white font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600 transition-all"
+            >
+              {isAssigning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Assigner ({selectedIds.length})
+            </Button>
+            <Button
+              onClick={reinitialiserSelection}
+              variant="outline"
+              className="border-slate-300 text-slate-700 hover:bg-slate-100"
+            >
+              Réinitialiser
+            </Button>
+          </div>
+
           <div className="flex gap-2">
             <Button
               onClick={handleExportPDF}
@@ -295,17 +384,28 @@ export function FiltrageEtudiants() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-blue-900 text-white text-xs uppercase">
+                {/* NOUVELLE COLONNE CHECKBOX (Tout sélectionner) */}
+                <th className="px-6 py-4 w-12">
+                  <Checkbox
+                    checked={filteredData.length > 0 && selectedIds.length === filteredData.length}
+                    onCheckedChange={handleSelectAll}
+                    className="border-white data-[state=checked]:bg-white data-[state=checked]:text-blue-900"
+                    aria-label="Tout sélectionner"
+                  />
+                </th>
                 <th className="px-6 py-4 flex items-center gap-1"><Hash className="w-3 h-3" /> Matricule</th>
                 <th className="px-6 py-4">Nom & Prénoms</th>
                 <th className="px-6 py-4">Mention</th>
                 <th className="px-6 py-4">Niveau</th>
+                <th className="px-6 py-4">Parcours</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center">
+                  {/* Mise à jour du colSpan à 6 */}
+                  <td colSpan={6} className="px-6 py-10 text-center">
                     <div className="flex flex-col justify-center items-center py-20 bg-white rounded-2xl border border-slate-200">
                       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                       <p className="mt-4 text-slate-500">Chargement de la liste...</p>
@@ -315,6 +415,14 @@ export function FiltrageEtudiants() {
               ) : filteredData.length > 0 ? (
                 filteredData.map((et) => (
                   <tr key={et.id} className="hover:bg-blue-50/50 transition-colors">
+                    {/* NOUVELLE COLONNE CHECKBOX (Sélection individuelle) */}
+                    <td className="px-6 py-4">
+                      <Checkbox
+                        checked={selectedIds.includes(et.id)}
+                        onCheckedChange={(checked: boolean) => handleSelectStudent(et.id, checked)}
+                        aria-label={`Sélectionner ${et.nom}`}
+                      />
+                    </td>
                     <td className="px-6 py-4 font-mono font-bold text-blue-800">{et.matricule || "-"}</td>
                     <td className="px-6 py-4 font-semibold">{et.nom.toUpperCase()} {et.prenom}</td>
                     <td className="px-6 py-4">
@@ -322,6 +430,9 @@ export function FiltrageEtudiants() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold text-xs">{et.niveau}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold text-xs">{et.nomParcours}</span>
                     </td>
                     <td className="px-6 py-4">
                       <Button
@@ -343,7 +454,8 @@ export function FiltrageEtudiants() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td>
+                  {/* Mise à jour du colSpan à 6 */}
+                  <td colSpan={6} className="px-6 py-10 text-center text-slate-400">Aucun résultat.</td>
                 </tr>
               )}
             </tbody>

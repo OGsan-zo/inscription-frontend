@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 export interface ExportParams {
     idMention?: string;
     idNiveau?: string;
+    idParcours?: string;
     format?: 'pdf' | 'excel' | 'csv' | 'xlsx';
 }
 const nomFichier = "Inscrits";
@@ -18,6 +19,7 @@ export const exportService = {
         const queryParams = new URLSearchParams();
         if (params.idMention) queryParams.append("idMention", params.idMention);
         if (params.idNiveau) queryParams.append("idNiveau", params.idNiveau);
+        if (params.idParcours) queryParams.append("idParcours", params.idParcours);
 
         const response = await fetch(`/api/filtres/etudiant/export?${queryParams.toString()}`);
 
@@ -33,7 +35,7 @@ export const exportService = {
 
         // Debug : vérifier la structure du premier objet (notamment CIN et Semestre)
         if (data.length > 0) {
-            console.log("[exportService] Premier étudiant brut pour vérification :", data[0]);
+            // console.log("[exportService] Premier étudiant brut pour vérification :", data[0]);
         }
 
         return data;
@@ -122,7 +124,8 @@ export const exportService = {
             semestreLabel,
             this._str(item.identite?.contact?.email),
             this._str(item.formation.mention),
-            this._str(item.formation.niveau?.nom)
+            this._str(item.formation.niveau?.nom),
+            this._str(item.formation.parcours)
         ];
     },
 
@@ -136,7 +139,7 @@ export const exportService = {
             "Nom et prénom de mère", "CIN", "Date delivrance", "Lieu de délivrance",
             "NATIONALITÉ", "ANNÉE D'OBTENTION DU BACC", "SÉRIE DU BACC", "CODE DE REDOUBLEMENT",
             "BOURSIER", "TAUX DE BOURSE", "ADRESSE EXACTE", "NUMERO DE TELEPHONE",
-            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau"
+            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau","Parcours"
         ];
 
         const rows = data.map(item =>
@@ -189,9 +192,8 @@ export const exportService = {
             { key: "col22", width: 28 },  // Email
             { key: "col23", width: 28 },  // Mention
             { key: "col24", width: 28 },  // Niveau
-
-            
-            ];
+            { key: "col25", width: 28 },  // Parcours
+        ];
 
         // --- LIGNE 1 : En-têtes officiels ---
         const headerRow = sheet.addRow([
@@ -199,7 +201,7 @@ export const exportService = {
             "Nom et prénom de mère", "CIN", "Date delivrance", "Lieu de délivrance",
             "NATIONALITÉ", "ANNÉE D'OBTENTION DU BACC", "SÉRIE DU BACC", "CODE DE REDOUBLEMENT",
             "BOURSIER", "TAUX DE BOURSE", "ADRESSE EXACTE", "NUMERO DE TELEPHONE",
-            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau"
+            "Institution", "Domaine", "Type de formation", "Semestre", "Adresse e-mail","Mention","Niveau","Parcours"
         ]);
 
         headerRow.eachCell(cell => {

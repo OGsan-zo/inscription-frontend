@@ -37,3 +37,10 @@ export interface AssignationRetour {
   data: AssignationResultat[];
   loading: boolean;
 }
+export interface SelecteurParcoursProps {
+  parcours: Parcours[];
+  idMention: number | string;
+  idNiveau: number | string;
+  value: number | ""; // L'ID du parcours sélectionné
+  onChange: (idParcours: number | "") => void;
+}

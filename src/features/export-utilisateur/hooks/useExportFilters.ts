@@ -16,6 +16,7 @@ export function useExportFilters() {
     // États pour la sélection et le filtrage
     const [selectedMention, setSelectedMention] = useState("");
     const [selectedNiveau, setSelectedNiveau] = useState("");
+    const [selectedParcours, setSelectedParcours] = useState("");
     const [sortByDate, setSortByDate] = useState(false);
     const [sortDesc, setSortDesc] = useState(false);
 
@@ -33,7 +34,8 @@ export function useExportFilters() {
         try {
             const data = await exportService.fetchStudents({
                 idMention: selectedMention,
-                idNiveau: selectedNiveau
+                idNiveau: selectedNiveau,
+                idParcours: selectedParcours
             });
             setResultats(data);
         } catch (error: any) {
@@ -51,7 +53,7 @@ export function useExportFilters() {
         } finally {
             setLoading(false);
         }
-    }, [selectedMention, selectedNiveau, router]);
+    }, [selectedMention, selectedNiveau, selectedParcours, router]);
 
     useEffect(() => {
         fetchEtudiants();
@@ -116,8 +118,10 @@ export function useExportFilters() {
         isExporting,
         selectedMention,
         setSelectedMention,
+        setSelectedParcours,
         selectedNiveau,
         setSelectedNiveau,
+        selectedParcours,
         sortByDate,
         setSortByDate,
         sortDesc,

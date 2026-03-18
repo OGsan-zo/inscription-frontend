@@ -1,9 +1,6 @@
 // Simple in-memory database for demonstration
 // In production, replace with a real database like Supabase or Neon
 
-import { Parcours } from "@/features/parcours/type/typeParcours"
-import { Parentheses } from "lucide-react"
-
 export interface User {
   id?: string
   name?: string
@@ -279,6 +276,7 @@ export interface ApiStudent {
       type?: string;
       grade?: number;
     };
+    parcours?: string
     etablissement?: {
       nom: string;
     };

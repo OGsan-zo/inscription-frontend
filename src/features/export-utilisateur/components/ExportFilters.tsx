@@ -3,13 +3,15 @@
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Filter, CalendarDays, ArrowUpDown } from "lucide-react";
-import { Mention, Niveau } from "@/lib/db";
+import { Mention, Niveau, Parcours } from "@/lib/db";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { SelecteurParcours } from "@/features/parcours/form/SelecteurParcours";
 
 interface ExportFiltersProps {
     mentions: Mention[];
     niveaux: Niveau[];
+    parcours: Parcours[];
     selectedMention: string;
     setSelectedMention: (id: string) => void;
     selectedNiveau: string;
@@ -19,11 +21,13 @@ interface ExportFiltersProps {
     sortDesc: boolean;
     setSortDesc: (checked: boolean) => void;
     loading?: boolean;
+    selectedParcours?: string;
+    setSelectedParcours?: (id: string) => void;
 }
-
 export function ExportFilters({
     mentions,
     niveaux,
+    parcours,
     selectedMention,
     setSelectedMention,
     selectedNiveau,
@@ -33,6 +37,8 @@ export function ExportFilters({
     sortDesc,
     setSortDesc,
     loading = false,
+    selectedParcours,
+    setSelectedParcours,
 }: ExportFiltersProps) {
     return (
         <div className="space-y-6">
@@ -46,7 +52,7 @@ export function ExportFilters({
 
             {/* Barre de Filtres */}
             <Card className="p-6 border-t-4 border-blue-900 shadow-md">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                     <div className="space-y-2">
                         <Label className="text-blue-900 font-bold">1. Mention</Label>
                         <select
@@ -66,11 +72,27 @@ export function ExportFilters({
                             className="w-full h-10 px-3 rounded-md border border-slate-300 outline-none focus:ring-2 focus:ring-blue-900"
                             value={selectedNiveau}
                             onChange={(e) => setSelectedNiveau(e.target.value)}
-                            disabled={loading}
+                            disabled={loading} 
                         >
                             <option value="">Tous les niveaux</option>
                             {niveaux.map(n => <option key={n.id} value={n.id.toString()}>{n.nom}</option>)}
                         </select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-blue-900 font-bold">3. Parcours</Label>
+                        <SelecteurParcours
+                            parcours={parcours}
+                            idMention={selectedMention}
+                            idNiveau={selectedNiveau}
+                            value={selectedParcours ? parseInt(selectedParcours) : ""}
+                            onChange={(val) => {
+                                // On vérifie que la fonction existe (pour éviter le crash du undefined)
+                                if (setSelectedParcours) {
+                                    // On convertit le nombre (ou "") en chaîne de caractères
+                                    setSelectedParcours(val.toString());
+                                }
+                            }}
+                        />
                     </div>
 
                     {/* NOUVELLE SECTION : Options de Tri Identiques à la page de filtrage */}
