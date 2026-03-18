@@ -237,7 +237,7 @@ if (student.formation?.nom.toUpperCase()=="MASTER RECHERCHE") {
 }
   const mention = student.mention?.nom || "Mention non définie";
   const mentionAbr = student.mention?.abr|| "";
-
+  const parcours = student.parcours?.nom || "Parcours non défini";
   const matricule = student.matricule || student.inscription?.matricule || "En cours";
   const mentionGras = mention
   .trim()                         // 1. Enlève les espaces au tout début et à la fin
@@ -246,7 +246,7 @@ if (student.formation?.nom.toUpperCase()=="MASTER RECHERCHE") {
   .map(mot => `**${mot}** `)       // 3. Met chaque mot en gras individuellement
   .join(' ');                      // 4. Rejoint avec UN SEUL espace standard
   // --- MENTION ET MATRICULE EN GRAS (Utilisation de la fonction utilitaire) ---
-  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en **: ${niveauTexte.toUpperCase()} ** de la Mention  ${mentionGras}  (**${mentionAbr}**) au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : **${matricule}**.`;
+  const corpsTexte = `est régulièrement inscrit(e) comme étudiant(e) permanent(e) en **: ${niveauTexte.toUpperCase()} ** de la Mention  ${mentionGras}  (**${mentionAbr}**) -Parcours **${parcours?.toUpperCase()} ** au sein de notre Ecole durant l'année Universitaire ${anneeUniv} sous le matricule : **${matricule}**.`;
   
   // printRichText gère le gras et les retours à la ligne, et nous renvoie la nouvelle position Y
   currentY = printRichText(doc, corpsTexte, margin, currentY, pageWidth - (margin * 2), 6.5);
