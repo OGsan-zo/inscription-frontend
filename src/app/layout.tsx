@@ -4,10 +4,12 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Toaster } from 'sonner';
 
-// --- Imports de vos données et Providers ---
 import { getInitialData } from '@/lib/appConfig';
 import { DataProvider } from '@/context/DataContext';
-import { UserProvider } from '@/context/UserContext'; // <-- 1. NOUVEL IMPORT ICI
+import { UserProvider } from '@/context/UserContext';
+
+// ✅ 1. DÉSACTIVER LE CACHE ICI (Dans le composant serveur)
+export const dynamic = "force-dynamic";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -28,14 +30,13 @@ export const metadata: Metadata = {
   },
 }
 
-// ... vos imports
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   
+  // Cette fonction sera maintenant rappelée à chaque router.refresh() !
   const initialData = await getInitialData();
   const currentUser = null; 
 

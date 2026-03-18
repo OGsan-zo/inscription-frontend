@@ -1,6 +1,8 @@
 // Simple in-memory database for demonstration
 // In production, replace with a real database like Supabase or Neon
 
+import { Parcours } from "@/features/parcours/type/typeParcours"
+
 export interface User {
   id?: string
   name?: string
@@ -329,13 +331,6 @@ export interface StatusEtudiant {
   nom: string;
 }
 
-export interface Parcours {
-  id: number;
-  nom: string;
-  createdAt?: string;
-  mention: { id: number; nom: string; abr?: string };
-  niveau: { id: number; nom: string; grade?: number };
-}
 export interface InitialData {
   niveaux: Niveau[];
   mentions: Mention[]; // Changé de 'formations' à 'mentions'

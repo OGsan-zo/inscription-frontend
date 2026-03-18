@@ -26,13 +26,14 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
 
   try {
     const [resNiveaux, resMentions, resFormations, resNationalites, resParcours] = await Promise.all([
-      // On ajoute baseUrl devant chaque appel
-      fetch(`${baseUrl}/api/etudiants/niveaux`, { next: { revalidate: 3600 } }), 
-      fetch(`${baseUrl}/api/etudiants/mentions`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/etudiants/formations`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/nationalites`, { next: { revalidate: 3600 } }),
-      fetch(`${baseUrl}/api/parcours`, { next: { revalidate: 3600 } }),
+      // 🔴 Remplacement de "revalidate: 3600" par "cache: 'no-store'"
+      fetch(`${baseUrl}/api/etudiants/niveaux`, { cache: 'no-store' }), 
+      fetch(`${baseUrl}/api/etudiants/mentions`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/etudiants/formations`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/nationalites`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/parcours`, { cache: 'no-store' }),
     ]);
+    
     const niveaux = await safeParse<Niveau>(resNiveaux);
     const mentions = await safeParse<Mention>(resMentions);
     const formations = await safeParse<Formation>(resFormations);
