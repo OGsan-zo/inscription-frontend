@@ -1,4 +1,4 @@
-import type { EtudiantRecherche } from "../../types/notes";
+import type { EtudiantRecherche } from "../../../types/notes";
 
 interface Props {
   nom: string;

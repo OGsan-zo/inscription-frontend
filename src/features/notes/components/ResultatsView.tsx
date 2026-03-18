@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { rechercherEtudiants, getResultatEtudiant, getSemestres } from "../services/notesService";
 import type { EtudiantRecherche, ResultatEtudiant, Semestre } from "../types/notes";
-import RechercheEtudiantForm from "./resultats/RechercheEtudiantForm";
-import SemestreSelect from "./resultats/SemestreSelect";
-import ResultatsTable from "./resultats/ResultatsTable";
+import RechercheEtudiantForm from "./resultats/form/RechercheEtudiantForm";
+import SemestreSelect from "./resultats/form/SemestreSelect";
+import ResultatsTable from "./resultats/table/ResultatsTable";
 
 type Step = "recherche" | "semestre" | "resultats";
 

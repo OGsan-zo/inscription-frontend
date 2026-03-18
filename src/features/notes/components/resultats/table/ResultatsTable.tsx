@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import type { ResultatEtudiant } from "../../types/notes";
+import type { ResultatEtudiant } from "../../../types/notes";
 
 interface Props {
   resultat: ResultatEtudiant | null;
