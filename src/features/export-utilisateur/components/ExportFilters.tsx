@@ -3,10 +3,11 @@
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Filter, CalendarDays, ArrowUpDown } from "lucide-react";
-import { Mention, Niveau, Parcours } from "@/lib/db";
+import { Mention, Niveau} from "@/lib/db";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { SelecteurParcours } from "@/features/parcours/form/SelecteurParcours";
+import { Parcours } from "@/features/parcours/type/typeParcours";
 
 interface ExportFiltersProps {
     mentions: Mention[];

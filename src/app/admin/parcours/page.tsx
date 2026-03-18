@@ -46,8 +46,13 @@ export default function ParcoursCrudPage() {
         if (!res.ok) { window.location.href = login; return; }
         const data = await res.json();
         setUser(data.user);
+        if (data.user.role !== "Admin") {
+          await fetch("/api/auth/logout", { method: "POST" })
+          router.push(login);
+        }
       } catch {
-        window.location.href = login;
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.push(login);
       } finally {
         setLoading(false);
       }
