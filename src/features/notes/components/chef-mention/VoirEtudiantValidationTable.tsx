@@ -1,6 +1,6 @@
 'use client';
 
-import { EtudiantNoteValidation } from "../../types";
+import { EtudiantNoteValidation } from "../../types/notes";
 
 interface VoirEtudiantValidationTableProps {
   titre?: string;

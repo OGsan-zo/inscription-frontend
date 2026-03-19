@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { NiveauValidation } from "../../types";
+import { NiveauValidation } from "../../types/notes";
 
 interface NiveauValidationTableProps {
   niveauValidation: NiveauValidation;

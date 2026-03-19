@@ -1,6 +1,6 @@
 'use client';
 
-import { MatiereCoeff } from "../../types";
+import { MatiereCoeff } from "../../types/notes";
 
 interface ListeMatiereCoeffTableProps {
   matieres: MatiereCoeff[];

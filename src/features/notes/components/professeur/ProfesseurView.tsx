@@ -10,7 +10,7 @@ import {
   soumettreNotesNormales,
   soumettreNotesRattrapage,
 } from "../../services/professeurService";
-import { MatiereCoeff, EtudiantNotesProfesseur } from "../../types";
+import { MatiereCoeff, EtudiantNotesProfesseur } from "../../types/notes";
 
 const TABS = [
   { key: "liste",    label: "Liste Matière" },

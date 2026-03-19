@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { EtudiantNotesProfesseur } from "../../types";
+import { EtudiantNotesProfesseur } from "../../types/notes";
 
 interface VoirListeEtudiantTableProps {
   titre?: string;

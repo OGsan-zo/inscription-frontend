@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { MatiereSemestre } from "../../types";
+import { MatiereSemestre } from "../../types/notes";
 
 // Types compatibles avec db.ts (id: number | string)
 interface MentionOption { id: number | string; nom: string; abr?: string; }
