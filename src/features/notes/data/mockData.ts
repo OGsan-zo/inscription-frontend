@@ -6,7 +6,7 @@ import {
   MatiereCoefficientMention,
   EtudiantRecherche,
   ResultatEtudiant,
-} from "../types";
+} from "../types/notes";
 
 export const SEMESTRES: Semestre[] = [
   { id: 1, nom: "S1" },

@@ -20,7 +20,7 @@ import type {
   MatiereCoefficientMention,
   EtudiantRecherche,
   ResultatEtudiant,
-} from "../types";
+} from "../types/notes";
 
 // ── Matières ──────────────────────────────────────────────────────────────
 
