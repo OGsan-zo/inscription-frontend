@@ -92,7 +92,7 @@ export function FiltrageEtudiants() {
     } finally {
       setLoading(false);
     }
-  }, [selectedMention, selectedNiveau, selectedParcours, router]);
+  }, [selectedMention, selectedNiveau, selectedParcours, isAssigning, router]);
 
   useEffect(() => {
     fetchEtudiants();
