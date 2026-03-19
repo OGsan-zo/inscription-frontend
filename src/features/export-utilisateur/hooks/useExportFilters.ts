@@ -87,7 +87,7 @@ export function useExportFilters() {
     /**
      * Fonction pour déclencher l'exportation
      */
-    const handleExport = async (format: 'pdf' | 'excel' | 'csv' | 'xlsx', mentionLabel: string, niveauLabel: string) => {
+    const handleExport = async (format: 'pdf' | 'excel' | 'csv' | 'xlsx', mentionLabel: string, niveauLabel: string, parcoursLabel: string = "") => {
         setIsExporting(true);
         try {
             const filename = `Export_Etudiants_${mentionLabel || 'Tous'}_${niveauLabel || 'Tous'}_${new Date().getTime()}`;
@@ -102,7 +102,7 @@ export function useExportFilters() {
                 toast.success("Export CSV terminé avec succès");
             } else {
                 // PDF - génération locale
-                generateStudentPDF(filteredData, mentionLabel, niveauLabel);
+                generateStudentPDF(filteredData, mentionLabel, niveauLabel, parcoursLabel);
                 toast.success("Export PDF généré");
             }
         } catch (error: any) {

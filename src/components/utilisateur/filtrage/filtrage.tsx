@@ -128,7 +128,8 @@ export function FiltrageEtudiants() {
   const handleExportPDF = () => {
     const mentionLabel = mentions.find(m => m.id.toString() === selectedMention)?.nom || "";
     const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
-    generateStudentPDF(filteredData, mentionLabel, niveauLabel);
+    const parcoursLabel = parcours.find(p => p.id === selectedParcours)?.nom || "";
+    generateStudentPDF(filteredData, mentionLabel, niveauLabel, parcoursLabel);
   };
 
   const handleViewDetails = async (idEtudiant: number | string) => {
@@ -367,7 +368,8 @@ export function FiltrageEtudiants() {
               onClick={() => {
                 const mentionLabel = mentions.find(m => m.id.toString() === selectedMention)?.nom || "";
                 const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
-                const doc = generateStudentPDF(filteredData, mentionLabel, niveauLabel, false);
+                const parcoursLabel = parcours.find(p => p.id === selectedParcours)?.nom || "";
+                const doc = generateStudentPDF(filteredData, mentionLabel, niveauLabel, parcoursLabel, false);
                 const blob = doc.output('blob');
                 const url = URL.createObjectURL(blob);
                 window.open(url, '_blank');
@@ -431,8 +433,18 @@ export function FiltrageEtudiants() {
                     <td className="px-6 py-4">
                       <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold text-xs">{et.niveau}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold text-xs">{et.nomParcours}</span>
+                    <td className="px-6 py-4 max-w-[150px]">
+                      <div className="relative group">
+                        <div className="overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-[3px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-green-300 [&::-webkit-scrollbar-track]:bg-transparent pb-1">
+                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-bold text-xs whitespace-nowrap inline-block cursor-default">{et.nomParcours || "-"}</span>
+                        </div>
+                        {et.nomParcours && (
+                          <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-green-800 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 ease-out pointer-events-none">
+                            {et.nomParcours}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-green-800" />
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <Button

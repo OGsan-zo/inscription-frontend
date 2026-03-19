@@ -63,7 +63,8 @@ export function ExportUtilisateurPage() {
     const onExport = (format: 'pdf' | 'csv' | 'xlsx') => {
         const mentionLabel = mentions.find(m => m.id.toString() === selectedMention)?.nom || "";
         const niveauLabel = niveaux.find(n => n.id.toString() === selectedNiveau)?.nom || "";
-        handleExport(format, mentionLabel, niveauLabel);
+        const parcoursLabel = parcours.find(p => p.id === selectedParcours)?.nom || "";
+        handleExport(format, mentionLabel, niveauLabel, parcoursLabel);
     };
 
     return (
