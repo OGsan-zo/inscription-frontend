@@ -2,6 +2,7 @@
 // In production, replace with a real database like Supabase or Neon
 
 import { Parcours } from "@/features/parcours/type/typeParcours"
+import { Parentheses } from "lucide-react"
 
 export interface User {
   id?: string
@@ -278,7 +279,6 @@ export interface ApiStudent {
       type?: string;
       grade?: number;
     };
-    parcours?: string
     etablissement?: {
       nom: string;
     };
@@ -286,6 +286,7 @@ export interface ApiStudent {
     tauxBourse?: string;
     remarque?: string;
     label?: string;
+    parcours?: string;
   };
   dateInsertion?: string;
   dateInscription?: string;
@@ -330,7 +331,6 @@ export interface StatusEtudiant {
   id: number;
   nom: string;
 }
-
 export interface InitialData {
   niveaux: Niveau[];
   mentions: Mention[]; // Changé de 'formations' à 'mentions'
