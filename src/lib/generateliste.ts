@@ -91,7 +91,7 @@ export const generateStudentPDF = (data: any[], mention: string, niveau: string,
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
-  doc.text(`TOTAL : ${data.length} ÉTUDIANT(S) INSCRIT(S).`, 15, finalY);
+  doc.text(`TOTAL : ${data.length} ÉTUDIANT(S).`, 15, finalY);
 
   const signatureY = finalY + 10;
   doc.setFont("helvetica", "bold");

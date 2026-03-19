@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-// Ajout de FileText pour l'icône du certificat
 import { Download, Loader2, X, User, Calendar, MapPin, Mail, GraduationCap, CreditCard, Pencil, Eye, FileText } from 'lucide-react';
 import { Student } from '@/lib/db';
 import { downloadReceipt, viewReceipt } from '@/lib/receipt-helper';
@@ -20,8 +19,10 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
   const [isDownloading, setIsDownloading] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const { user } = useUser();
-  // NOUVEAU : État pour le bouton du certificat
   const [isViewingCertificat, setIsViewingCertificat] = useState(false);
+  
+  // 1. NOUVEAU : État pour la case à cocher (Par défaut : true si Admin, sinon false)
+  const [isChefChecked, setIsChefChecked] = useState(user?.role === "Admin");
   
   const [selectedPaymentForEdit, setSelectedPaymentForEdit] = useState<any>(null);
 
@@ -60,30 +61,25 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
     }
   };
 
-  // NOUVEAU : Fonction pour gérer l'affichage du certificat
   const handleViewCertificat = async () => {
-  try {
-    setIsViewingCertificat(true);
-    
-    // Appel de la fonction de génération
-    let isChef = false;
-    if (user?.role == "Admin") {
-      isChef = true;
+    try {
+      setIsViewingCertificat(true);
+      
+      let nomPrenom = user?.nom + " " + user?.prenom;
+      
+      // 2. MODIFICATION : On utilise isChefChecked au lieu de la condition sur user?.role
+      const doc = await generateCertificatScolaritePDF(student, isChefChecked, false);
+      
+      const pdfUrl = doc.output('bloburl');
+      window.open(pdfUrl as unknown as string, '_blank');
+      
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la génération du certificat');
+    } finally {
+      setIsViewingCertificat(false);
     }
-    let nomPrenom = user?.nom + " " + user?.prenom;
-    const doc = await generateCertificatScolaritePDF(student, nomPrenom, isChef,false);
-    
-    // Ouvrir dans un nouvel onglet au lieu de télécharger directement
-    const pdfUrl = doc.output('bloburl');
-    window.open(pdfUrl as unknown as string, '_blank');
-    
-  } catch (error) {
-    console.error('Erreur:', error);
-    alert('Erreur lors de la génération du certificat');
-  } finally {
-    setIsViewingCertificat(false);
-  }
-};
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
@@ -189,7 +185,7 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             </div>
           </section>
 
-          {/* Section Droits (Pédagogiques & Administratifs) */}
+          {/* Section Droits */}
           {student.payments && student.payments.filter(p => p.typeDroit !== 'Ecolage').length > 0 && (
             <section>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -296,10 +292,10 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
         </div>
 
         {/* Footer */}
-        <div className="bg-white border-t px-6 py-4 flex flex-wrap justify-end gap-3 rounded-b-lg sticky bottom-0">
+        <div className="bg-white border-t px-6 py-4 flex flex-wrap justify-end items-center gap-3 rounded-b-lg sticky bottom-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors mr-auto"
           >
             Fermer
           </button>
@@ -340,24 +336,36 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
             )}
           </button>
 
-          {/* NOUVEAU BOUTON : Certificat de scolarité */}
-          <button
-            onClick={handleViewCertificat}
-            disabled={isViewingCertificat}
-            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold shadow-sm"
-          >
-            {isViewingCertificat ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Préparation...
-              </>
-            ) : (
-              <>
-                <FileText className="h-4 w-4 mr-2" />
-                Certificat de Scolarité
-              </>
-            )}
-          </button>
+          {/* 3. MODIFICATION : Groupe "Certificat" avec la case à cocher */}
+          <div className="flex items-center gap-3 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+            <label className="flex items-center gap-2 text-sm text-emerald-800 cursor-pointer font-medium whitespace-nowrap">
+              <input
+                type="checkbox"
+                checked={isChefChecked}
+                onChange={(e) => setIsChefChecked(e.target.checked)}
+                className="rounded border-emerald-400 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer"
+              />
+              Signer comme chef
+            </label>
+            <div className="h-6 w-px bg-emerald-200"></div> {/* Séparateur visuel */}
+            <button
+              onClick={handleViewCertificat}
+              disabled={isViewingCertificat}
+              className="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold shadow-sm text-sm"
+            >
+              {isViewingCertificat ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Génération...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Certificat
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
