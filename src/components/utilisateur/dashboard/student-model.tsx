@@ -65,8 +65,6 @@ export function StudentDetailsModal({ student, onClose, onUpdateSuccess }: Stude
     try {
       setIsViewingCertificat(true);
       
-      let nomPrenom = user?.nom + " " + user?.prenom;
-      
       // 2. MODIFICATION : On utilise isChefChecked au lieu de la condition sur user?.role
       const doc = await generateCertificatScolaritePDF(student, isChefChecked, false);
       
