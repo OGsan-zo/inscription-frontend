@@ -1,21 +1,25 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { MatiereSemestre, MentionNote, Niveau } from "../../types";
+import { MatiereSemestre } from "../../types";
+
+// Types compatibles avec db.ts (id: number | string)
+interface MentionOption { id: number | string; nom: string; abr?: string; }
+interface NiveauOption  { id: number | string; nom: string; }
 
 interface InsertionCoeffMentionFormProps {
   matiereSemestres: MatiereSemestre[];
-  mentions: MentionNote[];
-  niveaux: Niveau[];
+  mentions: MentionOption[];
+  niveaux: NiveauOption[];
   /** Si l'utilisateur est un admin, il peut choisir la mention */
   isAdmin?: boolean;
   /** Mention fixe si l'utilisateur est Chef-Mention (pas admin) */
-  mentionFixe?: MentionNote;
+  mentionFixe?: MentionOption;
   onSubmit: (
     idMatiereSemestre: number,
     coefficient: number,
-    idNiveau: number,
-    idMention: number
+    idNiveau: number | string,
+    idMention: number | string
   ) => Promise<void>;
 }
 

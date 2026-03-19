@@ -93,12 +93,15 @@ const printRichText = (doc: jsPDF, text: string, startX: number, startY: number,
 
 export const generateCertificatScolaritePDF = async (
   student: Student,
-  nomPrenom: string,
   isChef: boolean = false,
   shouldSave: boolean = true,
   
   
 ) => {
+  let nomPrenom = "RAKOTONANDRASANA Rado Edinho Nantenaina";
+  if (isChef) {
+    nomPrenom = "RAZAFINTSAHALAMA Hantanirina Tahinasoa";
+  }
   const doc = new jsPDF({
     orientation: 'p',
     unit: 'mm',

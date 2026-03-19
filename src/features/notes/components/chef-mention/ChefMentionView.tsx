@@ -8,19 +8,17 @@ import VoirEtudiantValidationTable from "./VoirEtudiantValidationTable";
 import {
   getMatieresCoeff,
   getMatiereSemestres,
-  getMentions,
-  getNiveaux,
   getEtudiantNotesValidation,
   addMatiereCoeffMention,
   validerNote,
 } from "../../services/chefMentionService";
 import {
   MatiereCoeff,
-  MentionNote,
-  Niveau,
   MatiereSemestre,
   EtudiantNoteValidation,
-} from "../../types";
+} from "../../types/notes";
+import { Mention } from "@/lib/db";
+import { useInitialData } from "@/context/DataContext";
 
 const TABS = [
   { key: "insertion", label: "Insertion Matière Coefficients" },
@@ -32,30 +30,24 @@ interface ChefMentionViewProps {
   /** Si true, l'utilisateur peut choisir la mention */
   isAdmin?: boolean;
   /** Mention fixe pour le Chef-Mention connecté */
-  mentionFixe?: MentionNote;
+  mentionFixe?: Mention;
 }
 
 export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMentionViewProps) {
   const [activeTab, setActiveTab] = useState("insertion");
 
+  // mentions et niveaux viennent du DataContext (même source que le reste de l'app)
+  const { mentions, niveaux } = useInitialData();
+
   const [matieres, setMatieres] = useState<MatiereCoeff[]>([]);
   const [matiereSemestres, setMatiereSemestres] = useState<MatiereSemestre[]>([]);
-  const [mentions, setMentions] = useState<MentionNote[]>([]);
-  const [niveaux, setNiveaux] = useState<Niveau[]>([]);
   const [validations, setValidations] = useState<EtudiantNoteValidation[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeff | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      getMatieresCoeff(),
-      getMatiereSemestres(),
-      getMentions(),
-      getNiveaux(),
-    ]).then(([m, ms, mn, nv]) => {
+    Promise.all([getMatieresCoeff(), getMatiereSemestres()]).then(([m, ms]) => {
       setMatieres(m);
       setMatiereSemestres(ms);
-      setMentions(mn);
-      setNiveaux(nv);
     });
   }, []);
 
@@ -76,10 +68,10 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
   const handleAddCoeff = async (
     idMatiereSemestre: number,
     coefficient: number,
-    idNiveau: number,
-    idMention: number
+    idNiveau: number | string,
+    idMention: number | string
   ) => {
-    await addMatiereCoeffMention(idMatiereSemestre, coefficient, idNiveau, idMention);
+    await addMatiereCoeffMention(idMatiereSemestre, coefficient, Number(idNiveau), Number(idMention));
     const updated = await getMatieresCoeff();
     setMatieres(updated);
     setActiveTab("liste");

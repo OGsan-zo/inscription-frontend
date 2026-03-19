@@ -19,8 +19,8 @@ export default function ChefMentionPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          {/* isAdmin=true pour tester les deux modes ; en prod, lire le rôle depuis le contexte auth */}
-          <ChefMentionView isAdmin={false} />
+          {/* TODO: remplacer par le rôle réel depuis le contexte auth */}
+          <ChefMentionView isAdmin={true} />
         </div>
       </div>
     </div>
