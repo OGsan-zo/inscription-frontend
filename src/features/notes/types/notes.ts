@@ -66,3 +66,72 @@ export interface ResultatEtudiant {
   etudiant: EtudiantRecherche;
   resultats: ResultatSession[];
 }
+
+// ── Niveau (L1, L2, ..., M2) ───────────────────────────────────────────────
+
+export interface Niveau {
+  id: number;
+  nom: string; // "L1", "L2", "L3", "M1", "M2"
+}
+
+// ── Matière avec coefficient (vue Chef-Mention & Professeur) ───────────────
+
+export interface MatiereCoeff {
+  id: number;
+  nom: string;
+  semestre: Semestre;
+  niveau: Niveau;
+  mention: MentionNote;
+  coefficient: number;
+}
+
+// ── Validation notes étudiant (vue Chef-Mention) ───────────────────────────
+
+export type TypeNote = "Normale" | "Rattrapage";
+export type StatusValidation = "Valide" | "Non Valide";
+
+export interface EtudiantNoteValidation {
+  id: number;
+  nom: string;        // "Jean Dupont"
+  note: number;
+  type: TypeNote;
+  status: StatusValidation;
+}
+
+// ── Vue Professeur : étudiants d'une matière ──────────────────────────────
+
+export interface EtudiantNotesProfesseur {
+  id: number;
+  nom: string;
+  noteNormale: number | null;
+  noteRattrapage: number | null;
+}
+
+// ── Admin Validation Detail (vue par niveau) ──────────────────────────────
+
+export interface UC {
+  id: number;
+  nom: string;        // "UC1 : Probabilité"
+  checked?: boolean;
+}
+
+export interface UEValidation {
+  id: number;
+  nom: string;        // "UE : Mathématique Appliquée"
+  noteNormale?: string | null;
+  noteRattrapage?: string | null;
+  ucs: UC[];
+}
+
+export interface NiveauValidation {
+  niveau: Niveau;
+  ues: UEValidation[];
+}
+
+export interface EtudiantValidationDetail {
+  id: number;
+  nom: string;
+  prenom: string;
+  mention: MentionNote;
+  niveaux: NiveauValidation[];
+}

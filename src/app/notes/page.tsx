@@ -1,5 +1,36 @@
 import Link from "next/link";
-import { BookOpen, Settings } from "lucide-react";
+import { BookOpen, Settings, GraduationCap, UserCheck } from "lucide-react";
+
+const ENTRIES = [
+  {
+    href: "/notes/admin",
+    icon: <Settings className="w-6 h-6 text-indigo-600" />,
+    bg: "bg-indigo-50 group-hover:bg-indigo-100",
+    title: "Administration",
+    desc: "Gérer les matières, semestres et coefficients",
+  },
+  {
+    href: "/notes/chef-mention",
+    icon: <UserCheck className="w-6 h-6 text-violet-600" />,
+    bg: "bg-violet-50 group-hover:bg-violet-100",
+    title: "Chef-Mention",
+    desc: "Coefficients par mention, validation des notes étudiants",
+  },
+  {
+    href: "/notes/professeur",
+    icon: <GraduationCap className="w-6 h-6 text-amber-600" />,
+    bg: "bg-amber-50 group-hover:bg-amber-100",
+    title: "Professeur",
+    desc: "Saisir et soumettre les notes de vos matières",
+  },
+  {
+    href: "/notes/resultats",
+    icon: <BookOpen className="w-6 h-6 text-emerald-600" />,
+    bg: "bg-emerald-50 group-hover:bg-emerald-100",
+    title: "Résultats Étudiants",
+    desc: "Consulter les notes et résultats par semestre",
+  },
+];
 
 export default function NotesHubPage() {
   return (
@@ -14,31 +45,21 @@ export default function NotesHubPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          <Link
-            href="/notes/admin"
-            className="group flex items-center gap-5 bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-6 transition-all duration-200"
-          >
-            <div className="flex-shrink-0 w-12 h-12 bg-indigo-50 group-hover:bg-indigo-100 rounded-xl flex items-center justify-center transition-colors">
-              <Settings className="w-6 h-6 text-indigo-600" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Administration</p>
-              <p className="text-sm text-slate-500">Gérer les matières, semestres et coefficients</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/notes/resultats"
-            className="group flex items-center gap-5 bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-6 transition-all duration-200"
-          >
-            <div className="flex-shrink-0 w-12 h-12 bg-emerald-50 group-hover:bg-emerald-100 rounded-xl flex items-center justify-center transition-colors">
-              <BookOpen className="w-6 h-6 text-emerald-600" />
-            </div>
-            <div>
-              <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Résultats Étudiants</p>
-              <p className="text-sm text-slate-500">Consulter les notes et résultats par semestre</p>
-            </div>
-          </Link>
+          {ENTRIES.map((e) => (
+            <Link
+              key={e.href}
+              href={e.href}
+              className="group flex items-center gap-5 bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-6 transition-all duration-200"
+            >
+              <div className={`flex-shrink-0 w-12 h-12 ${e.bg} rounded-xl flex items-center justify-center transition-colors`}>
+                {e.icon}
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors">{e.title}</p>
+                <p className="text-sm text-slate-500">{e.desc}</p>
+              </div>
+            </Link>
+          ))}
         </div>
 
         <div className="text-center mt-8">
