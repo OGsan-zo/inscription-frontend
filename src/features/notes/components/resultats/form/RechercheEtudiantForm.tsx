@@ -26,7 +26,7 @@ export default function RechercheEtudiantForm({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
       <h3 className="text-base font-bold text-slate-900 mb-5">Recherche Étudiant</h3>
-      <div className="flex flex-wrap gap-4 items-end">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:items-end">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Nom</label>
           <input
@@ -35,7 +35,7 @@ export default function RechercheEtudiantForm({
             onChange={(e) => onNomChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onRecherche()}
             placeholder="ex: RANDRIA"
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -46,13 +46,13 @@ export default function RechercheEtudiantForm({
             onChange={(e) => onPrenomChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onRecherche()}
             placeholder="ex: Dode"
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
           />
         </div>
         <button
           onClick={onRecherche}
           disabled={searching || !nom.trim()}
-          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 w-full sm:w-auto"
         >
           {searching ? "Recherche..." : "Valider"}
         </button>

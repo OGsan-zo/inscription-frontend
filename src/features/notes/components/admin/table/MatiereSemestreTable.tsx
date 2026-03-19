@@ -13,7 +13,8 @@ export default function MatiereSemestreTable({ matiereSemestres }: Props) {
       {matiereSemestres.length === 0 ? (
         <p className="text-center py-10 text-slate-400">Aucune matière enregistrée.</p>
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[320px]">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-100">
               <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Matière</th>
@@ -31,6 +32,7 @@ export default function MatiereSemestreTable({ matiereSemestres }: Props) {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

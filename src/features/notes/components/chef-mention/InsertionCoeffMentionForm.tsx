@@ -64,19 +64,19 @@ export default function InsertionCoeffMentionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6 max-w-lg space-y-4">
+    <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 w-full max-w-lg space-y-4">
       <h2 className="text-base font-semibold text-gray-800 mb-2">
         Insertion Matière — Coefficients par Mention
       </h2>
 
       {/* Matière Semestre */}
-      <div className="flex items-center gap-3">
-        <label className="w-44 text-sm text-gray-600 shrink-0">Matière Semestre :</label>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+        <label className="sm:w-44 text-sm text-gray-600 sm:shrink-0">Matière Semestre :</label>
         <select
           value={idMatiereSemestre}
           onChange={(e) => setIdMatiereSemestre(e.target.value)}
           required
-          className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="w-full sm:flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           <option value="">Matière Semestre</option>
           {matiereSemestres.map((ms) => (
@@ -88,8 +88,8 @@ export default function InsertionCoeffMentionForm({
       </div>
 
       {/* Coefficient */}
-      <div className="flex items-center gap-3">
-        <label className="w-44 text-sm text-gray-600 shrink-0">Coefficient :</label>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+        <label className="sm:w-44 text-sm text-gray-600 sm:shrink-0">Coefficient :</label>
         <input
           type="number"
           min={1}
@@ -97,18 +97,18 @@ export default function InsertionCoeffMentionForm({
           onChange={(e) => setCoefficient(e.target.value)}
           placeholder="Coefficient"
           required
-          className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="w-full sm:flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
         />
       </div>
 
       {/* Niveaux */}
-      <div className="flex items-center gap-3">
-        <label className="w-44 text-sm text-gray-600 shrink-0">Niveaux :</label>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+        <label className="sm:w-44 text-sm text-gray-600 sm:shrink-0">Niveaux :</label>
         <select
           value={idNiveau}
           onChange={(e) => setIdNiveau(e.target.value)}
           required
-          className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="w-full sm:flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           <option value="">Niveaux</option>
           {niveaux.map((n) => (
@@ -120,14 +120,14 @@ export default function InsertionCoeffMentionForm({
       </div>
 
       {/* Mention */}
-      <div className="flex items-center gap-3">
-        <label className="w-44 text-sm text-gray-600 shrink-0">Mention :</label>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+        <label className="sm:w-44 text-sm text-gray-600 sm:shrink-0">Mention :</label>
         {isAdmin ? (
           <select
             value={idMention}
             onChange={(e) => setIdMention(e.target.value)}
             required
-            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full sm:flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
             <option value="">Mention select</option>
             {mentions.map((m) => (
@@ -141,16 +141,16 @@ export default function InsertionCoeffMentionForm({
             type="text"
             value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
             readOnly
-            className="flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-50 text-gray-500"
+            className="w-full sm:flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-50 text-gray-500"
           />
         )}
       </div>
 
-      <div className="pt-2 text-right">
+      <div className="pt-2 flex justify-end">
         <button
           type="submit"
           disabled={saving}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-5 py-1.5 rounded disabled:opacity-50"
+          className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-5 py-1.5 rounded disabled:opacity-50 w-full sm:w-auto"
         >
           {saving ? "Enregistrement..." : "Enregistrer"}
         </button>

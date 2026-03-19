@@ -40,7 +40,7 @@ export default function AdminValidationDetailView({ idEtudiant }: AdminValidatio
   return (
     <div className="space-y-6">
       {/* Info étudiant */}
-      <div className="flex gap-8 text-sm text-gray-700">
+      <div className="flex flex-wrap gap-4 sm:gap-8 text-sm text-gray-700">
         <span><span className="font-medium">Nom :</span> {detail.nom}</span>
         <span><span className="font-medium">Prénom :</span> {detail.prenom}</span>
         <span><span className="font-medium">Mention :</span> {detail.mention.abr ?? detail.mention.nom}</span>

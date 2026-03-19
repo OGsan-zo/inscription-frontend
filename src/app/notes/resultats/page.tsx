@@ -18,7 +18,7 @@ export default function NotesResultatsPage() {
               Retour
             </Link>
             <span className="text-slate-300">|</span>
-            <h1 className="text-lg font-bold text-slate-900">Résultats Étudiants</h1>
+            <h1 className="text-base sm:text-lg font-bold text-slate-900">Résultats Étudiants</h1>
           </div>
         </div>
       </header>

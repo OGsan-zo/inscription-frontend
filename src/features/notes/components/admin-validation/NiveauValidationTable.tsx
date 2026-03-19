@@ -93,20 +93,20 @@ export default function NiveauValidationTable({
         </tbody>
       </table>
 
-      <div className="flex gap-3 px-3 py-3">
+      <div className="flex flex-wrap gap-3 px-3 py-3">
         <button
           onClick={handleValiderNormale}
           disabled={savingN}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs px-4 py-1.5 rounded disabled:opacity-50"
         >
-          {savingN ? "..." : "Valider"}
+          {savingN ? "..." : "Valider Normale"}
         </button>
         <button
           onClick={handleValiderRattrapage}
           disabled={savingR}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs px-4 py-1.5 rounded disabled:opacity-50"
         >
-          {savingR ? "..." : "Valider"}
+          {savingR ? "..." : "Valider Rattrapage"}
         </button>
       </div>
     </div>

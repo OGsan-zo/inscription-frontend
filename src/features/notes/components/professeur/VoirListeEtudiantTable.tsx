@@ -76,7 +76,7 @@ export default function VoirListeEtudiantTable({
         </table>
       </div>
 
-      <div className="flex gap-3 mt-4">
+      <div className="flex flex-wrap gap-3 mt-4">
         <button
           onClick={handleValiderNormale}
           disabled={savingN || checked.size === 0}

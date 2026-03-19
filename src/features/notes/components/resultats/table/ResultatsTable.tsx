@@ -16,8 +16,8 @@ export default function ResultatsTable({ resultat }: Props) {
         <p className="text-center py-12 text-slate-400">Aucun résultat disponible pour ce semestre.</p>
       ) : (
         resultat.resultats.map((session) => (
-          <div key={session.semestre.id}>
-            <table className="w-full text-sm">
+          <div key={session.semestre.id} className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[600px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 w-1/3">UE / EC</th>

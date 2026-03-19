@@ -35,7 +35,7 @@ const ENTRIES = [
 export default function NotesHubPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4 shadow-lg">
             <BookOpen className="w-8 h-8 text-white" />
@@ -44,7 +44,7 @@ export default function NotesHubPage() {
           <p className="text-slate-500 mt-2">Gestion des matières et des résultats académiques</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {ENTRIES.map((e) => (
             <Link
               key={e.href}
