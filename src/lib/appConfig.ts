@@ -2,7 +2,8 @@
 import { cache } from 'react';
 import { Niveau, Mention, Formation, Nationalite, InitialData } from './db';
 import { Parcours } from '@/features/parcours/type/typeParcours';
-import type { UE, Semestre, Professeur } from '@/features/notes/types/notes';
+import type { UE, Semestre } from '@/features/notes/types/notes';
+import type { User } from './db';
 
 
 async function safeParse<T>(res: Response): Promise<T[]> {
@@ -26,7 +27,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   try {
-    const [resNiveaux, resMentions, resFormations, resNationalites, resParcours, resUEs, resSemestres, resUsers] = await Promise.all([
+    const [resNiveaux, resMentions, resFormations, resNationalites, resParcours, resUEs, resSemestres, resProfesseurs] = await Promise.all([
       fetch(`${baseUrl}/api/etudiants/niveaux`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/etudiants/mentions`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/etudiants/formations`, { cache: 'no-store' }),
@@ -34,7 +35,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
       fetch(`${baseUrl}/api/parcours`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/notes/ue`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/notes/semestres`, { cache: 'no-store' }),
-      fetch(`${baseUrl}/api/users`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/users/professeurs`, { cache: 'no-store' }),
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);
@@ -46,10 +47,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
     const ues = await safeParse<UE>(resUEs);
     const semestres = await safeParse<Semestre>(resSemestres);
 
-    const usersRaw = await safeParse<{ id: number; nom: string; prenom: string; role: string }>(resUsers);
-    const professeurs: Professeur[] = usersRaw
-      .filter(u => u.role === "Professeur")
-      .map(u => ({ id: u.id, nom: u.nom, prenom: u.prenom, email: "" }));
+    const professeurs = (await safeParse<User>(resProfesseurs));
 
     return { niveaux, mentions, formations, nationalites, parcours, ues, semestres, professeurs };
   } catch (error) {

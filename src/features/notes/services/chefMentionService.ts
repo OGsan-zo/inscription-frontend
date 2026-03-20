@@ -1,81 +1,103 @@
-/**
- * Service Chef-Mention — stubs prêts pour branchement API
- * Remplacer les imports mockData par des appels fetch/axios vers /api/notes/...
- */
-
-import {
-  MATIERES_COEFF,
-  MATIERES_SEMESTRES,
-  MENTIONS,
-  NIVEAUX,
-  ETUDIANT_NOTES_VALIDATION,
-} from "../data/mockData";
-import {
+import type {
   MatiereCoeff,
-  MentionNote,
-  Niveau,
   MatiereSemestre,
+  MatiereUE,
   EtudiantNoteValidation,
 } from "../types/notes";
 
-// ── Lire les données ───────────────────────────────────────────────────────
+// Type plat retourné par GET /notes/matieres-coeff
+type FlatCoeff = {
+  id: number;
+  coefficient: number;
+  matiereId: number;
+  matiereNom: string;
+  semestreId: number;
+  semestreNom: string;
+  mentionId: number;
+  mentionNom: string;
+  niveauId: number;
+  niveauNom: string;
+  professeurId: number;
+  professeurNom: string;
+  professeurPrenom: string;
+};
+
+function mapFlatToMatiereCoeff(c: FlatCoeff): MatiereCoeff {
+  return {
+    id: c.id,
+    nom: c.matiereNom,
+    semestre: { id: c.semestreId, name: c.semestreNom },
+    niveau: { id: c.niveauId, nom: c.niveauNom },
+    mention: { id: c.mentionId, nom: c.mentionNom },
+    coefficient: c.coefficient,
+  };
+}
+
+// ── Liste des matières-coefficient ─────────────────────────────────────────
 
 export async function getMatieresCoeff(): Promise<MatiereCoeff[]> {
-  // TODO: return (await axios.get('/api/notes/matieres-coeff')).data
-  return MATIERES_COEFF;
+  const res = await fetch("/api/notes/matieres-coeff");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map(mapFlatToMatiereCoeff);
 }
 
-export async function getMentions(): Promise<MentionNote[]> {
-  // TODO: return (await axios.get('/api/notes/mentions')).data
-  return MENTIONS;
-}
-
-export async function getNiveaux(): Promise<Niveau[]> {
-  // TODO: return (await axios.get('/api/notes/niveaux')).data
-  return NIVEAUX;
-}
+// ── Liste des matières (pour le sélecteur du formulaire) ───────────────────
 
 export async function getMatiereSemestres(): Promise<MatiereSemestre[]> {
-  // TODO: return (await axios.get('/api/notes/matiere-semestres')).data
-  return MATIERES_SEMESTRES;
+  const res = await fetch("/api/notes/matieres");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((m: MatiereUE): MatiereSemestre => ({
+    id: m.id,
+    matiere: { id: m.id, nom: m.nom },
+    semestre: m.semestre,
+  }));
 }
+
+// ── Notes étudiants pour une matière-coefficient ────────────────────────────
 
 export async function getEtudiantNotesValidation(
   idMatiere: number
 ): Promise<EtudiantNoteValidation[]> {
-  // TODO: return (await axios.get(`/api/notes/matieres/${idMatiere}/validations`)).data
-  console.log("[chefMentionService] getEtudiantNotesValidation", idMatiere);
-  return ETUDIANT_NOTES_VALIDATION;
+  const annee = new Date().getFullYear();
+  const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((c: {
+    id: number;
+    nom: string;
+    prenom: string;
+    valeur: string;
+    typeNoteName: string;
+    dateValidation: string | null;
+  }): EtudiantNoteValidation => ({
+    id: c.id,
+    nom: `${c.nom} ${c.prenom}`,
+    note: parseFloat(c.valeur),
+    type: c.typeNoteName === "Normal" ? "Normale" : "Rattrapage",
+    status: c.dateValidation ? "Valide" : "Non Valide",
+  }));
 }
 
-// ── Mutations ──────────────────────────────────────────────────────────────
+// ── Ajouter un coefficient ──────────────────────────────────────────────────
 
 export async function addMatiereCoeffMention(
-  _idMatiereSemestre: number,
-  _coefficient: number,
-  _idNiveau: number,
-  _idMention: number
+  idMatiere: number,
+  coefficient: number,
+  idNiveau: number,
+  idMention: number,
+  idProfesseur?: number
 ): Promise<void> {
-  // TODO: await axios.post('/api/notes/matieres-coeff', { ... })
-  console.log("[chefMentionService] addMatiereCoeffMention", {
-    _idMatiereSemestre,
-    _coefficient,
-    _idNiveau,
-    _idMention,
+  await fetch("/api/notes/matieres-coeff", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
   });
 }
 
-export async function updateMatiereCoeff(
-  _id: number,
-  _data: Partial<MatiereCoeff>
-): Promise<void> {
-  // TODO: await axios.put(`/api/notes/matieres-coeff/${_id}`, _data)
-  console.log("[chefMentionService] updateMatiereCoeff", _id, _data);
-}
+// ── Valider une note ────────────────────────────────────────────────────────
 
-export async function validerNote(
-  _idEtudiantNote: number
-): Promise<void> {
-  // TODO: await axios.post(`/api/notes/validations/${_idEtudiantNote}/valider`)
-  console.log("[chefMentionService] validerNote", _idEtudiantNote);
+export async function validerNote(idNote: number): Promise<void> {
+  await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
 }

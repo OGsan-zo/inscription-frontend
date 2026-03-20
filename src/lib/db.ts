@@ -2,7 +2,7 @@
 // In production, replace with a real database like Supabase or Neon
 
 import { Parcours } from "@/features/parcours/type/typeParcours"
-import type { UE, Semestre, Professeur } from "@/features/notes/types/notes"
+import type { UE, Semestre } from "@/features/notes/types/notes"
 
 export interface User {
   id?: string
@@ -339,7 +339,7 @@ export interface InitialData {
   parcours: Parcours[];
   ues: UE[];
   semestres: Semestre[];
-  professeurs: Professeur[];
+  professeurs: User[];
 }
 
 // In-memory storage (replace with database)

@@ -1,49 +1,86 @@
-/**
- * Service Professeur — stubs prêts pour branchement API
- * Remplacer les imports mockData par des appels fetch/axios vers /api/notes/...
- */
+import type { MatiereCoeff, EtudiantNotesProfesseur } from "../types/notes";
 
-import {
-  MATIERES_COEFF,
-  ETUDIANT_NOTES_PROF,
-  ETUDIANT_VALIDATION_DETAIL,
-} from "../data/mockData";
-import {
-  MatiereCoeff,
-  EtudiantNotesProfesseur,
-  EtudiantValidationDetail,
-} from "../types/notes";
+// Type plat retourné par GET /notes/matieres-coeff/professeur
+type FlatCoeff = {
+  id: number;
+  coefficient: number;
+  matiereId: number;
+  matiereNom: string;
+  semestreId: number;
+  semestreNom: string;
+  mentionId: number;
+  mentionNom: string;
+  niveauId: number;
+  niveauNom: string;
+  professeurId: number;
+  professeurNom: string;
+  professeurPrenom: string;
+};
 
-// ── Lire les données ───────────────────────────────────────────────────────
+// ── Matières du professeur connecté ────────────────────────────────────────
 
 export async function getProfesseurMatieres(): Promise<MatiereCoeff[]> {
-  // TODO: return (await axios.get('/api/notes/professeur/matieres')).data
-  return MATIERES_COEFF;
+  const res = await fetch("/api/notes/matieres-coeff/professeur");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((c: FlatCoeff): MatiereCoeff => ({
+    id: c.id,
+    nom: c.matiereNom,
+    semestre: { id: c.semestreId, name: c.semestreNom },
+    niveau: { id: c.niveauId, nom: c.niveauNom },
+    mention: { id: c.mentionId, nom: c.mentionNom },
+    coefficient: c.coefficient,
+  }));
 }
+
+// ── Étudiants (notes) pour une matière-coefficient ─────────────────────────
+
+type NoteRecord = {
+  id: number;
+  idEtudiant: number;
+  nom: string;
+  prenom: string;
+  valeur: string;
+  typeNoteName: string;
+};
 
 export async function getEtudiantsForMatiere(
   idMatiere: number
 ): Promise<EtudiantNotesProfesseur[]> {
-  // TODO: return (await axios.get(`/api/notes/matieres/${idMatiere}/etudiants`)).data
-  console.log("[professeurService] getEtudiantsForMatiere", idMatiere);
-  return ETUDIANT_NOTES_PROF;
+  const annee = new Date().getFullYear();
+  const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  const records: NoteRecord[] = json.data ?? [];
+
+  // Grouper par étudiant pour avoir noteNormale + noteRattrapage sur une ligne
+  const map = new Map<number, EtudiantNotesProfesseur>();
+  for (const r of records) {
+    if (!map.has(r.idEtudiant)) {
+      map.set(r.idEtudiant, {
+        id: r.idEtudiant,
+        nom: `${r.nom} ${r.prenom}`,
+        noteNormale: null,
+        noteRattrapage: null,
+      });
+    }
+    const entry = map.get(r.idEtudiant)!;
+    if (r.typeNoteName === "Normal") {
+      entry.noteNormale = parseFloat(r.valeur);
+    } else {
+      entry.noteRattrapage = parseFloat(r.valeur);
+    }
+  }
+  return Array.from(map.values());
 }
 
-export async function getEtudiantValidationDetail(
-  idEtudiant: number
-): Promise<EtudiantValidationDetail> {
-  // TODO: return (await axios.get(`/api/notes/admin/validation/${idEtudiant}`)).data
-  console.log("[professeurService] getEtudiantValidationDetail", idEtudiant);
-  return ETUDIANT_VALIDATION_DETAIL;
-}
-
-// ── Mutations ──────────────────────────────────────────────────────────────
+// ── Soumettre des notes (à implémenter côté backend) ───────────────────────
 
 export async function soumettreNotesNormales(
   _idMatiere: number,
   _notes: { idEtudiant: number; note: number }[]
 ): Promise<void> {
-  // TODO: await axios.post(`/api/notes/matieres/${_idMatiere}/notes-normales`, _notes)
+  // TODO: endpoint backend non encore disponible
   console.log("[professeurService] soumettreNotesNormales", _idMatiere, _notes);
 }
 
@@ -51,6 +88,6 @@ export async function soumettreNotesRattrapage(
   _idMatiere: number,
   _notes: { idEtudiant: number; note: number }[]
 ): Promise<void> {
-  // TODO: await axios.post(`/api/notes/matieres/${_idMatiere}/notes-rattrapage`, _notes)
+  // TODO: endpoint backend non encore disponible
   console.log("[professeurService] soumettreNotesRattrapage", _idMatiere, _notes);
 }

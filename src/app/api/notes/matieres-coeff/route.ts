@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/matieres-coeff", [
+  return callApiPost(request, "/notes/matiere-coeff", [
     "idMatiere",
     "idMention",
     "idNiveau",

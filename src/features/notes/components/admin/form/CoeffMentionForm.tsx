@@ -1,10 +1,11 @@
-import type { MatiereUE, MentionNote, Niveau, Professeur } from "../../../types/notes";
+import type { User } from "@/lib/db";
+import type { MatiereUE, MentionNote, Niveau } from "../../../types/notes";
 
 interface Props {
   matieres: MatiereUE[];
   mentions: MentionNote[];
   niveaux: Niveau[];
-  professeurs: Professeur[];
+  professeurs: User[];
   matiereId: string;
   coeff: string;
   mentionId: string;
@@ -109,7 +110,7 @@ export default function CoeffMentionForm({
           >
             <option value="">-- Choisir --</option>
             {professeurs.map((p) => (
-              <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
+              <option key={p.id} value={p.id ?? ""}>{p.nom} {p.prenom}</option>
             ))}
           </select>
         </div>

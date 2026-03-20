@@ -6,7 +6,6 @@ import type {
   MatiereUE,
   Semestre,
   MatiereCoeffItem,
-  Professeur,
   EtudiantRecherche,
   ResultatEtudiant,
 } from "../types/notes";
@@ -76,20 +75,26 @@ export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
   const json = await res.json();
   return (json.data ?? []).map((c: {
     id: number;
-    matiere: { id: number; name: string };
-    semestre: { id: number; name: string };
-    mention: MatiereCoeffItem["mention"];
     coefficient: number;
-    niveau: MatiereCoeffItem["niveau"];
-    professeur: Professeur;
+    matiereId: number;
+    matiereNom: string;
+    semestreId: number;
+    semestreNom: string;
+    mentionId: number;
+    mentionNom: string;
+    niveauId: number;
+    niveauNom: string;
+    professeurId: number;
+    professeurNom: string;
+    professeurPrenom: string;
   }): MatiereCoeffItem => ({
     id: c.id,
-    matiere: { id: c.matiere.id, nom: c.matiere.name },
-    semestre: { id: c.semestre.id, name: c.semestre.name },
-    mention: c.mention,
+    matiere: { id: c.matiereId, nom: c.matiereNom },
+    semestre: { id: c.semestreId, name: c.semestreNom },
+    mention: { id: c.mentionId, nom: c.mentionNom },
     coefficient: c.coefficient,
-    niveau: c.niveau,
-    professeur: c.professeur,
+    niveau: { id: c.niveauId, nom: c.niveauNom },
+    professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
   }));
 }
 
@@ -138,16 +143,16 @@ export async function getResultatEtudiant(idEtudiant: number, idSemestre: number
 
 // ── Professeurs ───────────────────────────────────────────────────────────
 
-export async function getProfesseurs(): Promise<Professeur[]> {
-  const res = await fetch("/api/users");
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? [])
-    .filter((u: { role: string }) => u.role === "Professeur")
-    .map((u: { id: number; nom: string; prenom: string }): Professeur => ({
-      id: u.id,
-      nom: u.nom,
-      prenom: u.prenom,
-      email: "",
-    }));
-}
+// export async function getProfesseurs(): Promise<Professeur[]> {
+//   const res = await fetch("/api/users");
+//   if (!res.ok) return [];
+//   const json = await res.json();
+//   return (json.data ?? [])
+//     .filter((u: { role: string }) => u.role === "Professeur")
+//     .map((u: { id: number; nom: string; prenom: string }): Professeur => ({
+//       id: u.id,
+//       nom: u.nom,
+//       prenom: u.prenom,
+//       email: "",
+//     }));
+// }
