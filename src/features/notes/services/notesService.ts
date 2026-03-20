@@ -1,96 +1,159 @@
 // ── Notes Service ─────────────────────────────────────────────────────────
-// Toutes les fonctions sont des stubs avec données statiques.
-// Remplacer les imports mockData par des appels fetch/axios vers le backend.
-
-import {
-  MATIERES,
-  SEMESTRES,
-  MENTIONS,
-  MATIERES_SEMESTRES,
-  MATIERES_COEFF_MENTIONS,
-  ETUDIANTS,
-  RESULTATS,
-} from "../data/mockData";
+// Appels réels vers les routes proxy /api/notes/*
 
 import type {
-  Matiere,
+  UE,
+  MatiereUE,
   Semestre,
-  MentionNote,
-  MatiereSemestre,
-  MatiereCoefficientMention,
+  MatiereCoeffItem,
+  Professeur,
   EtudiantRecherche,
   ResultatEtudiant,
 } from "../types/notes";
 
-// ── Matières ──────────────────────────────────────────────────────────────
+// ── UE ────────────────────────────────────────────────────────────────────
 
-export async function getMatieres(): Promise<Matiere[]> {
-  // TODO: return fetch('/api/notes/matieres').then(r => r.json())
-  return MATIERES;
+export async function getUEs(): Promise<UE[]> {
+  const res = await fetch("/api/notes/ue");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((u: { id: number; name: string }): UE => ({
+    id: u.id,
+    nom: u.name,
+  }));
 }
+
+export async function createUE(name: string): Promise<void> {
+  await fetch("/api/notes/ue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+}
+
+// ── Semestres ─────────────────────────────────────────────────────────────
 
 export async function getSemestres(): Promise<Semestre[]> {
-  // TODO: return fetch('/api/notes/semestres').then(r => r.json())
-  return SEMESTRES;
+  const res = await fetch("/api/notes/semestres");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((s: { id: number; name: string }): Semestre => ({
+    id: s.id,
+    nom: s.name,
+  }));
 }
 
-export async function getMentions(): Promise<MentionNote[]> {
-  // TODO: return fetch('/api/notes/mentions').then(r => r.json())
-  return MENTIONS;
+// ── Matières ──────────────────────────────────────────────────────────────
+
+export async function getMatieres(): Promise<MatiereUE[]> {
+  const res = await fetch("/api/notes/matieres");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((m: {
+    id: number;
+    name: string;
+    ue: { id: number; name: string };
+    semestre: { id: number; name: string };
+  }): MatiereUE => ({
+    id: m.id,
+    nom: m.name,
+    ue: { id: m.ue.id, nom: m.ue.name },
+    semestre: { id: m.semestre.id, nom: m.semestre.name },
+  }));
 }
 
-export async function getMatiereSemestres(): Promise<MatiereSemestre[]> {
-  // TODO: return fetch('/api/notes/matiere-semestres').then(r => r.json())
-  return MATIERES_SEMESTRES;
-}
-
-export async function addMatiereSemestre(
-  _idMatiere: number,
-  _idSemestre: number
+export async function createMatiere(
+  name: string,
+  ueId: number,
+  semestreId: number
 ): Promise<void> {
-  // TODO: fetch('/api/notes/matiere-semestres', { method: 'POST', body: JSON.stringify({ idMatiere, idSemestre }) })
-  console.log("addMatiereSemestre (stub)", { _idMatiere, _idSemestre });
+  await fetch("/api/notes/matieres", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, ueId, semestreId }),
+  });
 }
 
 // ── Coefficients ──────────────────────────────────────────────────────────
 
-export async function getMatieresCoeffMentions(): Promise<MatiereCoefficientMention[]> {
-  // TODO: return fetch('/api/notes/matieres-coeff').then(r => r.json())
-  return MATIERES_COEFF_MENTIONS;
+export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
+  const res = await fetch("/api/notes/matieres-coeff");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((c: {
+    id: number;
+    matiere: { id: number; name: string };
+    semestre: { id: number; name: string };
+    mention: MatiereCoeffItem["mention"];
+    coefficient: number;
+    niveau: MatiereCoeffItem["niveau"];
+    professeur: Professeur;
+  }): MatiereCoeffItem => ({
+    id: c.id,
+    matiere: { id: c.matiere.id, nom: c.matiere.name },
+    semestre: { id: c.semestre.id, nom: c.semestre.name },
+    mention: c.mention,
+    coefficient: c.coefficient,
+    niveau: c.niveau,
+    professeur: c.professeur,
+  }));
 }
 
-export async function addMatiereCoefficientMention(
-  _idMatiereSemestre: number,
-  _idMention: number,
-  _coefficient: number
+export async function createMatiereCoeff(
+  idMatiere: number,
+  idMention: number,
+  idNiveau: number,
+  idProfesseur: number,
+  coefficient: number
 ): Promise<void> {
-  // TODO: fetch('/api/notes/matieres-coeff', { method: 'POST', ... })
-  console.log("addMatiereCoefficientMention (stub)", { _idMatiereSemestre, _idMention, _coefficient });
+  await fetch("/api/notes/matieres-coeff", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
+  });
 }
 
-// ── Étudiants / Résultats ─────────────────────────────────────────────────
+// ── Résultats étudiant ────────────────────────────────────────────────────
 
-export async function rechercherEtudiants(
-  nom: string,
-  prenom: string
-): Promise<EtudiantRecherche[]> {
-  // TODO: fetch(`/api/notes/etudiants?nom=${nom}&prenom=${prenom}`)
-  return ETUDIANTS.filter(
-    (e) =>
-      e.nom.toLowerCase().includes(nom.toLowerCase()) &&
-      (prenom === "" || e.prenom.toLowerCase().includes(prenom.toLowerCase()))
-  );
+export async function rechercherEtudiants(nom: string, prenom: string): Promise<EtudiantRecherche[]> {
+  const params = new URLSearchParams({ nom, prenom });
+  const res = await fetch(`/api/notes/etudiants?${params}`);
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []).map((e: {
+    id: number;
+    nom: string;
+    prenom: string;
+    mention?: string;
+    niveau?: string;
+  }): EtudiantRecherche => ({
+    id: e.id,
+    nom: e.nom,
+    prenom: e.prenom,
+    mention: e.mention,
+    niveau: e.niveau,
+  }));
 }
 
-export async function getResultatEtudiant(
-  idEtudiant: number,
-  idSemestre: number
-): Promise<ResultatEtudiant | null> {
-  // TODO: fetch(`/api/notes/resultats/${idEtudiant}?idSemestre=${idSemestre}`)
-  const resultat = RESULTATS.find((r) => r.etudiant.id === idEtudiant);
-  if (!resultat) return null;
-  return {
-    ...resultat,
-    resultats: resultat.resultats.filter((r) => r.semestre.id === idSemestre),
-  };
+export async function getResultatEtudiant(idEtudiant: number, idSemestre: number): Promise<ResultatEtudiant | null> {
+  const res = await fetch(`/api/notes/resultats?idEtudiant=${idEtudiant}&idSemestre=${idSemestre}`);
+  if (!res.ok) return null;
+  const json = await res.json();
+  return json.data ?? null;
+}
+
+// ── Professeurs ───────────────────────────────────────────────────────────
+
+export async function getProfesseurs(): Promise<Professeur[]> {
+  const res = await fetch("/api/users");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? [])
+    .filter((u: { role: string }) => u.role === "Professeur")
+    .map((u: { id: number; nom: string; prenom: string }): Professeur => ({
+      id: u.id,
+      nom: u.nom,
+      prenom: u.prenom,
+      email: "",
+    }));
 }

@@ -1,106 +1,155 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useInitialData } from "@/context/DataContext";
 import {
-  getMatieres,
+  getUEs,
+  createUE,
   getSemestres,
-  getMentions,
-  getMatiereSemestres,
-  getMatieresCoeffMentions,
-  addMatiereSemestre,
-  addMatiereCoefficientMention,
+  getMatieres,
+  createMatiere,
+  getMatieresCoeff,
+  createMatiereCoeff,
+  getProfesseurs,
 } from "../services/notesService";
 import type {
-  Matiere,
+  UE,
   Semestre,
-  MentionNote,
-  MatiereSemestre,
-  MatiereCoefficientMention,
+  MatiereAvecUE,
+  MatiereCoeffItem,
+  Professeur,
 } from "../types/notes";
+import UEForm from "./admin/form/UEForm";
 import MatiereSemestreForm from "./admin/form/MatiereSemestreForm";
 import MatiereSemestreTable from "./admin/table/MatiereSemestreTable";
 import CoeffMentionForm from "./admin/form/CoeffMentionForm";
 import CoeffMentionTable from "./admin/table/CoeffMentionTable";
 
 export default function AdminMatieresView() {
-  const [matieres, setMatieres] = useState<Matiere[]>([]);
+  const { mentions, niveaux } = useInitialData();
+
+  const [ues, setUEs] = useState<UE[]>([]);
   const [semestres, setSemestres] = useState<Semestre[]>([]);
-  const [mentions, setMentions] = useState<MentionNote[]>([]);
-  const [matiereSemestres, setMatiereSemestres] = useState<MatiereSemestre[]>([]);
-  const [coeffMentions, setCoeffMentions] = useState<MatiereCoefficientMention[]>([]);
+  const [matieres, setMatieres] = useState<MatiereAvecUE[]>([]);
+  const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
+  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
 
-  // Form 1 — Matière par Semestre
-  const [f1Matiere, setF1Matiere] = useState("");
-  const [f1Semestre, setF1Semestre] = useState("");
-  const [f1Saving, setF1Saving] = useState(false);
+  // Form UE
+  const [ueName, setUEName] = useState("");
+  const [ueSaving, setUESaving] = useState(false);
 
-  // Form 2 — Coefficient Mention
-  const [f2MatSem, setF2MatSem] = useState("");
-  const [f2Coeff, setF2Coeff] = useState("");
-  const [f2Mention, setF2Mention] = useState("");
-  const [f2Saving, setF2Saving] = useState(false);
+  // Form Matière
+  const [matName, setMatName] = useState("");
+  const [matUeId, setMatUeId] = useState("");
+  const [matSemestreId, setMatSemestreId] = useState("");
+  const [matSaving, setMatSaving] = useState(false);
+
+  // Form CoeffMention
+  const [cMatiereId, setCMatiereId] = useState("");
+  const [cCoeff, setCCoeff] = useState("");
+  const [cMentionId, setCMentionId] = useState("");
+  const [cNiveauId, setCNiveauId] = useState("");
+  const [cProfesseurId, setCProfesseurId] = useState("");
+  const [cSaving, setCSaving] = useState(false);
 
   useEffect(() => {
     Promise.all([
-      getMatieres(),
+      getUEs(),
       getSemestres(),
-      getMentions(),
-      getMatiereSemestres(),
-      getMatieresCoeffMentions(),
-    ]).then(([m, s, mn, ms, cm]) => {
-      setMatieres(m);
+      getMatieres(),
+      getMatieresCoeff(),
+      getProfesseurs(),
+    ]).then(([u, s, m, cm, p]) => {
+      setUEs(u);
       setSemestres(s);
-      setMentions(mn);
-      setMatiereSemestres(ms);
+      setMatieres(m);
       setCoeffMentions(cm);
+      setProfesseurs(p);
     });
   }, []);
 
-  const handleAddMatiereSemestre = async () => {
-    if (!f1Matiere || !f1Semestre) return;
-    setF1Saving(true);
-    await addMatiereSemestre(Number(f1Matiere), Number(f1Semestre));
-    setMatiereSemestres(await getMatiereSemestres());
-    setF1Matiere("");
-    setF1Semestre("");
-    setF1Saving(false);
+  const handleCreateUE = async () => {
+    if (!ueName.trim()) return;
+    setUESaving(true);
+    await createUE(ueName.trim());
+    setUEs(await getUEs());
+    setUEName("");
+    setUESaving(false);
   };
 
-  const handleAddCoeffMention = async () => {
-    if (!f2MatSem || !f2Coeff || !f2Mention) return;
-    setF2Saving(true);
-    await addMatiereCoefficientMention(Number(f2MatSem), Number(f2Mention), Number(f2Coeff));
-    setCoeffMentions(await getMatieresCoeffMentions());
-    setF2MatSem("");
-    setF2Coeff("");
-    setF2Mention("");
-    setF2Saving(false);
+  const handleCreateMatiere = async () => {
+    if (!matName.trim() || !matUeId || !matSemestreId) return;
+    setMatSaving(true);
+    await createMatiere(matName.trim(), Number(matUeId), Number(matSemestreId));
+    setMatieres(await getMatieres());
+    setMatName("");
+    setMatUeId("");
+    setMatSemestreId("");
+    setMatSaving(false);
+  };
+
+  const handleCreateCoeffMention = async () => {
+    if (!cMatiereId || !cCoeff || !cMentionId || !cNiveauId || !cProfesseurId) return;
+    setCSaving(true);
+    await createMatiereCoeff(
+      Number(cMatiereId),
+      Number(cMentionId),
+      Number(cNiveauId),
+      Number(cProfesseurId),
+      Number(cCoeff)
+    );
+    setCoeffMentions(await getMatieresCoeff());
+    setCMatiereId("");
+    setCCoeff("");
+    setCMentionId("");
+    setCNiveauId("");
+    setCProfesseurId("");
+    setCSaving(false);
   };
 
   return (
     <div className="space-y-10">
-      <MatiereSemestreForm
-        matieres={matieres}
-        semestres={semestres}
-        matiere={f1Matiere}
-        semestre={f1Semestre}
-        saving={f1Saving}
-        onMatiereChange={setF1Matiere}
-        onSemestreChange={setF1Semestre}
-        onSubmit={handleAddMatiereSemestre}
+      {/* Section UE */}
+      <UEForm
+        name={ueName}
+        saving={ueSaving}
+        onNameChange={setUEName}
+        onSubmit={handleCreateUE}
       />
-      <MatiereSemestreTable matiereSemestres={matiereSemestres} />
+
+      {/* Section Matière */}
+      <MatiereSemestreForm
+        ues={ues}
+        semestres={semestres}
+        name={matName}
+        ueId={matUeId}
+        semestreId={matSemestreId}
+        saving={matSaving}
+        onNameChange={setMatName}
+        onUeChange={setMatUeId}
+        onSemestreChange={setMatSemestreId}
+        onSubmit={handleCreateMatiere}
+      />
+      <MatiereSemestreTable matieres={matieres} />
+
+      {/* Section Coefficient — Mention */}
       <CoeffMentionForm
-        matiereSemestres={matiereSemestres}
+        matieres={matieres}
         mentions={mentions}
-        matSem={f2MatSem}
-        coeff={f2Coeff}
-        mention={f2Mention}
-        saving={f2Saving}
-        onMatSemChange={setF2MatSem}
-        onCoeffChange={setF2Coeff}
-        onMentionChange={setF2Mention}
-        onSubmit={handleAddCoeffMention}
+        niveaux={niveaux}
+        professeurs={professeurs}
+        matiereId={cMatiereId}
+        coeff={cCoeff}
+        mentionId={cMentionId}
+        niveauId={cNiveauId}
+        professeurId={cProfesseurId}
+        saving={cSaving}
+        onMatiereChange={setCMatiereId}
+        onCoeffChange={setCCoeff}
+        onMentionChange={setCMentionId}
+        onNiveauChange={setCNiveauId}
+        onProfesseurChange={setCProfesseurId}
+        onSubmit={handleCreateCoeffMention}
       />
       <CoeffMentionTable coeffMentions={coeffMentions} />
     </div>

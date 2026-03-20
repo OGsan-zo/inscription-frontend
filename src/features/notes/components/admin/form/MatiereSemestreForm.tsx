@@ -1,41 +1,56 @@
-import type { Matiere, Semestre } from "../../../types/notes";
+import type { UE, Semestre } from "../../../types/notes";
 
 interface Props {
-  matieres: Matiere[];
+  ues: UE[];
   semestres: Semestre[];
-  matiere: string;
-  semestre: string;
+  name: string;
+  ueId: string;
+  semestreId: string;
   saving: boolean;
-  onMatiereChange: (v: string) => void;
+  onNameChange: (v: string) => void;
+  onUeChange: (v: string) => void;
   onSemestreChange: (v: string) => void;
   onSubmit: () => void;
 }
 
 export default function MatiereSemestreForm({
-  matieres,
+  ues,
   semestres,
-  matiere,
-  semestre,
+  name,
+  ueId,
+  semestreId,
   saving,
-  onMatiereChange,
+  onNameChange,
+  onUeChange,
   onSemestreChange,
   onSubmit,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
-      <h3 className="text-base font-bold text-slate-900 mb-5">Insertion Matière par Semestre</h3>
+      <h3 className="text-base font-bold text-slate-900 mb-5">Créer une Matière (EC)</h3>
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:items-end">
 
+        <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Nom de la matière</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="ex: Algèbre"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Matière</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">UE</label>
           <select
-            value={matiere}
-            onChange={(e) => onMatiereChange(e.target.value)}
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[180px]"
+            value={ueId}
+            onChange={(e) => onUeChange(e.target.value)}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[200px]"
           >
             <option value="">-- Choisir --</option>
-            {matieres.map((m) => (
-              <option key={m.id} value={m.id}>{m.nom}</option>
+            {ues.map((u) => (
+              <option key={u.id} value={u.id}>{u.nom}</option>
             ))}
           </select>
         </div>
@@ -43,9 +58,9 @@ export default function MatiereSemestreForm({
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Semestre</label>
           <select
-            value={semestre}
+            value={semestreId}
             onChange={(e) => onSemestreChange(e.target.value)}
-            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[120px]"
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[130px]"
           >
             <option value="">-- Choisir --</option>
             {semestres.map((s) => (
@@ -56,7 +71,7 @@ export default function MatiereSemestreForm({
 
         <button
           onClick={onSubmit}
-          disabled={saving || !matiere || !semestre}
+          disabled={saving || !name.trim() || !ueId || !semestreId}
           className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 w-full sm:w-auto"
         >
           {saving ? "Enregistrement..." : "Enregistrer"}
