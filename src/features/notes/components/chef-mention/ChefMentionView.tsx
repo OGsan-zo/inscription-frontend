@@ -18,7 +18,6 @@ import type {
   MatiereCoeffItem,
   EtudiantNoteValidation,
 } from "../../types/notes";
-import { Mention } from "@/lib/db";
 import { useInitialData } from "@/context/DataContext";
 
 const TABS = [
@@ -27,13 +26,12 @@ const TABS = [
 ];
 
 interface ChefMentionViewProps {
-  isAdmin?: boolean;
-  mentionFixe?: Mention;
+  userId?: string;
 }
 
-export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMentionViewProps) {
+export default function ChefMentionView({ userId }: ChefMentionViewProps) {
   const [activeTab, setActiveTab] = useState("coeff");
-  const { mentions, niveaux } = useInitialData();
+  const { mentions, niveaux, professeurs } = useInitialData();
 
   const [matieres, setMatieres] = useState<MatiereUE[]>([]);
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
@@ -69,8 +67,8 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
           matieres={matieres}
           mentions={mentions}
           niveaux={niveaux}
-          isAdmin={isAdmin}
-          mentionFixe={mentionFixe}
+          professeurs={professeurs}
+          overrideMentionId={userId}
           coeffMentions={coeffMentions}
           onSubmit={async ({ matiereId, mentionId, niveauId, coefficient }) => {
             await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId);

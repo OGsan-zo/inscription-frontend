@@ -18,10 +18,12 @@ interface Props {
   niveaux: Niveau[];
   /** Si fourni, affiche le champ Professeur */
   professeurs?: User[];
-  /** Si true, la mention est sélectionnable */
+  /** Si true, la mention est sélectionnable (admin) */
   isAdmin?: boolean;
-  /** Mention verrouillée (ChefMention) */
+  /** Mention verrouillée en lecture seule */
   mentionFixe?: { id: number | string; nom: string; abr?: string };
+  /** Si fourni, le champ mention est masqué et cette valeur est utilisée directement (ex: userId du chef-mention) */
+  overrideMentionId?: number | string;
   coeffMentions: MatiereCoeffItem[];
   onSubmit: (values: SubmitValues) => Promise<void>;
   /** Si fourni, affiche le bouton "Voir Etudiant" dans le tableau */
@@ -37,6 +39,7 @@ export default function CoeffMentionSection({
   professeurs,
   isAdmin = false,
   mentionFixe,
+  overrideMentionId,
   coeffMentions,
   onSubmit,
   onVoirEtudiant,
@@ -54,15 +57,17 @@ export default function CoeffMentionSection({
   const showProfesseur = !!professeurs && professeurs.length > 0;
   const showActions = !!onVoirEtudiant || !!onModifier;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const effectiveMentionId = overrideMentionId !== undefined ? overrideMentionId : mentionId;
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const hasProfesseur = !showProfesseur || !!professeurId;
-    if (!matiereId || !coeff || !niveauId || !mentionId || !hasProfesseur) return;
+    if (!matiereId || !coeff || !niveauId || !effectiveMentionId || !hasProfesseur) return;
     setSaving(true);
     try {
       await onSubmit({
         matiereId: Number(matiereId),
-        mentionId: Number(mentionId),
+        mentionId: Number(effectiveMentionId),
         niveauId: Number(niveauId),
         professeurId: professeurId ? Number(professeurId) : undefined,
         coefficient: Number(coeff),
@@ -140,31 +145,33 @@ export default function CoeffMentionSection({
           </select>
         </div>
 
-        <div className={rowCls}>
-          <label className={labelCls}>Mention :</label>
-          {isAdmin ? (
-            <select
-              value={mentionId}
-              onChange={(e) => setMentionId(e.target.value)}
-              required
-              className={inputCls}
-            >
-              <option value="">Mention</option>
-              {mentions.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.abr ?? m.nom}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type="text"
-              value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
-              readOnly
-              className="w-full sm:flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-50 text-gray-500"
-            />
-          )}
-        </div>
+        {overrideMentionId === undefined && (
+          <div className={rowCls}>
+            <label className={labelCls}>Mention :</label>
+            {isAdmin ? (
+              <select
+                value={mentionId}
+                onChange={(e) => setMentionId(e.target.value)}
+                required
+                className={inputCls}
+              >
+                <option value="">Mention</option>
+                {mentions.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.abr ?? m.nom}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
+                readOnly
+                className="w-full sm:flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-50 text-gray-500"
+              />
+            )}
+          </div>
+        )}
 
         {showProfesseur && (
           <div className={rowCls}>

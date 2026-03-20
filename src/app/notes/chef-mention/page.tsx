@@ -37,7 +37,7 @@ export default function ChefMentionPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Menu user={user} />
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-          <ChefMentionView isAdmin={false} />
+          <ChefMentionView userId={user.id} />
         </div>
       </div>
     </main>
