@@ -37,7 +37,7 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeff[]> {
 
 type NoteRecord = {
   id: number;
-  idEtudiant: number;
+  etudiantId: number;
   nom: string;
   prenom: string;
   valeur: string;
@@ -56,15 +56,15 @@ export async function getEtudiantsForMatiere(
   // Grouper par étudiant pour avoir noteNormale + noteRattrapage sur une ligne
   const map = new Map<number, EtudiantNotesProfesseur>();
   for (const r of records) {
-    if (!map.has(r.idEtudiant)) {
-      map.set(r.idEtudiant, {
-        id: r.idEtudiant,
+    if (!map.has(r.etudiantId)) {
+      map.set(r.etudiantId, {
+        id: r.etudiantId,
         nom: `${r.nom} ${r.prenom}`,
         noteNormale: null,
         noteRattrapage: null,
       });
     }
-    const entry = map.get(r.idEtudiant)!;
+    const entry = map.get(r.etudiantId)!;
     if (r.typeNoteName === "Normal") {
       entry.noteNormale = parseFloat(r.valeur);
     } else {
