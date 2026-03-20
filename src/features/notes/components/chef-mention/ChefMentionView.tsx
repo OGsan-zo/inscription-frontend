@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import PageTabs from "../shared/PageTabs";
-import InsertionCoeffMentionForm from "./InsertionCoeffMentionForm";
-import ListeMatiereCoeffTable from "./ListeMatiereCoeffTable";
-import VoirEtudiantValidationTable from "./VoirEtudiantValidationTable";
+import InsertionCoeffMentionForm from "./form/InsertionCoeffMentionForm";
+import ListeMatiereCoeffTable from "./table/ListeMatiereCoeffTable";
+import VoirEtudiantValidationTable from "./table/VoirEtudiantValidationTable";
 import MatiereSemestreForm from "../admin/form/MatiereSemestreForm";
 import MatiereSemestreTable from "../admin/table/MatiereSemestreTable";
 import CoeffMentionForm from "../admin/form/CoeffMentionForm";
@@ -19,22 +19,16 @@ import {
   validerNote,
 } from "../../services/chefMentionService";
 import {
-  getUEs,
-  createUE,
-  getSemestres,
-  getMatieres,
-  createMatiere,
   getMatieresCoeff as getAdminMatieresCoeff,
   createMatiereCoeff,
   getProfesseurs,
 } from "../../services/notesService";
+import { useUE } from "../../hooks/useUE";
+import { useMatiereSemestre } from "../../hooks/useMatiereSemestre";
 import type {
   MatiereCoeff,
   MatiereSemestre,
   EtudiantNoteValidation,
-  UE,
-  Semestre,
-  MatiereUE,
   MatiereCoeffItem,
   Professeur,
 } from "../../types/notes";
@@ -59,30 +53,19 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
   const [activeTab, setActiveTab] = useState("insertion");
   const { mentions, niveaux } = useInitialData();
 
+  // ── Hooks métier ───────────────────────────────────────────────────────
+  const ue = useUE();
+  const mat = useMatiereSemestre();
+
   // ── État Chef-Mention ──────────────────────────────────────────────────
   const [matieres, setMatieres] = useState<MatiereCoeff[]>([]);
   const [matiereSemestres, setMatiereSemestres] = useState<MatiereSemestre[]>([]);
   const [validations, setValidations] = useState<EtudiantNoteValidation[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeff | null>(null);
 
-  // ── État Admin ─────────────────────────────────────────────────────────
-  const [ues, setUEs] = useState<UE[]>([]);
-  const [semestres, setSemestres] = useState<Semestre[]>([]);
-  const [adminMatieres, setAdminMatieres] = useState<MatiereUE[]>([]);
+  // ── État CoeffMention (admin) ──────────────────────────────────────────
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
   const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
-
-  // Form UE
-  const [ueName, setUEName] = useState("");
-  const [ueSaving, setUESaving] = useState(false);
-
-  // Form Matière
-  const [matName, setMatName] = useState("");
-  const [matUeId, setMatUeId] = useState("");
-  const [matSemestreId, setMatSemestreId] = useState("");
-  const [matSaving, setMatSaving] = useState(false);
-
-  // Form CoeffMention (admin)
   const [cMatiereId, setCMatiereId] = useState("");
   const [cCoeff, setCCoeff] = useState("");
   const [cMentionId, setCMentionId] = useState("");
@@ -94,17 +77,11 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
     Promise.all([
       getChefMatieresCoeff(),
       getMatiereSemestres(),
-      getUEs(),
-      getSemestres(),
-      getMatieres(),
       getAdminMatieresCoeff(),
       getProfesseurs(),
-    ]).then(([m, ms, u, s, am, cm, p]) => {
+    ]).then(([m, ms, cm, p]) => {
       setMatieres(m);
       setMatiereSemestres(ms);
-      setUEs(u);
-      setSemestres(s);
-      setAdminMatieres(am);
       setCoeffMentions(cm);
       setProfesseurs(p);
     });
@@ -135,27 +112,7 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
     setActiveTab("liste");
   };
 
-  // ── Handlers Admin ─────────────────────────────────────────────────────
-  const handleCreateUE = async () => {
-    if (!ueName.trim()) return;
-    setUESaving(true);
-    await createUE(ueName.trim());
-    setUEs(await getUEs());
-    setUEName("");
-    setUESaving(false);
-  };
-
-  const handleCreateMatiere = async () => {
-    if (!matName.trim() || !matUeId || !matSemestreId) return;
-    setMatSaving(true);
-    await createMatiere(matName.trim(), Number(matUeId), Number(matSemestreId));
-    setAdminMatieres(await getMatieres());
-    setMatName("");
-    setMatUeId("");
-    setMatSemestreId("");
-    setMatSaving(false);
-  };
-
+  // ── Handler CoeffMention (admin) ───────────────────────────────────────
   const handleCreateCoeffMention = async () => {
     if (!cMatiereId || !cCoeff || !cMentionId || !cNiveauId || !cProfesseurId) return;
     setCSaving(true);
@@ -217,25 +174,25 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
       {activeTab === "matieres" && (
         <div className="space-y-6">
           <MatiereSemestreForm
-            ues={ues}
-            semestres={semestres}
-            name={matName}
-            ueId={matUeId}
-            semestreId={matSemestreId}
-            saving={matSaving}
-            onNameChange={setMatName}
-            onUeChange={setMatUeId}
-            onSemestreChange={setMatSemestreId}
-            onSubmit={handleCreateMatiere}
+            ues={ue.ues}
+            semestres={mat.semestres}
+            name={mat.name}
+            ueId={mat.ueId}
+            semestreId={mat.semestreId}
+            saving={mat.saving}
+            onNameChange={mat.setName}
+            onUeChange={mat.setUeId}
+            onSemestreChange={mat.setSemestreId}
+            onSubmit={mat.handleCreate}
           />
-          <MatiereSemestreTable matieres={adminMatieres} />
+          <MatiereSemestreTable matieres={mat.matieres} />
         </div>
       )}
 
       {activeTab === "coeff" && (
         <div className="space-y-6">
           <CoeffMentionForm
-            matieres={adminMatieres}
+            matieres={mat.matieres}
             mentions={mentions}
             niveaux={niveaux}
             professeurs={professeurs}
@@ -259,12 +216,12 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
       {activeTab === "ue" && (
         <div className="space-y-6">
           <UEForm
-            name={ueName}
-            saving={ueSaving}
-            onNameChange={setUEName}
-            onSubmit={handleCreateUE}
+            name={ue.name}
+            saving={ue.saving}
+            onNameChange={ue.setName}
+            onSubmit={ue.handleCreate}
           />
-          <UETable ues={ues} />
+          <UETable ues={ue.ues} />
         </div>
       )}
     </div>

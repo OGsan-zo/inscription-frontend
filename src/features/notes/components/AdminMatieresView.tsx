@@ -3,22 +3,13 @@
 import { useState, useEffect } from "react";
 import { useInitialData } from "@/context/DataContext";
 import {
-  getUEs,
-  createUE,
-  getSemestres,
-  getMatieres,
-  createMatiere,
   getMatieresCoeff,
   createMatiereCoeff,
   getProfesseurs,
 } from "../services/notesService";
-import type {
-  UE,
-  Semestre,
-  MatiereUE,
-  MatiereCoeffItem,
-  Professeur,
-} from "../types/notes";
+import type { MatiereCoeffItem, Professeur } from "../types/notes";
+import { useUE } from "../hooks/useUE";
+import { useMatiereSemestre } from "../hooks/useMatiereSemestre";
 import PageTabs from "./shared/PageTabs";
 import UEForm from "./admin/form/UEForm";
 import UETable from "./admin/table/UETable";
@@ -35,26 +26,15 @@ const TABS = [
 
 export default function AdminMatieresView() {
   const { mentions, niveaux } = useInitialData();
-
   const [activeTab, setActiveTab] = useState("matieres");
 
-  const [ues, setUEs] = useState<UE[]>([]);
-  const [semestres, setSemestres] = useState<Semestre[]>([]);
-  const [matieres, setMatieres] = useState<MatiereUE[]>([]);
+  // Hooks métier
+  const ue = useUE();
+  const mat = useMatiereSemestre();
+
+  // État CoeffMention (reste local — dépend de plusieurs sources)
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
   const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
-
-  // Form UE
-  const [ueName, setUEName] = useState("");
-  const [ueSaving, setUESaving] = useState(false);
-
-  // Form Matière
-  const [matName, setMatName] = useState("");
-  const [matUeId, setMatUeId] = useState("");
-  const [matSemestreId, setMatSemestreId] = useState("");
-  const [matSaving, setMatSaving] = useState(false);
-
-  // Form CoeffMention
   const [cMatiereId, setCMatiereId] = useState("");
   const [cCoeff, setCCoeff] = useState("");
   const [cMentionId, setCMentionId] = useState("");
@@ -63,40 +43,11 @@ export default function AdminMatieresView() {
   const [cSaving, setCSaving] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      getUEs(),
-      getSemestres(),
-      getMatieres(),
-      getMatieresCoeff(),
-      getProfesseurs(),
-    ]).then(([u, s, m, cm, p]) => {
-      setUEs(u);
-      setSemestres(s);
-      setMatieres(m);
+    Promise.all([getMatieresCoeff(), getProfesseurs()]).then(([cm, p]) => {
       setCoeffMentions(cm);
       setProfesseurs(p);
     });
   }, []);
-
-  const handleCreateUE = async () => {
-    if (!ueName.trim()) return;
-    setUESaving(true);
-    await createUE(ueName.trim());
-    setUEs(await getUEs());
-    setUEName("");
-    setUESaving(false);
-  };
-
-  const handleCreateMatiere = async () => {
-    if (!matName.trim() || !matUeId || !matSemestreId) return;
-    setMatSaving(true);
-    await createMatiere(matName.trim(), Number(matUeId), Number(matSemestreId));
-    setMatieres(await getMatieres());
-    setMatName("");
-    setMatUeId("");
-    setMatSemestreId("");
-    setMatSaving(false);
-  };
 
   const handleCreateCoeffMention = async () => {
     if (!cMatiereId || !cCoeff || !cMentionId || !cNiveauId || !cProfesseurId) return;
@@ -109,11 +60,7 @@ export default function AdminMatieresView() {
       Number(cCoeff)
     );
     setCoeffMentions(await getMatieresCoeff());
-    setCMatiereId("");
-    setCCoeff("");
-    setCMentionId("");
-    setCNiveauId("");
-    setCProfesseurId("");
+    setCMatiereId(""); setCCoeff(""); setCMentionId(""); setCNiveauId(""); setCProfesseurId("");
     setCSaving(false);
   };
 
@@ -124,25 +71,25 @@ export default function AdminMatieresView() {
       {activeTab === "matieres" && (
         <div className="space-y-6">
           <MatiereSemestreForm
-            ues={ues}
-            semestres={semestres}
-            name={matName}
-            ueId={matUeId}
-            semestreId={matSemestreId}
-            saving={matSaving}
-            onNameChange={setMatName}
-            onUeChange={setMatUeId}
-            onSemestreChange={setMatSemestreId}
-            onSubmit={handleCreateMatiere}
+            ues={ue.ues}
+            semestres={mat.semestres}
+            name={mat.name}
+            ueId={mat.ueId}
+            semestreId={mat.semestreId}
+            saving={mat.saving}
+            onNameChange={mat.setName}
+            onUeChange={mat.setUeId}
+            onSemestreChange={mat.setSemestreId}
+            onSubmit={mat.handleCreate}
           />
-          <MatiereSemestreTable matieres={matieres} />
+          <MatiereSemestreTable matieres={mat.matieres} />
         </div>
       )}
 
       {activeTab === "coeff" && (
         <div className="space-y-6">
           <CoeffMentionForm
-            matieres={matieres}
+            matieres={mat.matieres}
             mentions={mentions}
             niveaux={niveaux}
             professeurs={professeurs}
@@ -166,12 +113,12 @@ export default function AdminMatieresView() {
       {activeTab === "ue" && (
         <div className="space-y-6">
           <UEForm
-            name={ueName}
-            saving={ueSaving}
-            onNameChange={setUEName}
-            onSubmit={handleCreateUE}
+            name={ue.name}
+            saving={ue.saving}
+            onNameChange={ue.setName}
+            onSubmit={ue.handleCreate}
           />
-          <UETable ues={ues} />
+          <UETable ues={ue.ues} />
         </div>
       )}
     </div>
