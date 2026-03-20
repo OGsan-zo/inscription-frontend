@@ -32,14 +32,14 @@ export default function ProfesseurPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-background">
       <Header user={user} />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Menu user={user} />
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
           <ProfesseurView />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

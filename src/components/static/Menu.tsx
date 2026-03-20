@@ -164,24 +164,26 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2 mb-8 border-b border-border">
-      {tabs.map((tab) => {
-        const isActive = pathname === tab.key;
+    <div className="overflow-x-auto mb-8 border-b border-border">
+      <div className="flex min-w-max gap-2">
+        {tabs.map((tab) => {
+          const isActive = pathname === tab.key;
 
-        return (
-          <Link
-            key={tab.key}
-            href={tab.key}
-            className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors ${isActive
-              ? "border-accent text-accent"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={tab.key}
+              href={tab.key}
+              className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors whitespace-nowrap ${isActive
+                ? "border-accent text-accent"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
