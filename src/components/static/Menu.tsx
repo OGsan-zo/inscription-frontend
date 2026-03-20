@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList, Layers, Library } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList, Layers, Library, ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 
 interface MenuProps {
   user: User | null;
@@ -22,6 +22,33 @@ interface TabItem {
 export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollState();
+    el.addEventListener("scroll", updateScrollState);
+    const ro = new ResizeObserver(updateScrollState);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      ro.disconnect();
+    };
+  }, [updateScrollState]);
+
+  const scroll = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -160 : 160, behavior: "smooth" });
+  };
 
   // On initialise le tableau avec le type TabItem[]
   const tabs: TabItem[] = [];
@@ -180,29 +207,70 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   }
 
   return (
-    <div className="overflow-x-auto mb-8 border-b border-border">
-      <div className="flex min-w-max gap-2">
-        {tabs.map((tab) => {
-          const [tabPath, tabQuery] = tab.key.split("?tab=");
-          const isActive = tabQuery
-            ? pathname === tabPath && searchParams.get("tab") === tabQuery
-            : pathname === tab.key;
+    <div className="relative mb-8">
+      {/* Bouton gauche */}
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
+          aria-label="Défiler à gauche"
+        >
+          <ChevronLeft size={16} className="text-gray-600" />
+        </button>
+      )}
 
-          return (
-            <Link
-              key={tab.key}
-              href={tab.key}
-              className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors whitespace-nowrap ${isActive
-                ? "border-accent text-accent"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+      {/* Fondu gauche */}
+      {canScrollLeft && (
+        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background to-transparent z-10" />
+      )}
+
+      <div
+        ref={scrollRef}
+        className="overflow-x-auto border-b border-border"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
+      >
+        <div className="flex min-w-max gap-1 px-1">
+          {tabs.map((tab) => {
+            const [tabPath, tabQuery] = tab.key.split("?tab=");
+            const isActive = tabQuery
+              ? pathname === tabPath && searchParams.get("tab") === tabQuery
+              : pathname === tab.key;
+
+            return (
+              <Link
+                key={tab.key}
+                href={tab.key}
+                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-md border-b-2 transition-all whitespace-nowrap ${
+                  isActive
+                    ? "border-indigo-600 text-indigo-600 bg-indigo-50"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 }`}
-            >
-              {tab.icon}
-              {tab.label}
-            </Link>
-          );
-        })}
+              >
+                <span className={`${isActive ? "text-indigo-500" : "text-muted-foreground"} transition-colors`}>
+                  {tab.icon}
+                </span>
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Fondu droit */}
+      {canScrollRight && (
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background to-transparent z-10" />
+      )}
+
+      {/* Bouton droit */}
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
+          aria-label="Défiler à droite"
+        >
+          <ChevronRight size={16} className="text-gray-600" />
+        </button>
+      )}
     </div>
   );
 }

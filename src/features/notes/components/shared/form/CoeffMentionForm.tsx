@@ -72,35 +72,50 @@ export default function CoeffMentionForm({
     }
   };
 
+  const selectCls =
+    "w-full sm:flex-1 appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-colors";
   const inputCls =
-    "w-full sm:flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400";
-  const labelCls = "sm:w-44 text-sm text-gray-600 sm:shrink-0";
-  const rowCls = "flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3";
+    "w-full sm:flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors";
+  const labelCls = "sm:w-44 text-sm font-medium text-gray-600 sm:shrink-0";
+  const rowCls = "flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3";
+
+  const SelectWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="relative w-full sm:flex-1">
+      {children}
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
+        <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </div>
+    </div>
+  );
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 w-full max-w-lg space-y-4"
+      className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 sm:p-6 w-full max-w-lg space-y-4"
     >
-      <h2 className="text-base font-semibold text-gray-800 mb-2">
+      <h2 className="text-base font-semibold text-gray-800 border-b border-gray-100 pb-3 mb-1">
         Insertion Matière — Coefficients par Mention
       </h2>
 
       <div className={rowCls}>
         <label className={labelCls}>Matière :</label>
-        <select
-          value={matiereId}
-          onChange={(e) => setMatiereId(e.target.value)}
-          required
-          className={inputCls}
-        >
-          <option value="">Matière</option>
-          {matieres.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.nom} — {m.semestre.name}
-            </option>
-          ))}
-        </select>
+        <SelectWrapper>
+          <select
+            value={matiereId}
+            onChange={(e) => setMatiereId(e.target.value)}
+            required
+            className={selectCls}
+          >
+            <option value="">Sélectionner une matière</option>
+            {matieres.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.nom} — {m.semestre.name}
+              </option>
+            ))}
+          </select>
+        </SelectWrapper>
       </div>
 
       <div className={rowCls}>
@@ -110,7 +125,7 @@ export default function CoeffMentionForm({
           min={1}
           value={coeff}
           onChange={(e) => setCoeff(e.target.value)}
-          placeholder="Coefficient"
+          placeholder="Ex: 2"
           required
           className={inputCls}
         />
@@ -118,44 +133,48 @@ export default function CoeffMentionForm({
 
       <div className={rowCls}>
         <label className={labelCls}>Niveau :</label>
-        <select
-          value={niveauId}
-          onChange={(e) => setNiveauId(e.target.value)}
-          required
-          className={inputCls}
-        >
-          <option value="">Niveau</option>
-          {niveaux.map((n) => (
-            <option key={n.id} value={n.id}>
-              {n.nom}
-            </option>
-          ))}
-        </select>
+        <SelectWrapper>
+          <select
+            value={niveauId}
+            onChange={(e) => setNiveauId(e.target.value)}
+            required
+            className={selectCls}
+          >
+            <option value="">Sélectionner un niveau</option>
+            {niveaux.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.nom}
+              </option>
+            ))}
+          </select>
+        </SelectWrapper>
       </div>
 
       {overrideMentionId === undefined && (
         <div className={rowCls}>
           <label className={labelCls}>Mention :</label>
           {isAdmin ? (
-            <select
-              value={mentionId}
-              onChange={(e) => setMentionId(e.target.value)}
-              required
-              className={inputCls}
-            >
-              <option value="">Mention</option>
-              {mentions.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.abr ?? m.nom}
-                </option>
-              ))}
-            </select>
+            <SelectWrapper>
+              <select
+                value={mentionId}
+                onChange={(e) => setMentionId(e.target.value)}
+                required
+                className={selectCls}
+              >
+                <option value="">Sélectionner une mention</option>
+                {mentions.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.abr ?? m.nom}
+                  </option>
+                ))}
+              </select>
+            </SelectWrapper>
           ) : (
             <input
               type="text"
               value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
               readOnly
-              className="w-full sm:flex-1 border border-gray-200 rounded px-3 py-1.5 text-sm bg-gray-50 text-gray-500"
+              className="w-full sm:flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
             />
           )}
         </div>
@@ -164,19 +183,21 @@ export default function CoeffMentionForm({
       {showProfesseur && (
         <div className={rowCls}>
           <label className={labelCls}>Professeur :</label>
-          <select
-            value={professeurId}
-            onChange={(e) => setProfesseurId(e.target.value)}
-            required
-            className={inputCls}
-          >
-            <option value="">Professeur</option>
-            {professeurs!.map((p) => (
-              <option key={p.id} value={p.id ?? ""}>
-                {p.nom} {p.prenom}
-              </option>
-            ))}
-          </select>
+          <SelectWrapper>
+            <select
+              value={professeurId}
+              onChange={(e) => setProfesseurId(e.target.value)}
+              required
+              className={selectCls}
+            >
+              <option value="">Sélectionner un professeur</option>
+              {professeurs!.map((p) => (
+                <option key={p.id} value={p.id ?? ""}>
+                  {p.nom} {p.prenom}
+                </option>
+              ))}
+            </select>
+          </SelectWrapper>
         </div>
       )}
 
@@ -184,7 +205,7 @@ export default function CoeffMentionForm({
         <button
           type="submit"
           disabled={saving}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-5 py-1.5 rounded disabled:opacity-50 w-full sm:w-auto"
+          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium px-6 py-2 rounded-md disabled:opacity-50 transition-colors w-full sm:w-auto"
         >
           {saving ? "Enregistrement..." : "Enregistrer"}
         </button>
