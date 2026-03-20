@@ -1,4 +1,4 @@
-import type { MatiereCoeff, EtudiantNotesProfesseur } from "../types/notes";
+import type { MatiereCoeffItem, EtudiantNotesProfesseur } from "../types/notes";
 
 // Type plat retourné par GET /notes/matieres-coeff/professeur
 type FlatCoeff = {
@@ -19,17 +19,18 @@ type FlatCoeff = {
 
 // ── Matières du professeur connecté ────────────────────────────────────────
 
-export async function getProfesseurMatieres(): Promise<MatiereCoeff[]> {
+export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
   const res = await fetch("/api/notes/matieres-coeff/professeur");
   if (!res.ok) return [];
   const json = await res.json();
-  return (json.data ?? []).map((c: FlatCoeff): MatiereCoeff => ({
+  return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
     id: c.id,
-    nom: c.matiereNom,
+    matiere: { id: c.matiereId, nom: c.matiereNom },
     semestre: { id: c.semestreId, name: c.semestreNom },
-    niveau: { id: c.niveauId, nom: c.niveauNom },
     mention: { id: c.mentionId, nom: c.mentionNom },
     coefficient: c.coefficient,
+    niveau: { id: c.niveauId, nom: c.niveauNom },
+    professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
   }));
 }
 
