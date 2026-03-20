@@ -6,5 +6,5 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/matiere", ["name", "semestreId", "ueId"]);
+  return callApiPost(request, "/notes/matieres", ["name", "semestreId", "ueId"]);
 }
