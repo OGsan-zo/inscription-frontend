@@ -1,31 +1,45 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/static/Header";
+import Menu from "@/components/static/Menu";
 import AdminMatieresView from "@/features/notes/components/AdminMatieresView";
+import { User } from "@/lib/db";
 
 export default function NotesAdminPage() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/notes"
-              className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour
-            </Link>
-            <span className="text-slate-300">|</span>
-            <h1 className="text-base sm:text-lg font-bold text-slate-900">Administration — Matières & Coefficients</h1>
-          </div>
-        </div>
-      </header>
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-        <AdminMatieresView />
-      </main>
-    </div>
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch('/api/auth/me');
+      if (!res.ok) {
+        router.push(login);
+        return;
+      }
+      const data = await res.json();
+      if (data.user?.role !== 'Admin') {
+        router.push(login);
+        return;
+      }
+      setUser(data.user);
+    };
+    checkAuth();
+  }, [login, router]);
+
+  if (!user) return null;
+
+  return (
+    <main className="min-h-screen bg-background">
+      <Header user={user} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Menu user={user} />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+          <AdminMatieresView />
+        </div>
+      </div>
+    </main>
   );
 }

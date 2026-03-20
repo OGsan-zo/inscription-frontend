@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useInitialData } from "@/context/DataContext";
 import {
   getMatieresCoeff,
@@ -26,7 +27,19 @@ const TABS = [
 
 export default function AdminMatieresView() {
   const { mentions, niveaux } = useInitialData();
-  const [activeTab, setActiveTab] = useState("matieres");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "matieres");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") ?? "matieres";
+    setActiveTab(tab);
+  }, [searchParams]);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    router.replace(`/notes/admin?tab=${tab}`, { scroll: false });
+  };
 
   // Hooks métier
   const ue = useUE();
@@ -66,7 +79,7 @@ export default function AdminMatieresView() {
 
   return (
     <div>
-      <PageTabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
+      <PageTabs tabs={TABS} activeTab={activeTab} onChange={handleTabChange} />
 
       {activeTab === "matieres" && (
         <div className="space-y-6">

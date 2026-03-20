@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList, Layers, Library } from "lucide-react";
 import { User } from "@/lib/db";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React from "react";
 
 interface MenuProps {
@@ -21,6 +21,7 @@ interface TabItem {
 
 export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // On initialise le tableau avec le type TabItem[]
   const tabs: TabItem[] = [];
@@ -122,6 +123,21 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         label: "Exportation des données",
         icon: <Download size={18} />,
       },
+      {
+        key: "/notes/admin?tab=matieres",
+        label: "Matières",
+        icon: <Layers size={18} />,
+      },
+      {
+        key: "/notes/admin?tab=ue",
+        label: "UE",
+        icon: <Library size={18} />,
+      },
+      {
+        key: "/notes/admin?tab=coeff",
+        label: "Coeff & Mention",
+        icon: <ClipboardList size={18} />,
+      },
     );
   }
 
@@ -167,7 +183,10 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
     <div className="overflow-x-auto mb-8 border-b border-border">
       <div className="flex min-w-max gap-2">
         {tabs.map((tab) => {
-          const isActive = pathname === tab.key;
+          const [tabPath, tabQuery] = tab.key.split("?tab=");
+          const isActive = tabQuery
+            ? pathname === tabPath && searchParams.get("tab") === tabQuery
+            : pathname === tab.key;
 
           return (
             <Link

@@ -13,8 +13,8 @@ interface PageTabsProps {
 
 export default function PageTabs({ tabs, activeTab, onChange }: PageTabsProps) {
   return (
-    <div className="overflow-x-auto -mx-1 px-1 mb-6">
-      <div className="flex border-b border-gray-200 min-w-max">
+    <div className="mb-6">
+      <div className="flex border-b border-gray-200">
         {tabs.map((tab) => (
           <button
             key={tab.key}
