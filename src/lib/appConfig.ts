@@ -43,10 +43,8 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
     const formations = await safeParse<Formation>(resFormations);
     const nationalites = await safeParse<Nationalite>(resNationalites);
     const parcours = await safeParse<Parcours>(resParcours);
-
     const ues = await safeParse<UE>(resUEs);
     const semestres = await safeParse<Semestre>(resSemestres);
-
     const professeurs = (await safeParse<User>(resProfesseurs));
 
     return { niveaux, mentions, formations, nationalites, parcours, ues, semestres, professeurs };
