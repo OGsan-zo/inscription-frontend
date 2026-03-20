@@ -54,7 +54,7 @@ export default function CoeffMentionForm({
             <option value="">-- Choisir --</option>
             {matieres.map((m) => (
               <option key={m.id} value={m.id}>
-                {m.nom} — {m.semestre.nom}
+                {m.nom} — {m.semestre.name}
               </option>
             ))}
           </select>

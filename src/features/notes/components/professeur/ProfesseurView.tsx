@@ -71,7 +71,7 @@ export default function ProfesseurView() {
           {selectedMatiere && (
             <p className="text-xs text-gray-500 mb-3">
               Matière : <span className="font-medium text-gray-700">{selectedMatiere.nom}</span>
-              {" — "}{selectedMatiere.semestre.nom} / {selectedMatiere.niveau.nom}
+              {" — "}{selectedMatiere.semestre.name} / {selectedMatiere.niveau.nom}
             </p>
           )}
           <VoirListeEtudiantTable

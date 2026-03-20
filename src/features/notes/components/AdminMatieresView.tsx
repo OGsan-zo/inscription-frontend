@@ -6,9 +6,8 @@ import { useInitialData } from "@/context/DataContext";
 import {
   getMatieresCoeff,
   createMatiereCoeff,
-  getProfesseurs,
 } from "../services/notesService";
-import type { MatiereCoeffItem, Professeur } from "../types/notes";
+import type { MatiereCoeffItem } from "../types/notes";
 import { useUE } from "../hooks/useUE";
 import { useMatiereSemestre } from "../hooks/useMatiereSemestre";
 import PageTabs from "./shared/PageTabs";
@@ -26,7 +25,7 @@ const TABS = [
 ];
 
 export default function AdminMatieresView() {
-  const { mentions, niveaux } = useInitialData();
+  const { mentions, niveaux, professeurs } = useInitialData();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "matieres");
@@ -47,7 +46,6 @@ export default function AdminMatieresView() {
 
   // État CoeffMention (reste local — dépend de plusieurs sources)
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
-  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
   const [cMatiereId, setCMatiereId] = useState("");
   const [cCoeff, setCCoeff] = useState("");
   const [cMentionId, setCMentionId] = useState("");
@@ -56,10 +54,7 @@ export default function AdminMatieresView() {
   const [cSaving, setCSaving] = useState(false);
 
   useEffect(() => {
-    Promise.all([getMatieresCoeff(), getProfesseurs()]).then(([cm, p]) => {
-      setCoeffMentions(cm);
-      setProfesseurs(p);
-    });
+    getMatieresCoeff().then(setCoeffMentions);
   }, []);
 
   const handleCreateCoeffMention = async () => {

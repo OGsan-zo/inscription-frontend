@@ -104,7 +104,7 @@ export default function ChefMentionView({ isAdmin = false, mentionFixe }: ChefMe
           {selectedMatiere && (
             <p className="text-xs text-gray-500 mb-3">
               Matière : <span className="font-medium text-gray-700">{selectedMatiere.nom}</span>
-              {" — "}{selectedMatiere.semestre.nom}
+              {" — "}{selectedMatiere.semestre.name}
             </p>
           )}
           <VoirEtudiantValidationTable

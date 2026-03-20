@@ -50,7 +50,7 @@ export default function MatiereSemestreForm({
           >
             <option value="">-- Choisir --</option>
             {ues.map((u) => (
-              <option key={u.id} value={u.id}>{u.nom}</option>
+              <option key={u.id} value={u.id}>{u.name}</option>
             ))}
           </select>
         </div>
@@ -64,7 +64,7 @@ export default function MatiereSemestreForm({
           >
             <option value="">-- Choisir --</option>
             {semestres.map((s) => (
-              <option key={s.id} value={s.id}>{s.nom}</option>
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
         </div>

@@ -30,7 +30,7 @@ export default function CoeffMentionTable({ coeffMentions }: Props) {
                 <tr key={cm.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-6 py-3 font-medium text-slate-900">{cm.matiere.nom}</td>
                   <td className="px-6 py-3">
-                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">{cm.semestre.nom}</span>
+                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">{cm.semestre.name}</span>
                   </td>
                   <td className="px-6 py-3">
                     <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold">{cm.mention.abr || cm.mention.nom}</span>

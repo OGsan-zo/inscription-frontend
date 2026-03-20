@@ -81,7 +81,7 @@ export default function InsertionCoeffMentionForm({
           <option value="">Matière Semestre</option>
           {matiereSemestres.map((ms) => (
             <option key={ms.id} value={ms.id}>
-              {ms.matiere.nom} — {ms.semestre.nom}
+              {ms.matiere.nom} — {ms.semestre.name}
             </option>
           ))}
         </select>

@@ -2,7 +2,7 @@
 // In production, replace with a real database like Supabase or Neon
 
 import { Parcours } from "@/features/parcours/type/typeParcours"
-import { Parentheses } from "lucide-react"
+import type { UE, Semestre, Professeur } from "@/features/notes/types/notes"
 
 export interface User {
   id?: string
@@ -333,10 +333,13 @@ export interface StatusEtudiant {
 }
 export interface InitialData {
   niveaux: Niveau[];
-  mentions: Mention[]; // Changé de 'formations' à 'mentions'
+  mentions: Mention[];
   formations: Formation[];
   nationalites: Nationalite[];
   parcours: Parcours[];
+  ues: UE[];
+  semestres: Semestre[];
+  professeurs: Professeur[];
 }
 
 // In-memory storage (replace with database)

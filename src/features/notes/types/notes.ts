@@ -7,7 +7,7 @@ export interface Matiere {
 
 export interface UE {
   id: number;
-  nom: string;
+  name: string;
 }
 
 export interface MatiereUE {
@@ -26,7 +26,7 @@ export interface Professeur {
 
 export interface Semestre {
   id: number;
-  nom: string;
+  name: string;
 }
 
 export interface MentionNote {

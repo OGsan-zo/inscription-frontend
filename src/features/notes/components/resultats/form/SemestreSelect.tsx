@@ -43,7 +43,7 @@ export default function SemestreSelect({
           >
             <option value="">-- Choisir --</option>
             {semestres.map((s) => (
-              <option key={s.id} value={s.id}>{s.nom}</option>
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
         </div>

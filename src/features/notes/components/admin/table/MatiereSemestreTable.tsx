@@ -26,9 +26,9 @@ export default function MatiereSemestreTable({ matieres }: Props) {
               {matieres.map((m) => (
                 <tr key={m.id} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="px-6 py-3 font-medium text-slate-900">{m.nom}</td>
-                  <td className="px-6 py-3 text-slate-600">{m.ue.nom}</td>
+                  <td className="px-6 py-3 text-slate-600">{m.ue.name}</td>
                   <td className="px-6 py-3">
-                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">{m.semestre.nom}</span>
+                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">{m.semestre.name}</span>
                   </td>
                 </tr>
               ))}

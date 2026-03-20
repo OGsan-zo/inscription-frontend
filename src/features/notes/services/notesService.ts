@@ -17,10 +17,7 @@ export async function getUEs(): Promise<UE[]> {
   const res = await fetch("/api/notes/ue");
   if (!res.ok) return [];
   const json = await res.json();
-  return (json.data ?? []).map((u: { id: number; name: string }): UE => ({
-    id: u.id,
-    nom: u.name,
-  }));
+  return json.data ?? [];
 }
 
 export async function createUE(name: string): Promise<void> {
@@ -37,10 +34,7 @@ export async function getSemestres(): Promise<Semestre[]> {
   const res = await fetch("/api/notes/semestres");
   if (!res.ok) return [];
   const json = await res.json();
-  return (json.data ?? []).map((s: { id: number; name: string }): Semestre => ({
-    id: s.id,
-    nom: s.name,
-  }));
+  return json.data ?? [];
 }
 
 // ── Matières ──────────────────────────────────────────────────────────────
@@ -57,8 +51,8 @@ export async function getMatieres(): Promise<MatiereUE[]> {
   }): MatiereUE => ({
     id: m.id,
     nom: m.name,
-    ue: { id: m.ue.id, nom: m.ue.name },
-    semestre: { id: m.semestre.id, nom: m.semestre.name },
+    ue: { id: m.ue.id, name: m.ue.name },
+    semestre: { id: m.semestre.id, name: m.semestre.name },
   }));
 }
 
@@ -91,7 +85,7 @@ export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
   }): MatiereCoeffItem => ({
     id: c.id,
     matiere: { id: c.matiere.id, nom: c.matiere.name },
-    semestre: { id: c.semestre.id, nom: c.semestre.name },
+    semestre: { id: c.semestre.id, name: c.semestre.name },
     mention: c.mention,
     coefficient: c.coefficient,
     niveau: c.niveau,

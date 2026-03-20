@@ -36,7 +36,7 @@ export default function ListeMatiereCoeffTable({
           {matieres.map((m) => (
             <tr key={m.id} className="hover:bg-gray-50">
               <td className="border border-gray-300 px-3 py-2">{m.nom}</td>
-              <td className="border border-gray-300 px-3 py-2">{m.semestre.nom}</td>
+              <td className="border border-gray-300 px-3 py-2">{m.semestre.name}</td>
               <td className="border border-gray-300 px-3 py-2">{m.niveau.nom}</td>
               <td className="border border-gray-300 px-3 py-2">{m.mention.abr ?? m.mention.nom}</td>
               <td className="border border-gray-300 px-3 py-2">{m.coefficient}</td>

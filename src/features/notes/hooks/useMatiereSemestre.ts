@@ -1,20 +1,18 @@
 import { useState, useEffect } from "react";
-import { getMatieres, getSemestres, createMatiere } from "../services/notesService";
-import type { MatiereUE, Semestre } from "../types/notes";
+import { getMatieres, createMatiere } from "../services/notesService";
+import { useInitialData } from "@/context/DataContext";
+import type { MatiereUE } from "../types/notes";
 
 export function useMatiereSemestre() {
+  const { semestres, ues } = useInitialData();
   const [matieres, setMatieres] = useState<MatiereUE[]>([]);
-  const [semestres, setSemestres] = useState<Semestre[]>([]);
   const [name, setName] = useState("");
   const [ueId, setUeId] = useState("");
   const [semestreId, setSemestreId] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    Promise.all([getMatieres(), getSemestres()]).then(([m, s]) => {
-      setMatieres(m);
-      setSemestres(s);
-    });
+    getMatieres().then(setMatieres);
   }, []);
 
   const handleCreate = async () => {
@@ -29,7 +27,7 @@ export function useMatiereSemestre() {
   };
 
   return {
-    matieres, semestres,
+    matieres, semestres, ues,
     name, ueId, semestreId, saving,
     setName, setUeId, setSemestreId,
     handleCreate,
