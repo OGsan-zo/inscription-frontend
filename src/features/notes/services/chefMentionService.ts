@@ -16,7 +16,7 @@ import {
   Niveau,
   MatiereSemestre,
   EtudiantNoteValidation,
-} from "../types";
+} from "../types/notes";
 
 // ── Lire les données ───────────────────────────────────────────────────────
 

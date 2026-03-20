@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import NiveauValidationTable from "./NiveauValidationTable";
-import { getEtudiantValidationDetail } from "../../services/professeurService";
-import { EtudiantValidationDetail } from "../../types/notes";
+import { getEtudiantValidationDetail } from "../../../services/professeurService";
+import { EtudiantValidationDetail } from "../../../types/notes";
 
 interface AdminValidationDetailViewProps {
   idEtudiant: number;

@@ -1,7 +1,7 @@
-import type { MatiereAvecUE, MentionNote, Niveau, Professeur } from "../../../types/notes";
+import type { MatiereUE, MentionNote, Niveau, Professeur } from "../../../types/notes";
 
 interface Props {
-  matieres: MatiereAvecUE[];
+  matieres: MatiereUE[];
   mentions: MentionNote[];
   niveaux: Niveau[];
   professeurs: Professeur[];

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { use } from "react";
-import AdminValidationDetailView from "@/features/notes/components/admin-validation/AdminValidationDetailView";
+import AdminValidationDetailView from "@/features/notes/components/admin/validation/AdminValidationDetailView";
 
 interface PageProps {
   params: Promise<{ id: string }>;

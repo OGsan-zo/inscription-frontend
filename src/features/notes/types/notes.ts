@@ -36,7 +36,7 @@ export interface MentionNote {
 }
 
 export interface Niveau {
-  id: number;
+  id: number | string;
   nom: string;
 }
 

@@ -15,22 +15,32 @@ import {
 import type {
   UE,
   Semestre,
-  MatiereAvecUE,
+  MatiereUE,
   MatiereCoeffItem,
   Professeur,
 } from "../types/notes";
+import PageTabs from "./shared/PageTabs";
 import UEForm from "./admin/form/UEForm";
+import UETable from "./admin/table/UETable";
 import MatiereSemestreForm from "./admin/form/MatiereSemestreForm";
 import MatiereSemestreTable from "./admin/table/MatiereSemestreTable";
 import CoeffMentionForm from "./admin/form/CoeffMentionForm";
 import CoeffMentionTable from "./admin/table/CoeffMentionTable";
 
+const TABS = [
+  { key: "matieres", label: "Matières" },
+  { key: "coeff", label: "Coeff & Mention" },
+  { key: "ue", label: "UE" },
+];
+
 export default function AdminMatieresView() {
   const { mentions, niveaux } = useInitialData();
 
+  const [activeTab, setActiveTab] = useState("matieres");
+
   const [ues, setUEs] = useState<UE[]>([]);
   const [semestres, setSemestres] = useState<Semestre[]>([]);
-  const [matieres, setMatieres] = useState<MatiereAvecUE[]>([]);
+  const [matieres, setMatieres] = useState<MatiereUE[]>([]);
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
   const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
 
@@ -108,50 +118,62 @@ export default function AdminMatieresView() {
   };
 
   return (
-    <div className="space-y-10">
-      {/* Section UE */}
-      <UEForm
-        name={ueName}
-        saving={ueSaving}
-        onNameChange={setUEName}
-        onSubmit={handleCreateUE}
-      />
+    <div>
+      <PageTabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
-      {/* Section Matière */}
-      <MatiereSemestreForm
-        ues={ues}
-        semestres={semestres}
-        name={matName}
-        ueId={matUeId}
-        semestreId={matSemestreId}
-        saving={matSaving}
-        onNameChange={setMatName}
-        onUeChange={setMatUeId}
-        onSemestreChange={setMatSemestreId}
-        onSubmit={handleCreateMatiere}
-      />
-      <MatiereSemestreTable matieres={matieres} />
+      {activeTab === "matieres" && (
+        <div className="space-y-6">
+          <MatiereSemestreForm
+            ues={ues}
+            semestres={semestres}
+            name={matName}
+            ueId={matUeId}
+            semestreId={matSemestreId}
+            saving={matSaving}
+            onNameChange={setMatName}
+            onUeChange={setMatUeId}
+            onSemestreChange={setMatSemestreId}
+            onSubmit={handleCreateMatiere}
+          />
+          <MatiereSemestreTable matieres={matieres} />
+        </div>
+      )}
 
-      {/* Section Coefficient — Mention */}
-      <CoeffMentionForm
-        matieres={matieres}
-        mentions={mentions}
-        niveaux={niveaux}
-        professeurs={professeurs}
-        matiereId={cMatiereId}
-        coeff={cCoeff}
-        mentionId={cMentionId}
-        niveauId={cNiveauId}
-        professeurId={cProfesseurId}
-        saving={cSaving}
-        onMatiereChange={setCMatiereId}
-        onCoeffChange={setCCoeff}
-        onMentionChange={setCMentionId}
-        onNiveauChange={setCNiveauId}
-        onProfesseurChange={setCProfesseurId}
-        onSubmit={handleCreateCoeffMention}
-      />
-      <CoeffMentionTable coeffMentions={coeffMentions} />
+      {activeTab === "coeff" && (
+        <div className="space-y-6">
+          <CoeffMentionForm
+            matieres={matieres}
+            mentions={mentions}
+            niveaux={niveaux}
+            professeurs={professeurs}
+            matiereId={cMatiereId}
+            coeff={cCoeff}
+            mentionId={cMentionId}
+            niveauId={cNiveauId}
+            professeurId={cProfesseurId}
+            saving={cSaving}
+            onMatiereChange={setCMatiereId}
+            onCoeffChange={setCCoeff}
+            onMentionChange={setCMentionId}
+            onNiveauChange={setCNiveauId}
+            onProfesseurChange={setCProfesseurId}
+            onSubmit={handleCreateCoeffMention}
+          />
+          <CoeffMentionTable coeffMentions={coeffMentions} />
+        </div>
+      )}
+
+      {activeTab === "ue" && (
+        <div className="space-y-6">
+          <UEForm
+            name={ueName}
+            saving={ueSaving}
+            onNameChange={setUEName}
+            onSubmit={handleCreateUE}
+          />
+          <UETable ues={ues} />
+        </div>
+      )}
     </div>
   );
 }

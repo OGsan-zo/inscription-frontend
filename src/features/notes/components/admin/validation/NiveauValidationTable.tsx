@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from "react";
-import { NiveauValidation } from "../../types/notes";
+import { NiveauValidation } from "../../../types/notes";
 
 interface NiveauValidationTableProps {
   niveauValidation: NiveauValidation;
@@ -28,13 +28,13 @@ export default function NiveauValidationTable({
 
   const handleValiderNormale = async () => {
     setSavingN(true);
-    try { await onValiderNormale(niveau.id, [...checkedUCs]); }
+    try { await onValiderNormale(Number(niveau.id), [...checkedUCs]); }
     finally { setSavingN(false); }
   };
 
   const handleValiderRattrapage = async () => {
     setSavingR(true);
-    try { await onValiderRattrapage(niveau.id, [...checkedUCs]); }
+    try { await onValiderRattrapage(Number(niveau.id), [...checkedUCs]); }
     finally { setSavingR(false); }
   };
 

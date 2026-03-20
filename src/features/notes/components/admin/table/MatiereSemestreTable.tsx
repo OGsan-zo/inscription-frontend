@@ -1,7 +1,7 @@
-import type { MatiereAvecUE } from "../../../types/notes";
+import type { MatiereUE } from "../../../types/notes";
 
 interface Props {
-  matieres: MatiereAvecUE[];
+  matieres: MatiereUE[];
 }
 
 export default function MatiereSemestreTable({ matieres }: Props) {

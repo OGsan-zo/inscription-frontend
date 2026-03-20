@@ -12,7 +12,7 @@ import {
   MatiereCoeff,
   EtudiantNotesProfesseur,
   EtudiantValidationDetail,
-} from "../types";
+} from "../types/notes";
 
 // ── Lire les données ───────────────────────────────────────────────────────
 
