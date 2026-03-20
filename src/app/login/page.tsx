@@ -54,6 +54,10 @@ export default function AdminLoginPage() {
           router.push("/utilisateur/dashboard");
         } else if (membre?.role === "Ecolage") {
           router.push("/ecolage");
+        } else if (membre?.role === "Professeur") {
+          router.push("/notes/professeur");
+        } else if (membre?.role === "ChefMention") {
+          router.push("/notes/chef-mention");
         } else {
           router.push("/login");
         }

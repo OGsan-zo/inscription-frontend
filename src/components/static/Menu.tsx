@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download } from "lucide-react";
+import { BarChart3, Filter, Users, PlusCircle, Search, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList } from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -61,6 +61,11 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         icon: <UserPlus size={18} />,
 
       },
+      {
+        key: "/notes/resultats",
+        label: "Résultats",
+        icon: <BarChart3 size={18} />,
+      },
     );
   }
 
@@ -116,6 +121,33 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         key: "/admin/export",
         label: "Exportation des données",
         icon: <Download size={18} />,
+      },
+    );
+  }
+
+  // Onglets pour le rôle Professeur
+  if (user?.role === "Professeur") {
+    tabs.push(
+      {
+        key: "/notes/professeur",
+        label: "Mes Matières",
+        icon: <BookOpen size={18} />,
+      },
+    );
+  }
+
+  // Onglets pour le rôle ChefMention
+  if (user?.role === "ChefMention") {
+    tabs.push(
+      {
+        key: "/notes/chef-mention",
+        label: "Matières & Coefficients",
+        icon: <ClipboardList size={18} />,
+      },
+      {
+        key: "/notes/resultats",
+        label: "Résultats",
+        icon: <BarChart3 size={18} />,
       },
     );
   }

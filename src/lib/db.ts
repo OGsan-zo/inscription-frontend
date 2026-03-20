@@ -11,7 +11,7 @@ export interface User {
   prenom?: string
   email: string
   password?: string
-  role?: "Admin" | "Utilisateur" | "Ecolage"
+  role?: "Admin" | "Utilisateur" | "Ecolage" | "Professeur" | "ChefMention"
   createdAt?: Date
   status?: string
 }

@@ -168,6 +168,8 @@ export default function CreateUser() {
                 <option value="2">Utilisateur Standard</option>
                 <option value="1">Administrateur</option>
                 <option value="3">Gestion Ecolage</option>
+                <option value="4">Chef de Mention</option>
+                <option value="5">Professeur</option>
               </select>
             </div>
 

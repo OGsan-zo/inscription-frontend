@@ -1,23 +1,41 @@
 'use client';
 
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/static/Header";
+import Menu from "@/components/static/Menu";
 import ProfesseurView from "@/features/notes/components/professeur/ProfesseurView";
+import { User } from "@/lib/db";
 
 export default function ProfesseurPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
-          <Link
-            href="/notes"
-            className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
-          >
-            ← Retour
-          </Link>
-          <h1 className="text-lg sm:text-xl font-bold text-gray-800">Professeur — Gestion des Notes</h1>
-        </div>
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+  const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch('/api/auth/me');
+      if (!res.ok) {
+        router.push(login);
+        return;
+      }
+      const data = await res.json();
+      if (data.user?.role !== 'Professeur') {
+        router.push(login);
+        return;
+      }
+      setUser(data.user);
+    };
+    checkAuth();
+  }, [login, router]);
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header user={user} />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+        <Menu user={user} />
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
           <ProfesseurView />
         </div>
