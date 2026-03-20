@@ -1,66 +1,11 @@
-import type {
-  MatiereCoeff,
-  MatiereSemestre,
-  MatiereUE,
-  EtudiantNoteValidation,
-} from "../types/notes";
-
-// Type plat retourné par GET /notes/matieres-coeff
-type FlatCoeff = {
-  id: number;
-  coefficient: number;
-  matiereId: number;
-  matiereNom: string;
-  semestreId: number;
-  semestreNom: string;
-  mentionId: number;
-  mentionNom: string;
-  niveauId: number;
-  niveauNom: string;
-  professeurId: number;
-  professeurNom: string;
-  professeurPrenom: string;
-};
-
-function mapFlatToMatiereCoeff(c: FlatCoeff): MatiereCoeff {
-  return {
-    id: c.id,
-    nom: c.matiereNom,
-    semestre: { id: c.semestreId, name: c.semestreNom },
-    niveau: { id: c.niveauId, nom: c.niveauNom },
-    mention: { id: c.mentionId, nom: c.mentionNom },
-    coefficient: c.coefficient,
-  };
-}
-
-// ── Liste des matières-coefficient ─────────────────────────────────────────
-
-export async function getMatieresCoeff(): Promise<MatiereCoeff[]> {
-  const res = await fetch("/api/notes/matieres-coeff");
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? []).map(mapFlatToMatiereCoeff);
-}
-
-// ── Liste des matières (pour le sélecteur du formulaire) ───────────────────
-
-export async function getMatiereSemestres(): Promise<MatiereSemestre[]> {
-  const res = await fetch("/api/notes/matieres");
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? []).map((m: MatiereUE): MatiereSemestre => ({
-    id: m.id,
-    matiere: { id: m.id, nom: m.nom },
-    semestre: m.semestre,
-  }));
-}
+import type { EtudiantNoteValidation } from "../types/notes";
 
 // ── Notes étudiants pour une matière-coefficient ────────────────────────────
 
 export async function getEtudiantNotesValidation(
-  idMatiere: number
+  idMatiere: number,
+  annee: number
 ): Promise<EtudiantNoteValidation[]> {
-  const annee = new Date().getFullYear();
   const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
   if (!res.ok) return [];
   const json = await res.json();

@@ -33,10 +33,13 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
   const [activeTab, setActiveTab] = useState("coeff");
   const { mentions, niveaux, professeurs } = useInitialData();
 
+  const currentYear = new Date().getFullYear();
+
   const [matieres, setMatieres] = useState<MatiereUE[]>([]);
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
   const [validations, setValidations] = useState<EtudiantNoteValidation[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeffItem | null>(null);
+  const [annee, setAnnee] = useState(currentYear);
 
   useEffect(() => {
     Promise.all([getMatieres(), getMatieresCoeff()]).then(([ms, cm]) => {
@@ -47,8 +50,15 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
 
   const handleVoirEtudiant = async (matiere: MatiereCoeffItem) => {
     setSelectedMatiere(matiere);
-    setValidations(await getEtudiantNotesValidation(matiere.id));
+    setValidations(await getEtudiantNotesValidation(matiere.id, annee));
     setActiveTab("validation");
+  };
+
+  const handleAnneeChange = async (nouvelleAnnee: number) => {
+    setAnnee(nouvelleAnnee);
+    if (selectedMatiere) {
+      setValidations(await getEtudiantNotesValidation(selectedMatiere.id, nouvelleAnnee));
+    }
   };
 
   const handleValider = async (etudiant: EtudiantNoteValidation) => {
@@ -70,8 +80,8 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
           professeurs={professeurs}
           overrideMentionId={userId}
           coeffMentions={coeffMentions}
-          onSubmit={async ({ matiereId, mentionId, niveauId, coefficient }) => {
-            await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId);
+          onSubmit={async ({ matiereId, mentionId, niveauId, professeurId, coefficient }) => {
+            await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId, professeurId);
             setCoeffMentions(await getMatieresCoeff());
           }}
           onModifier={(m) => console.log("Modifier", m)}
@@ -81,13 +91,27 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
 
       {activeTab === "validation" && (
         <div>
-          {selectedMatiere && (
-            <p className="text-xs text-gray-500 mb-3">
-              Matière :{" "}
-              <span className="font-medium text-gray-700">{selectedMatiere.matiere.nom}</span>
-              {" — "}{selectedMatiere.semestre.name}
-            </p>
-          )}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+            {selectedMatiere && (
+              <p className="text-xs text-gray-500">
+                Matière :{" "}
+                <span className="font-medium text-gray-700">{selectedMatiere.matiere.nom}</span>
+                {" — "}{selectedMatiere.semestre.name}
+              </p>
+            )}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <label className="text-xs text-gray-500 shrink-0">Année :</label>
+              <select
+                value={annee}
+                onChange={(e) => handleAnneeChange(Number(e.target.value))}
+                className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                {[currentYear - 2, currentYear - 1, currentYear, currentYear + 1].map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+          </div>
           <VoirEtudiantValidationTable
             etudiants={validations}
             onValider={handleValider}
