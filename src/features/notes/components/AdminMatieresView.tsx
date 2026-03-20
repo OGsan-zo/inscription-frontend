@@ -15,8 +15,7 @@ import UEForm from "./admin/form/UEForm";
 import UETable from "./admin/table/UETable";
 import MatiereSemestreForm from "./admin/form/MatiereSemestreForm";
 import MatiereSemestreTable from "./admin/table/MatiereSemestreTable";
-import CoeffMentionForm from "./admin/form/CoeffMentionForm";
-import CoeffMentionTable from "./admin/table/CoeffMentionTable";
+import CoeffMentionSection from "./shared/CoeffMentionSection";
 
 const TABS = [
   { key: "matieres", label: "Matières" },
@@ -40,37 +39,14 @@ export default function AdminMatieresView() {
     router.replace(`/notes/admin?tab=${tab}`, { scroll: false });
   };
 
-  // Hooks métier
   const ue = useUE();
   const mat = useMatiereSemestre();
 
-  // État CoeffMention (reste local — dépend de plusieurs sources)
   const [coeffMentions, setCoeffMentions] = useState<MatiereCoeffItem[]>([]);
-  const [cMatiereId, setCMatiereId] = useState("");
-  const [cCoeff, setCCoeff] = useState("");
-  const [cMentionId, setCMentionId] = useState("");
-  const [cNiveauId, setCNiveauId] = useState("");
-  const [cProfesseurId, setCProfesseurId] = useState("");
-  const [cSaving, setCSaving] = useState(false);
 
   useEffect(() => {
     getMatieresCoeff().then(setCoeffMentions);
   }, []);
-
-  const handleCreateCoeffMention = async () => {
-    if (!cMatiereId || !cCoeff || !cMentionId || !cNiveauId || !cProfesseurId) return;
-    setCSaving(true);
-    await createMatiereCoeff(
-      Number(cMatiereId),
-      Number(cMentionId),
-      Number(cNiveauId),
-      Number(cProfesseurId),
-      Number(cCoeff)
-    );
-    setCoeffMentions(await getMatieresCoeff());
-    setCMatiereId(""); setCCoeff(""); setCMentionId(""); setCNiveauId(""); setCProfesseurId("");
-    setCSaving(false);
-  };
 
   return (
     <div>
@@ -95,27 +71,18 @@ export default function AdminMatieresView() {
       )}
 
       {activeTab === "coeff" && (
-        <div className="space-y-6">
-          <CoeffMentionForm
-            matieres={mat.matieres}
-            mentions={mentions}
-            niveaux={niveaux}
-            professeurs={professeurs}
-            matiereId={cMatiereId}
-            coeff={cCoeff}
-            mentionId={cMentionId}
-            niveauId={cNiveauId}
-            professeurId={cProfesseurId}
-            saving={cSaving}
-            onMatiereChange={setCMatiereId}
-            onCoeffChange={setCCoeff}
-            onMentionChange={setCMentionId}
-            onNiveauChange={setCNiveauId}
-            onProfesseurChange={setCProfesseurId}
-            onSubmit={handleCreateCoeffMention}
-          />
-          <CoeffMentionTable coeffMentions={coeffMentions} />
-        </div>
+        <CoeffMentionSection
+          matieres={mat.matieres}
+          mentions={mentions}
+          niveaux={niveaux}
+          professeurs={professeurs}
+          isAdmin={true}
+          coeffMentions={coeffMentions}
+          onSubmit={async ({ matiereId, mentionId, niveauId, professeurId, coefficient }) => {
+            await createMatiereCoeff(matiereId, mentionId, niveauId, professeurId!, coefficient);
+            setCoeffMentions(await getMatieresCoeff());
+          }}
+        />
       )}
 
       {activeTab === "ue" && (
