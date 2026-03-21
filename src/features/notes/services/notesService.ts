@@ -36,6 +36,17 @@ export async function getSemestres(): Promise<Semestre[]> {
   return json.data ?? [];
 }
 
+export async function getMockSemestres(): Promise<Semestre[]> {
+  return [
+    { id: 1, name: "Semestre 1" },
+    { id: 2, name: "Semestre 2" },
+    { id: 3, name: "Semestre 3" },
+    { id: 4, name: "Semestre 4" },
+    { id: 5, name: "Semestre 5" },
+    { id: 6, name: "Semestre 6" },
+  ];
+}
+
 // ── Matières ──────────────────────────────────────────────────────────────
 
 export async function getMatieres(): Promise<MatiereUE[]> {
@@ -142,6 +153,49 @@ export async function getResultatEtudiant(idEtudiant: number, idSemestre: number
   if (!res.ok) return null;
   const json = await res.json();
   return json.data ?? null;
+}
+
+export async function getMockResultatEtudiant(idEtudiant: number, idSemestre: number): Promise<ResultatEtudiant | null> {
+  const semestreNom = ["Semestre 1","Semestre 2","Semestre 3","Semestre 4","Semestre 5","Semestre 6"][idSemestre - 1] ?? `Semestre ${idSemestre}`;
+  return {
+    etudiant: { id: idEtudiant, nom: "—", prenom: "" },
+    resultats: [
+      {
+        session: "Normale",
+        semestre: { id: idSemestre, name: semestreNom },
+        ues: [
+          {
+            id: 1,
+            nomUE: "UE1 — Mathématiques",
+            ues20: 13.5,
+            ecs: [
+              { id: 1, nomEC: "Analyse", coefficient: 2, credit: 3, noteSur20: 14, ecAvecCoef: 28, resultat: "Validé" },
+              { id: 2, nomEC: "Algèbre", coefficient: 2, credit: 3, noteSur20: 13, ecAvecCoef: 26, resultat: "Validé" },
+            ],
+          },
+          {
+            id: 2,
+            nomUE: "UE2 — Informatique",
+            ues20: 9,
+            ecs: [
+              { id: 3, nomEC: "Algorithmique", coefficient: 3, credit: 4, noteSur20: 8, ecAvecCoef: 24, resultat: "Non validé" },
+              { id: 4, nomEC: "Programmation", coefficient: 2, credit: 3, noteSur20: 10.5, ecAvecCoef: 21, resultat: "Validé" },
+              { id: 5, nomEC: "Base de données", coefficient: 1, credit: 2, noteSur20: null, ecAvecCoef: null, resultat: null },
+            ],
+          },
+          {
+            id: 3,
+            nomUE: "UE3 — Sciences",
+            ues20: null,
+            ecs: [
+              { id: 6, nomEC: "Physique", coefficient: 2, credit: 3, noteSur20: null, ecAvecCoef: null, resultat: null },
+              { id: 7, nomEC: "Chimie", coefficient: 1, credit: 2, noteSur20: null, ecAvecCoef: null, resultat: null },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 }
 
 // ── Professeurs ───────────────────────────────────────────────────────────
