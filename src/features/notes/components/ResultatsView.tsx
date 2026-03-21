@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { rechercherEtudiants, getResultatEtudiant, getSemestres } from "../services/notesService";
 import type { EtudiantRecherche, ResultatEtudiant, Semestre } from "../types/notes";
-import RechercheEtudiantForm from "./resultats/form/RechercheEtudiantForm";
+import RechercheEtudiant from "@/components/shared/RechercheEtudiant";
 import SemestreSelect from "./resultats/form/SemestreSelect";
 import ResultatsTable from "./resultats/table/ResultatsTable";
+import { Card } from "@/components/ui/card";
 
 type Step = "recherche" | "semestre" | "resultats";
 
@@ -60,11 +61,11 @@ export default function ResultatsView() {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <RechercheEtudiantForm
+    <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900 space-y-8">
+      <RechercheEtudiant
         nom={nom}
         prenom={prenom}
-        searching={searching}
+        loading={searching}
         resultats={resultatsRecherche}
         etudiantSelectionne={etudiantSelectionne}
         onNomChange={setNom}
@@ -88,6 +89,6 @@ export default function ResultatsView() {
       {step === "resultats" && (
         <ResultatsTable resultat={resultat} />
       )}
-    </div>
+    </Card>
   );
 }

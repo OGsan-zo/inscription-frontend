@@ -115,8 +115,11 @@ export async function createMatiereCoeff(
 // ── Résultats étudiant ────────────────────────────────────────────────────
 
 export async function rechercherEtudiants(nom: string, prenom: string): Promise<EtudiantRecherche[]> {
-  const params = new URLSearchParams({ nom, prenom });
-  const res = await fetch(`/api/notes/etudiants?${params}`);
+  const res = await fetch("/api/etudiants/recherche", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nom, prenom }),
+  });
   if (!res.ok) return [];
   const json = await res.json();
   return (json.data ?? []).map((e: {

@@ -7,12 +7,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { User, EtudiantRecherche } from "@/lib/db";
 import Header from "@/components/static/Header";
 import Menu from "@/components/static/Menu";
-import { Button } from "@/components/ui/button";
-import { Search, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import FormulaireEtudiant from "@/components/admin/modification/FormulaireEtudiant";
 import { sortStudentsAlphabetically } from "@/lib/utils";
 import { useInitialData } from "@/context/DataContext";
+import RechercheEtudiant from "@/components/shared/RechercheEtudiant";
+import { Card } from "@/components/ui/card";
 
 function ModificationContent() {
   const router = useRouter();
@@ -25,7 +26,7 @@ function ModificationContent() {
   const [prenomSearch, setPrenomSearch] = useState("");
   const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
   const [loadingRecherche, setLoadingRecherche] = useState(false);
-  const [afficherListe, setAfficherListe] = useState(false);
+
   const { nationalites } = useInitialData();
 
   const [selectedEtudiantId, setSelectedEtudiantId] = useState<number | string | null>(null);
@@ -71,11 +72,9 @@ function ModificationContent() {
       if (res.ok && response.data.length > 0) {
         const sortedResults = sortStudentsAlphabetically<EtudiantRecherche>(response.data);
         setEtudiantsTrouves(sortedResults);
-        setAfficherListe(true);
       } else {
         toast.error("Aucun résultat");
         setEtudiantsTrouves([]);
-        setAfficherListe(false);
       }
     } finally {
       setLoadingRecherche(false);
@@ -95,40 +94,19 @@ function ModificationContent() {
         <Menu user={user} activeTab="" setActiveTab={() => { }} />
 
         {/* BARRE DE RECHERCHE */}
-        <div className="relative z-20 mb-6">
-          <div className="bg-white p-2 rounded-lg shadow-sm border flex items-center gap-3">
-            <Search size={18} className="text-slate-400 ml-2" />
-            <input
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9"
-              placeholder="Nom..."
-              value={nomSearch}
-              onChange={(e) => setNomSearch(e.target.value)}
-            />
-            <input
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm h-9 border-l pl-3"
-              placeholder="Prénom..."
-              value={prenomSearch}
-              onChange={(e) => setPrenomSearch(e.target.value)}
-            />
-            <Button onClick={rechercheEtudiants} disabled={loadingRecherche} size="sm" className="bg-blue-900">
-              {loadingRecherche ? <Loader2 className="animate-spin" /> : "Rechercher"}
-            </Button>
-          </div>
-
-          {afficherListe && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto z-50">
-              {etudiantsTrouves.map((e) => (
-                <div
-                  key={e.id}
-                  onClick={() => { setSelectedEtudiantId(e.id); setAfficherListe(false); }}
-                  className="p-3 hover:bg-blue-50 cursor-pointer border-b text-sm font-medium"
-                >
-                  {e.nom} {e.prenom}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <Card className="max-w-4xl mx-auto mb-6 p-6 shadow-lg border-t-4 border-blue-900">
+          <RechercheEtudiant
+            nom={nomSearch}
+            prenom={prenomSearch}
+            loading={loadingRecherche}
+            resultats={etudiantsTrouves}
+            etudiantSelectionne={null}
+            onNomChange={setNomSearch}
+            onPrenomChange={setPrenomSearch}
+            onRecherche={rechercheEtudiants}
+            onSelectEtudiant={(e) => { setSelectedEtudiantId(e.id); setEtudiantsTrouves([]); }}
+          />
+        </Card>
 
         {/* AFFICHAGE CONDITIONNEL DU SOUS-COMPOSANT */}
         {selectedEtudiantId && (
