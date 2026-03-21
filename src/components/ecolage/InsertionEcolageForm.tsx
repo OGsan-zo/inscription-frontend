@@ -6,106 +6,58 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, CheckCircle2, History, Search, UserCircle } from "lucide-react"
+import { Loader2, CheckCircle2, History, UserCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ecolageService } from "@/services/ecolageService"
 import { EcolageHistoryTable } from "@/components/ecolage/EcolageHistoryTable"
 import { EtudiantEcolageDetail } from "@/types/ecolage"
-import { EtudiantRecherche } from "@/lib/db"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { ScolariteLoader } from "./sousComponent/ScolariteLoader"
+import { useRechercheEtudiant } from "@/hooks/useRechercheEtudiant"
+import RechercheEtudiant from "@/components/shared/RechercheEtudiant"
 
 export function InsertionEcolageForm() {
     const router = useRouter()
     const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login'
-    // Selection states
+
     const [selectedStudent, setSelectedStudent] = useState<EtudiantEcolageDetail | null>(null)
     const [loadingDetails, setLoadingDetails] = useState(false)
     const [showHistory, setShowHistory] = useState(false)
     const [lastUpdatedHistory, setLastUpdatedHistory] = useState(Date.now())
-
-    // Search states (Twin logic from InscriptionForm)
-    const [nomSearch, setNomSearch] = useState("")
-    const [prenomSearch, setPrenomSearch] = useState("")
-    const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([])
-    const [loadingRecherche, setLoadingRecherche] = useState(false)
-    const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false)
-    const [loadingEtudiant, setLoadingEtudiant] = useState(false)
     const [formation, setFormation] = useState<any>(null)
 
-    // Form states
     const [registrationId, setRegistrationId] = useState("")
     const [refBordereau, setRefBordereau] = useState("")
     const [montant, setMontant] = useState("")
     const [datePaiement, setDatePaiement] = useState(new Date().toISOString().split('T')[0])
     const [loadingSubmit, setLoadingSubmit] = useState(false)
 
-    const rechercheEtudiants = async () => {
-        setLoadingRecherche(true);
-        setSelectedStudent(null);
-        setRegistrationId("");
-        try {
-            const res = await fetch("/api/etudiants/recherche", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
-            });
-
-            if (res.status === 401 || res.status === 403) {
-
-                toast.error("Session expirée. Redirection...");
-                await fetch("/api/auth/logout", { method: "POST" });
-                router.push(login);
-                return;
-            }
-
-            const response = await res.json();
-
-            const sortedStudents = (response.data || []).sort((a: EtudiantRecherche, b: EtudiantRecherche) => {
-                const nomA = a.nom ?? "";
-                const nomB = b.nom ?? "";
-                return nomA.localeCompare(nomB);
-            });
-
-            setEtudiantsTrouves(sortedStudents);
-            setAfficherListeEtudiants(true);
-
-            if (response.data?.length > 0) {
-                toast.success(`${response.data.length} étudiant(s) trouvé(s)`);
-            } else {
-                toast.error("Aucun étudiant trouvé");
-            }
-        } catch (err) {
-            toast.error("Une erreur technique est survenue");
-        } finally {
-            setLoadingRecherche(false);
-        }
-    };
+    const { nom, prenom, resultats, loading: loadingRecherche, setNom, setPrenom, setResultats, rechercher } = useRechercheEtudiant({
+        onBeforeSearch: () => { setSelectedStudent(null); setRegistrationId(""); },
+        onAuthError: async () => {
+            await fetch("/api/auth/logout", { method: "POST" });
+            router.push(login);
+        },
+    });
 
     const fetchEtudiant = async (idEtudiant: number | string) => {
-        setLoadingEtudiant(true);
         setLoadingDetails(true);
         try {
-            // Twin call to get basic identity/info
             const res = await fetch(`/api/etudiants?idEtudiant=${encodeURIComponent(idEtudiant)}`);
             if (res.status === 401 || res.status === 403) {
                 await fetch("/api/auth/logout", { method: "POST" });
                 router.push(login);
                 return;
             }
-
             const response = await res.json();
             if (!res.ok) throw new Error(response.error || "Erreur");
 
             const identite = response.data.identite;
-
-            // Follow up with Ecolage details call (propagating token via NextRequest route)
             const ecolageRes = await ecolageService.fetchStudentEcolageDetails(idEtudiant);
             const registrations = ecolageRes.data || [];
 
             setFormation(response.data.formation);
-
             setSelectedStudent({
                 id: Number(idEtudiant),
                 nom: identite.nom,
@@ -122,15 +74,11 @@ export function InsertionEcolageForm() {
                     reste_a_payer: reg.reste_a_payer
                 }))
             });
-
-            setAfficherListeEtudiants(false);
             toast.info(`Détails chargés pour : ${identite.nom}`);
         } catch (err: any) {
             toast.error(err.message || "Erreur lors du chargement des détails");
         } finally {
-            setLoadingEtudiant(false);
             setLoadingDetails(false);
-            setAfficherListeEtudiants(false);
         }
     };
 
@@ -152,27 +100,21 @@ export function InsertionEcolageForm() {
 
         setLoadingSubmit(true)
 
-        // Payload format for /api/ecolage/payment/save (PHP Backend expected)
         const payload = {
             etudiant_id: Number(selectedStudent.id),
-            annee_scolaire: selectedReg.annee_scolaire, // We need the Level Name (e.g., LP2)
+            annee_scolaire: selectedReg.annee_scolaire,
             montant: Number(montant),
-            date_paiement: datePaiement, // Already YYYY-MM-DD from 'date' input
+            date_paiement: datePaiement,
             ref_bordereau: refBordereau
-
         }
 
         try {
             await ecolageService.savePaiement(payload)
             toast.success("Paiement enregistré avec succès pour " + selectedReg.niveau)
-
-            // Reset form
             setRegistrationId("")
             setRefBordereau("")
             setMontant("")
             setShowHistory(false)
-
-            // Refresh details (specifically to see updated balances)
             fetchEtudiant(selectedStudent.id)
             setLastUpdatedHistory(Date.now())
         } catch (err: any) {
@@ -184,54 +126,17 @@ export function InsertionEcolageForm() {
 
     return (
         <div className="space-y-6">
-            <div className="p-4 bg-slate-50 border rounded-xl shadow-sm">
-                <Label className="text-slate-600 font-bold mb-4 block italic">
-                    Rechercher un étudiant
-                </Label>
-                <div className="grid md:grid-cols-5 gap-3 items-end">
-                    <div className="md:col-span-2 space-y-2">
-                        <Label htmlFor="nom">Nom</Label>
-                        <Input
-                            id="nom"
-                            placeholder="Nom"
-                            value={nomSearch}
-                            onChange={(e) => setNomSearch(e.target.value)}
-                        />
-                    </div>
-                    <div className="md:col-span-2 space-y-2">
-                        <Label htmlFor="prenom">Prénom</Label>
-                        <Input
-                            id="prenom"
-                            placeholder="Prénom"
-                            value={prenomSearch}
-                            onChange={(e) => setPrenomSearch(e.target.value)}
-                        />
-                    </div>
-                    <Button
-                        onClick={rechercheEtudiants}
-                        disabled={loadingRecherche}
-                        className="bg-blue-900 text-white"
-                    >
-                        {loadingRecherche ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                        Rechercher
-                    </Button>
-                </div>
-            </div>
-
-            {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
-                <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm overflow-hidden mb-6">
-                    {etudiantsTrouves.map((etudiant) => (
-                        <button
-                            key={etudiant.id}
-                            type="button"
-                            onClick={() => fetchEtudiant(etudiant.id)}
-                            className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
-                        >
-                            <p className="font-semibold">{etudiant.nom} {etudiant.prenom}</p>
-                        </button>
-                    ))}
-                </div>
-            )}
+            <RechercheEtudiant
+                nom={nom}
+                prenom={prenom}
+                loading={loadingRecherche}
+                resultats={resultats}
+                etudiantSelectionne={null}
+                onNomChange={setNom}
+                onPrenomChange={setPrenom}
+                onRecherche={rechercher}
+                onSelectEtudiant={(e) => { setResultats([]); fetchEtudiant(e.id); }}
+            />
 
             {loadingDetails && (
                 <div className="flex justify-center py-10">
@@ -241,7 +146,6 @@ export function InsertionEcolageForm() {
 
             {selectedStudent && (
                 <div className="space-y-6 animate-in fade-in duration-500">
-                    {/* Selection Pivot Banner */}
                     <div className="p-5 bg-blue-50/50 border-l-4 border-blue-900 rounded-r-lg flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-100 p-2 rounded-full">
@@ -269,15 +173,12 @@ export function InsertionEcolageForm() {
                             <History className="w-4 h-4 mr-2" />
                             {showHistory ? "Masquer historiques" : "Consulter historiques"}
                         </Button>
-                        
                     </div>
 
-                    {/* Payment Form */}
                     <Card className="border-none shadow-md overflow-hidden">
                         <CardContent className="p-8">
                             <form onSubmit={handleSubmit} className="space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {/* Left Column */}
                                     <div className="space-y-6">
                                         <div className="space-y-3">
                                             <Label className="text-sm font-bold text-slate-700">Sélectionner le Niveau / Année *</Label>
@@ -323,7 +224,6 @@ export function InsertionEcolageForm() {
                                         </div>
                                     </div>
 
-                                    {/* Right Column */}
                                     <div className="space-y-6">
                                         <div className="space-y-3">
                                             <Label htmlFor="montant" className="text-sm font-bold text-slate-700">Montant Versé *</Label>
@@ -368,7 +268,6 @@ export function InsertionEcolageForm() {
                     </Card>
 
                     {showHistory && (
-                        
                         <div className="animate-in slide-in-from-bottom-6 duration-500">
                             <EcolageHistoryTable
                                 idEtudiant={selectedStudent.id}
@@ -378,7 +277,6 @@ export function InsertionEcolageForm() {
                             />
                             <ScolariteLoader idEtudiant={selectedStudent.id} />
                         </div>
-                        
                     )}
                 </div>
             )}

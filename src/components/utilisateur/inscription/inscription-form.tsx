@@ -3,23 +3,19 @@
 import { toast } from 'sonner';
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState, useEffect } from "react"
+import { Loader2, CheckCircle, Info } from "lucide-react"
+import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Search, Loader2, CheckCircle, Info } from "lucide-react"
 import DocumentsForm from "./sous-composant/DocumentsForm"
 import IdentiteDisplay from "./sous-composant/IdentiteDisplay"
 import FormationDisplay from "./sous-composant/FormationDisplay"
-import { Formation, Identite, PaiementData, EtudiantRecherche, Inscription, Niveau } from '@/lib/db'
+import { Formation, Identite, PaiementData } from '@/lib/db'
 import PaiementForm from "./sous-composant/PayementForm"
 import { useRouter } from "next/navigation"
-import { generateReceiptPDF } from "@/lib/generateReceipt"
-import { getInitialData } from '@/lib/appConfig';
 import { Student } from '@/lib/db';
-import { downloadReceipt } from '@/lib/receipt-helper';
-import { sortStudentsAlphabetically } from '@/lib/utils';
 import { useInitialData } from '@/context/DataContext';
+import { useRechercheEtudiant } from '@/hooks/useRechercheEtudiant';
+import RechercheEtudiant from '@/components/shared/RechercheEtudiant';
 
 export function InscriptionForm() {
   const [step, setStep] = useState("identite");
@@ -30,19 +26,13 @@ export function InscriptionForm() {
   const [errorInscription, setErrorInscription] = useState("");
   const [successMessageInscription, setSuccessMessageInscription] = useState("");
   const [loadingEtudiant, setLoadingEtudiant] = useState(false);
-  const [loadingRecherche, setLoadingRecherche] = useState(false);
-  const [afficherListeEtudiants, setAfficherListeEtudiants] = useState(false);
-  const [nomSearch, setNomSearch] = useState("")
-  const [prenomSearch, setPrenomSearch] = useState("")
-  const [etudiantsTrouves, setEtudiantsTrouves] = useState<EtudiantRecherche[]>([]);
-  
-const { niveaux, formations } = useInitialData();
+
+  const { niveaux, formations } = useInitialData();
 
   const [identite, setIdentite] = useState<Identite | null>(null)
   const [formation, setFormation] = useState<Formation | null>(null);
   const [parcoursType, setParcoursType] = useState<string>("");
 
-  // ÉTAT EXONÉRATION
   const [isExonere, setIsExonere] = useState(false);
 
   const [paiementData, setPaiementData] = useState<PaiementData>({
@@ -53,7 +43,6 @@ const { niveaux, formations } = useInitialData();
     estBoursier: 0
   });
 
-  // INITIALISATION DES DOCUMENTS (Sans médical)
   const [validatedDocs, setValidatedDocs] = useState<Record<string, boolean>>({
     photo: false,
     acte: false,
@@ -62,7 +51,6 @@ const { niveaux, formations } = useInitialData();
     exonere: false
   });
 
-  // LOGIQUE DE VALIDATION CORRIGÉE : Photo + Diplome + (Acte OU CNI)
   const allDocsValidated =
     !!validatedDocs.photo &&
     (!!validatedDocs.acte || !!validatedDocs.cni);
@@ -76,7 +64,6 @@ const { niveaux, formations } = useInitialData();
   }
 
   const resetForm = () => {
-    setEtudiantsTrouves([]);
     setIdentite(null);
     setFormation(null);
     setStep("identite");
@@ -88,59 +75,21 @@ const { niveaux, formations } = useInitialData();
       idNiveau: "", idFormation: "",
       estBoursier: 0,
     });
-    setValidatedDocs({
-      photo: false,
-      acte: false,
-      diplome: false,
-      cni: false,
-      exonere: false
-    });
+    setValidatedDocs({ photo: false, acte: false, diplome: false, cni: false, exonere: false });
     setErrorInscription("");
     setSuccessMessageInscription("");
   };
 
-  const rechercheEtudiants = async () => {
-    setLoadingRecherche(true);
-    resetForm();
-    try {
-      const res = await fetch("/api/etudiants/recherche", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom: nomSearch, prenom: prenomSearch })
-      });
-
-      if (res.status === 401 || res.status === 403) {
-        toast.error("Session expirée. Redirection...");
-        await fetch("/api/auth/logout", { method: "POST" });
-        router.push(login);
-        return;
-      }
-
-      const response = await res.json();
-
-      // 1. On vérifie si data existe, sinon on utilise un tableau vide par défaut []
-      const etudiants = response.data || [];
-
-      // 2. On trie le tableau via l'utilitaire centralisé
-      const sortedStudents = sortStudentsAlphabetically<EtudiantRecherche>(etudiants);
-
-      setEtudiantsTrouves(sortedStudents);
-      setAfficherListeEtudiants(true);
-
-      if (sortedStudents.length > 0) {
-        const successAudio = new Audio("/sounds/successed-295058.mp3");
-        successAudio.play();
-        toast.success(`${sortedStudents.length} étudiant(s) trouvé(s)`);
-      } else {
-        toast.error("Aucun étudiant trouvé");
-      }
-    } catch (err) {
-      const message = (err as Error).message || "Une erreur inattendue s'est produite";
-      toast.error(message);
-    } finally {
-      setLoadingRecherche(false);
-    }
-  };
+  const { nom, prenom, resultats, loading: loadingRecherche, setNom, setPrenom, setResultats, rechercher } = useRechercheEtudiant({
+    onBeforeSearch: resetForm,
+    onAuthError: async () => {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push(login);
+    },
+    onSearchSuccess: () => {
+      new Audio("/sounds/successed-295058.mp3").play();
+    },
+  });
 
   const fetchEtudiant = async (idEtudiant: number | string) => {
     setLoadingEtudiant(true);
@@ -151,23 +100,16 @@ const { niveaux, formations } = useInitialData();
         router.push(login);
         return;
       }
-
       const response = await res.json();
-      // console.log(response.data)
       if (!res.ok) throw new Error(response.error || "Erreur");
-
-
       setIdentite(response.data.identite);
       setFormation(response.data.formation);
       setParcoursType(response.data.formation.formationType);
-      setAfficherListeEtudiants(false);
     } catch (err: any) {
       toast.error(err.message);
-      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
-      errorAudio.play();
+      new Audio("/sounds/error-011-352286.mp3").play();
     } finally {
       setLoadingEtudiant(false);
-      setAfficherListeEtudiants(false);
     }
   };
 
@@ -197,7 +139,6 @@ const { niveaux, formations } = useInitialData();
         return;
       }
       const response = await res.json();
-
       if (!res.ok) throw new Error(response.error || "Erreur lors de l'inscription");
 
       setSuccessMessageInscription("Inscription réussie !");
@@ -208,10 +149,7 @@ const { niveaux, formations } = useInitialData();
         ecolage: response.data.ecolage || null
       };
 
-      // downloadReceipt(fullStudent);
-
-      const successAudio = new Audio("/sounds/success-221935.mp3");
-      successAudio.play();
+      new Audio("/sounds/success-221935.mp3").play();
       toast.success("Inscription réussie pour " + identite.nom);
 
       setTimeout(() => {
@@ -221,48 +159,24 @@ const { niveaux, formations } = useInitialData();
     } catch (err: any) {
       setErrorInscription(err.message);
       toast.error(err.message);
-      const errorAudio = new Audio("/sounds/error-011-352286.mp3");
-      errorAudio.play();
+      new Audio("/sounds/error-011-352286.mp3").play();
       setLoadingInscription(false);
     }
   };
 
-
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900">
-      <div className="mb-8 p-4 bg-slate-50 border rounded-xl">
-        <Label className="text-slate-600 font-bold mb-4 block italic">Rechercher un étudiant</Label>
-        <div className="grid md:grid-cols-5 gap-3 items-end">
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="nom">Nom</Label>
-            <Input id="nom" placeholder="Nom" value={nomSearch} onChange={(e) => setNomSearch(e.target.value)} />
-          </div>
-          <div className="md:col-span-2 space-y-2">
-            <Label htmlFor="prenom">Prénom</Label>
-            <Input id="prenom" placeholder="Prénom" value={prenomSearch} onChange={(e) => setPrenomSearch(e.target.value)} />
-          </div>
-          <Button onClick={rechercheEtudiants} disabled={loadingRecherche} className="bg-blue-900 text-white">
-            {loadingRecherche ? <Loader2 className="animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-            Rechercher
-          </Button>
-        </div>
-      </div>
-
-      {etudiantsTrouves.length > 0 && afficherListeEtudiants && (
-        <div className="mt-4 border rounded-lg divide-y bg-white shadow-sm mb-6 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-          {etudiantsTrouves.map((etudiant) => (
-            <button 
-              key={etudiant.id} 
-              type="button" 
-              onClick={() => fetchEtudiant(etudiant.id)} 
-              className="w-full text-left px-4 py-3 hover:bg-slate-100 transition"
-            >
-              <p className="font-semibold text-slate-800">{etudiant.nom} {etudiant.prenom}</p>
-
-            </button>
-          ))}
-        </div>
-      )}
+      <RechercheEtudiant
+        nom={nom}
+        prenom={prenom}
+        loading={loadingRecherche}
+        resultats={resultats}
+        etudiantSelectionne={null}
+        onNomChange={setNom}
+        onPrenomChange={setPrenom}
+        onRecherche={rechercher}
+        onSelectEtudiant={(e) => { setResultats([]); fetchEtudiant(e.id); }}
+      />
 
       {identite && formation ? (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -311,14 +225,9 @@ const { niveaux, formations } = useInitialData();
           <div className="flex gap-4 pt-6 border-t">
             {step === "paiement" ? (
               <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setStep("documents")}
-                >
+                <Button type="button" variant="outline" onClick={() => setStep("documents")}>
                   Précédent
                 </Button>
-
                 {allDocsValidated ? (
                   <Button
                     type="submit"
