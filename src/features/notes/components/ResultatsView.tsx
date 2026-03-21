@@ -36,6 +36,7 @@ export default function ResultatsView() {
   };
 
   const handleSelectEtudiant = async (e: EtudiantRecherche) => {
+    setResultatsRecherche([]);
     setEtudiantSelectionne(e);
     setSemestres(await getSemestres());
     setIdSemestre("");

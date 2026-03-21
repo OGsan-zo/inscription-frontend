@@ -1,24 +1,42 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EtudiantNotesProfesseur } from "../../types/notes";
+
+type NoteItem = { etudiantId: number; valeur: number };
 
 interface VoirListeEtudiantTableProps {
   titre?: string;
   etudiants: EtudiantNotesProfesseur[];
-  onValiderNormale: (ids: number[]) => Promise<void>;
-  onValiderRattrapage: (ids: number[]) => Promise<void>;
+  loading?: boolean;
+  onValiderNormale: (items: NoteItem[]) => Promise<void>;
+  onValiderRattrapage: (items: NoteItem[]) => Promise<void>;
 }
 
 export default function VoirListeEtudiantTable({
   titre = "Voir Liste Etudiant",
   etudiants,
+  loading = false,
   onValiderNormale,
   onValiderRattrapage,
 }: VoirListeEtudiantTableProps) {
   const [checked, setChecked] = useState<Set<number>>(new Set());
+  const [localNotes, setLocalNotes] = useState<Record<number, { normale: string; rattrapage: string }>>({});
   const [savingN, setSavingN] = useState(false);
   const [savingR, setSavingR] = useState(false);
+
+  // Réinitialise les notes locales quand la liste change (nouvelle matière sélectionnée)
+  useEffect(() => {
+    const init: Record<number, { normale: string; rattrapage: string }> = {};
+    for (const e of etudiants) {
+      init[e.id] = {
+        normale: e.noteNormale !== null ? String(e.noteNormale) : "",
+        rattrapage: e.noteRattrapage !== null ? String(e.noteRattrapage) : "",
+      };
+    }
+    setLocalNotes(init);
+    setChecked(new Set());
+  }, [etudiants]);
 
   const toggle = (id: number) =>
     setChecked((prev) => {
@@ -27,34 +45,54 @@ export default function VoirListeEtudiantTable({
       return next;
     });
 
+  const buildItems = (type: "normale" | "rattrapage"): NoteItem[] =>
+    [...checked]
+      .map((id) => ({ etudiantId: id, valeur: parseFloat(localNotes[id]?.[type] ?? "") }))
+      .filter((item) => !isNaN(item.valeur));
+
   const handleValiderNormale = async () => {
+    const items = buildItems("normale");
+    if (items.length === 0) return;
     setSavingN(true);
-    try { await onValiderNormale([...checked]); }
+    try { await onValiderNormale(items); }
     finally { setSavingN(false); }
   };
 
   const handleValiderRattrapage = async () => {
+    const items = buildItems("rattrapage");
+    if (items.length === 0) return;
     setSavingR(true);
-    try { await onValiderRattrapage([...checked]); }
+    try { await onValiderRattrapage(items); }
     finally { setSavingR(false); }
   };
+
+  if (loading) {
+    return <p className="text-sm text-gray-500 py-4 text-center">Chargement...</p>;
+  }
 
   return (
     <div>
       <h2 className="text-sm font-semibold text-gray-700 mb-3">{titre}</h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm border border-gray-300">
+        <table className="w-full text-sm border border-gray-300 min-w-[500px]">
           <thead>
             <tr className="bg-gray-100 text-gray-700">
               <th className="border border-gray-300 px-3 py-2 w-10"></th>
               <th className="border border-gray-300 px-3 py-2 text-left">Nom</th>
-              <th className="border border-gray-300 px-3 py-2 text-left">Note Normale</th>
-              <th className="border border-gray-300 px-3 py-2 text-left">Note Rattrapage</th>
+              <th className="border border-gray-300 px-3 py-2 text-center w-36">Note Normale</th>
+              <th className="border border-gray-300 px-3 py-2 text-center w-36">Note Rattrapage</th>
             </tr>
           </thead>
           <tbody>
+            {etudiants.length === 0 && (
+              <tr>
+                <td colSpan={4} className="border border-gray-300 px-3 py-4 text-center text-gray-400 italic">
+                  Aucun étudiant trouvé
+                </td>
+              </tr>
+            )}
             {etudiants.map((e) => (
-              <tr key={e.id} className="hover:bg-gray-50">
+              <tr key={e.id} className={checked.has(e.id) ? "bg-blue-50" : "hover:bg-gray-50"}>
                 <td className="border border-gray-300 px-3 py-2 text-center">
                   <input
                     type="checkbox"
@@ -63,12 +101,40 @@ export default function VoirListeEtudiantTable({
                     className="w-4 h-4"
                   />
                 </td>
-                <td className="border border-gray-300 px-3 py-2">{e.nom}</td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {e.noteNormale ?? <span className="text-gray-400">—</span>}
+                <td className="border border-gray-300 px-3 py-2 font-medium">{e.nom}</td>
+                <td className="border border-gray-300 px-2 py-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={20}
+                    step={0.5}
+                    placeholder="—"
+                    value={localNotes[e.id]?.normale ?? ""}
+                    onChange={(ev) =>
+                      setLocalNotes((prev) => ({
+                        ...prev,
+                        [e.id]: { ...prev[e.id], normale: ev.target.value },
+                      }))
+                    }
+                    className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
                 </td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {e.noteRattrapage ?? <span className="text-gray-400">—</span>}
+                <td className="border border-gray-300 px-2 py-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={20}
+                    step={0.5}
+                    placeholder="—"
+                    value={localNotes[e.id]?.rattrapage ?? ""}
+                    onChange={(ev) =>
+                      setLocalNotes((prev) => ({
+                        ...prev,
+                        [e.id]: { ...prev[e.id], rattrapage: ev.target.value },
+                      }))
+                    }
+                    className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
                 </td>
               </tr>
             ))}
@@ -80,16 +146,16 @@ export default function VoirListeEtudiantTable({
         <button
           onClick={handleValiderNormale}
           disabled={savingN || checked.size === 0}
-          className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-4 py-1.5 rounded disabled:opacity-50"
+          className="bg-blue-900 hover:bg-blue-800 text-white text-sm px-4 py-1.5 rounded disabled:opacity-50"
         >
-          {savingN ? "Validation..." : "Valider (Normale)"}
+          {savingN ? "Enregistrement..." : "Valider (Normale)"}
         </button>
         <button
           onClick={handleValiderRattrapage}
           disabled={savingR || checked.size === 0}
           className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm px-4 py-1.5 rounded disabled:opacity-50"
         >
-          {savingR ? "Validation..." : "Valider (Rattrapage)"}
+          {savingR ? "Enregistrement..." : "Valider (Rattrapage)"}
         </button>
       </div>
     </div>

@@ -1,6 +1,15 @@
 import { type NextRequest } from "next/server";
-import { callApiGet } from "@/lib/callApi";
+import { callApiGet, callApiPost } from "@/lib/callApi";
 
 export async function GET(request: NextRequest) {
   return callApiGet(request, "/notes/matieres-coeff/professeur");
+}
+
+export async function POST(request: NextRequest) {
+  return callApiPost(request, "/notes/matieres-coeff/professeur", [
+    "idMatiereCoefficient",
+    "annee",
+    "isNormale",
+    "listeEtudiants",
+  ]);
 }

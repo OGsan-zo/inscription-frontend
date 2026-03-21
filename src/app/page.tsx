@@ -49,10 +49,6 @@ export default function WelcomePage() {
                   Accéder au Portail
                   <LayoutDashboard className="w-5 h-5" />
                 </Link>
-                <Link href="/notes" className="inline-flex bg-white border border-slate-200 text-slate-700 px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-md hover:border-blue-300 transition-all items-center gap-3">
-                  Module Notes
-                  <BookOpen className="w-5 h-5 text-blue-600" />
-                </Link>
               </div>
             </div>
 

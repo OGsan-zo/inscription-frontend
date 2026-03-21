@@ -1,27 +1,30 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import PageTabs from "../shared/PageTabs";
 import CoeffMentionTable from "../shared/table/CoeffMentionTable";
 import VoirListeEtudiantTable from "./VoirListeEtudiantTable";
 import {
   getProfesseurMatieres,
   getEtudiantsForMatiere,
-  soumettreNotesNormales,
-  soumettreNotesRattrapage,
+  soumettreNotes,
 } from "../../services/professeurService";
 import { MatiereCoeffItem, EtudiantNotesProfesseur } from "../../types/notes";
 
 const TABS = [
-  { key: "liste",    label: "Liste Matière" },
+  { key: "liste",     label: "Liste Matière" },
   { key: "etudiants", label: "Voir Liste Etudiant" },
 ];
+
+const ANNEE = new Date().getFullYear();
 
 export default function ProfesseurView() {
   const [activeTab, setActiveTab] = useState("liste");
   const [matieres, setMatieres] = useState<MatiereCoeffItem[]>([]);
   const [etudiants, setEtudiants] = useState<EtudiantNotesProfesseur[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeffItem | null>(null);
+  const [loadingEtudiants, setLoadingEtudiants] = useState(false);
 
   useEffect(() => {
     getProfesseurMatieres().then(setMatieres);
@@ -29,27 +32,32 @@ export default function ProfesseurView() {
 
   const handleVoirEtudiant = async (matiere: MatiereCoeffItem) => {
     setSelectedMatiere(matiere);
-    const data = await getEtudiantsForMatiere(matiere.id);
-    setEtudiants(data);
     setActiveTab("etudiants");
+    setLoadingEtudiants(true);
+    try {
+      const data = await getEtudiantsForMatiere(matiere.id, ANNEE);
+      setEtudiants(data);
+    } catch {
+      toast.error("Erreur lors du chargement des étudiants");
+    } finally {
+      setLoadingEtudiants(false);
+    }
   };
 
-  const handleValiderNormale = async (ids: number[]) => {
+  const handleValiderNormale = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    const notes = ids.map((id) => {
-      const e = etudiants.find((x) => x.id === id);
-      return { idEtudiant: id, note: e?.noteNormale ?? 0 };
-    });
-    await soumettreNotesNormales(selectedMatiere.id, notes);
+    await soumettreNotes(selectedMatiere.id, ANNEE, true, items);
+    toast.success("Notes normales enregistrées");
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, ANNEE);
+    setEtudiants(data);
   };
 
-  const handleValiderRattrapage = async (ids: number[]) => {
+  const handleValiderRattrapage = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    const notes = ids.map((id) => {
-      const e = etudiants.find((x) => x.id === id);
-      return { idEtudiant: id, note: e?.noteRattrapage ?? 0 };
-    });
-    await soumettreNotesRattrapage(selectedMatiere.id, notes);
+    await soumettreNotes(selectedMatiere.id, ANNEE, false, items);
+    toast.success("Notes de rattrapage enregistrées");
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, ANNEE);
+    setEtudiants(data);
   };
 
   return (
@@ -73,6 +81,7 @@ export default function ProfesseurView() {
           )}
           <VoirListeEtudiantTable
             etudiants={etudiants}
+            loading={loadingEtudiants}
             onValiderNormale={handleValiderNormale}
             onValiderRattrapage={handleValiderRattrapage}
           />
