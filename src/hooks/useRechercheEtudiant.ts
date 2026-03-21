@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { EtudiantRecherche } from "@/lib/db";
-import { sortStudentsAlphabetically } from "@/lib/utils";
+import { rechercherEtudiants } from "@/services/etudiantService";
 
 export function useRechercheEtudiant() {
   const [nom, setNom] = useState("");
@@ -15,14 +15,9 @@ export function useRechercheEtudiant() {
     if (!nom.trim() && !prenom.trim()) return toast.error("Entrez un critère");
     setLoading(true);
     try {
-      const res = await fetch("/api/etudiants/recherche", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom, prenom }),
-      });
-      const response = await res.json();
-      if (res.ok && response.data?.length > 0) {
-        setResultats(sortStudentsAlphabetically<EtudiantRecherche>(response.data));
+      const data = await rechercherEtudiants(nom, prenom);
+      if (data.length > 0) {
+        setResultats(data);
       } else {
         toast.error("Aucun résultat");
         setResultats([]);
