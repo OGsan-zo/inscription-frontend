@@ -9,30 +9,32 @@ import type {
   EtudiantRecherche,
   ResultatEtudiant,
 } from "../types/notes";
+import { handleApiError } from "../utils/handleApiError";
 
 // ── UE ────────────────────────────────────────────────────────────────────
 
 export async function getUEs(): Promise<UE[]> {
   try {
     const res = await fetch("/api/notes/ue");
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getUEs", res); return []; }
     const json = await res.json();
     return json.data ?? [];
   } catch (err) {
-    console.error("[getUEs]", err);
+    await handleApiError("getUEs", undefined, err);
     return [];
   }
 }
 
 export async function createUE(name: string): Promise<void> {
   try {
-    await fetch("/api/notes/ue", {
+    const res = await fetch("/api/notes/ue", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
     });
+    if (!res.ok) await handleApiError("createUE", res);
   } catch (err) {
-    console.error("[createUE]", err);
+    await handleApiError("createUE", undefined, err);
   }
 }
 
@@ -41,11 +43,11 @@ export async function createUE(name: string): Promise<void> {
 export async function getSemestres(): Promise<Semestre[]> {
   try {
     const res = await fetch("/api/notes/semestres");
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getSemestres", res); return []; }
     const json = await res.json();
     return json.data ?? [];
   } catch (err) {
-    console.error("[getSemestres]", err);
+    await handleApiError("getSemestres", undefined, err);
     return [];
   }
 }
@@ -55,7 +57,7 @@ export async function getSemestres(): Promise<Semestre[]> {
 export async function getMatieres(): Promise<MatiereUE[]> {
   try {
     const res = await fetch("/api/notes/matieres");
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getMatieres", res); return []; }
     const json = await res.json();
     return (json.data ?? []).map((m: {
       id: number;
@@ -69,7 +71,7 @@ export async function getMatieres(): Promise<MatiereUE[]> {
       semestre: { id: m.semestre.id, name: m.semestre.name },
     }));
   } catch (err) {
-    console.error("[getMatieres]", err);
+    await handleApiError("getMatieres", undefined, err);
     return [];
   }
 }
@@ -80,13 +82,14 @@ export async function createMatiere(
   semestreId: number
 ): Promise<void> {
   try {
-    await fetch("/api/notes/matieres", {
+    const res = await fetch("/api/notes/matieres", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, ueId, semestreId }),
     });
+    if (!res.ok) await handleApiError("createMatiere", res);
   } catch (err) {
-    console.error("[createMatiere]", err);
+    await handleApiError("createMatiere", undefined, err);
   }
 }
 
@@ -95,7 +98,7 @@ export async function createMatiere(
 export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
   try {
     const res = await fetch("/api/notes/matieres-coeff");
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getMatieresCoeff", res); return []; }
     const json = await res.json();
 
     return (json.data ?? []).map((c: {
@@ -124,7 +127,7 @@ export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
       professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
     }));
   } catch (err) {
-    console.error("[getMatieresCoeff]", err);
+    await handleApiError("getMatieresCoeff", undefined, err);
     return [];
   }
 }
@@ -137,13 +140,14 @@ export async function createMatiereCoeff(
   coefficient: number
 ): Promise<void> {
   try {
-    await fetch("/api/notes/matieres-coeff", {
+    const res = await fetch("/api/notes/matieres-coeff", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
     });
+    if (!res.ok) await handleApiError("createMatiereCoeff", res);
   } catch (err) {
-    console.error("[createMatiereCoeff]", err);
+    await handleApiError("createMatiereCoeff", undefined, err);
   }
 }
 
@@ -156,7 +160,7 @@ export async function rechercherEtudiants(nom: string, prenom: string): Promise<
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nom, prenom }),
     });
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("rechercherEtudiants", res); return []; }
     const json = await res.json();
     return (json.data ?? []).map((e: {
       id: number;
@@ -172,7 +176,7 @@ export async function rechercherEtudiants(nom: string, prenom: string): Promise<
       niveau: e.niveau,
     }));
   } catch (err) {
-    console.error("[rechercherEtudiants]", err);
+    await handleApiError("rechercherEtudiants", undefined, err);
     return [];
   }
 }
@@ -180,11 +184,11 @@ export async function rechercherEtudiants(nom: string, prenom: string): Promise<
 export async function getResultatEtudiant(idEtudiant: number, idSemestre: number): Promise<ResultatEtudiant | null> {
   try {
     const res = await fetch(`/api/notes/resultats/${idEtudiant}?idSemestre=${idSemestre}`);
-    if (!res.ok) return null;
+    if (!res.ok) { await handleApiError("getResultatEtudiant", res); return null; }
     const json = await res.json();
     return json.data ?? null;
   } catch (err) {
-    console.error("[getResultatEtudiant]", err);
+    await handleApiError("getResultatEtudiant", undefined, err);
     return null;
   }
 }

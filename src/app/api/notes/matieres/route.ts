@@ -6,5 +6,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/matieres", ["name", "semestreId", "ueId"]);
+  const requiredFields = [
+    "name",       // Nom de la matière
+    "semestreId", // ID du semestre
+    "ueId",       // ID de l'UE parente
+  ];
+  return callApiPost(request, "/notes/matieres", requiredFields);
 }

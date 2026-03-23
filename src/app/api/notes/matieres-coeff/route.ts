@@ -6,11 +6,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/matieres-coeff", [
-    "idMatiere",
-    "idMention",
-    "idNiveau",
-    "idProfesseur",
-    "coefficient",
-  ]);
+  const requiredFields = [
+    "idMatiere",    // ID de la matière
+    "idMention",    // ID de la mention
+    "idNiveau",     // ID du niveau
+    "idProfesseur", // ID du professeur assigné
+    "coefficient",  // Coefficient de la matière dans cette mention
+  ];
+  return callApiPost(request, "/notes/matieres-coeff", requiredFields);
 }

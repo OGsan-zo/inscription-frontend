@@ -1,4 +1,5 @@
 import type { MatiereCoeffItem, EtudiantNotesProfesseur } from "../types/notes";
+import { handleApiError } from "../utils/handleApiError";
 
 // Type plat retourné par GET /notes/matieres-coeff/professeur
 type FlatCoeff = {
@@ -23,7 +24,7 @@ type FlatCoeff = {
 export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
   try {
     const res = await fetch("/api/notes/matieres-coeff/professeur");
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getProfesseurMatieres", res); return []; }
     const json = await res.json();
     return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
       id: c.id,
@@ -36,7 +37,7 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
       professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
     }));
   } catch (err) {
-    console.error("[getProfesseurMatieres]", err);
+    await handleApiError("getProfesseurMatieres", undefined, err);
     return [];
   }
 }
@@ -49,11 +50,11 @@ export async function getEtudiantsForMatiere(
 ): Promise<EtudiantNotesProfesseur[]> {
   try {
     const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getEtudiantsForMatiere", res); return []; }
     const json = await res.json();
     return json.data ?? [];
   } catch (err) {
-    console.error("[getEtudiantsForMatiere]", err);
+    await handleApiError("getEtudiantsForMatiere", undefined, err);
     return [];
   }
 }
@@ -73,11 +74,13 @@ export async function soumettreNotes(
       body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
     });
     if (!res.ok) {
-      const json = await res.json();
-      throw new Error(json.error || "Erreur lors de la soumission des notes");
+      await handleApiError("soumettreNotes", res);
+      throw new Error("Échec de la soumission des notes");
     }
   } catch (err) {
-    console.error("[soumettreNotes]", err);
+    if (!(err instanceof Error && err.message === "Échec de la soumission des notes")) {
+      await handleApiError("soumettreNotes", undefined, err);
+    }
     throw err;
   }
 }

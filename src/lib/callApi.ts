@@ -125,7 +125,10 @@ export async function callApiPut(
   try {
     const api = getServerAxios(request);
 
-    const body = await request.json();
+    // Body optionnel — certains PUT n'ont pas de body (ex: valider une note)
+    let body: Record<string, unknown> = {};
+    try { body = await request.json(); } catch { /* pas de body */ }
+
     const missingFields: string[] = [];
 
     // Vérification des champs requis

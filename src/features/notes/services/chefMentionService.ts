@@ -1,4 +1,5 @@
 import type { EtudiantNoteValidation } from "../types/notes";
+import { handleApiError } from "../utils/handleApiError";
 
 // ── Notes étudiants pour une matière-coefficient ────────────────────────────
 
@@ -8,11 +9,11 @@ export async function getEtudiantNotesValidation(
 ): Promise<EtudiantNoteValidation[]> {
   try {
     const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
-    if (!res.ok) return [];
+    if (!res.ok) { await handleApiError("getEtudiantNotesValidation", res); return []; }
     const json = await res.json();
     return json.data ?? [];
   } catch (err) {
-    console.error("[getEtudiantNotesValidation]", err);
+    await handleApiError("getEtudiantNotesValidation", undefined, err);
     return [];
   }
 }
@@ -27,13 +28,14 @@ export async function addMatiereCoeffMention(
   idProfesseur?: number
 ): Promise<void> {
   try {
-    await fetch("/api/notes/matieres-coeff", {
+    const res = await fetch("/api/notes/matieres-coeff", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
     });
+    if (!res.ok) await handleApiError("addMatiereCoeffMention", res);
   } catch (err) {
-    console.error("[addMatiereCoeffMention]", err);
+    await handleApiError("addMatiereCoeffMention", undefined, err);
   }
 }
 
@@ -41,8 +43,9 @@ export async function addMatiereCoeffMention(
 
 export async function validerNote(idNote: number): Promise<void> {
   try {
-    await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
+    const res = await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
+    if (!res.ok) await handleApiError("validerNote", res);
   } catch (err) {
-    console.error("[validerNote]", err);
+    await handleApiError("validerNote", undefined, err);
   }
 }
