@@ -50,17 +50,6 @@ export async function getSemestres(): Promise<Semestre[]> {
   }
 }
 
-export async function getMockSemestres(): Promise<Semestre[]> {
-  return [
-    { id: 1, name: "Semestre 1" },
-    { id: 2, name: "Semestre 2" },
-    { id: 3, name: "Semestre 3" },
-    { id: 4, name: "Semestre 4" },
-    { id: 5, name: "Semestre 5" },
-    { id: 6, name: "Semestre 6" },
-  ];
-}
-
 // ── Matières ──────────────────────────────────────────────────────────────
 
 export async function getMatieres(): Promise<MatiereUE[]> {
