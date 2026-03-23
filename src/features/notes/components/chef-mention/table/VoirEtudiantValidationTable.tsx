@@ -28,34 +28,31 @@ export default function VoirEtudiantValidationTable({
             </tr>
           </thead>
           <tbody>
-            {etudiants.map((e) => (
-              <tr key={e.id} className="hover:bg-gray-50">
-                <td className="border border-gray-300 px-3 py-2">{e.nom}</td>
-                <td className="border border-gray-300 px-3 py-2">{e.note}</td>
-                <td className="border border-gray-300 px-3 py-2">{e.type}</td>
-                <td className="border border-gray-300 px-3 py-2">
-                  <span
-                    className={
-                      e.status === "Valide"
-                        ? "text-emerald-600 font-medium"
-                        : "text-rose-600 font-medium"
-                    }
-                  >
-                    {e.status}
-                  </span>
-                </td>
-                <td className="border border-gray-300 px-3 py-2">
-                  {e.status === "Non Valide" && (
-                    <button
-                      onClick={() => onValider(e)}
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs px-3 py-1 rounded"
-                    >
-                      Valider
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {etudiants.map((e) => {
+              const isValide = e.dateValidation !== null;
+              return (
+                <tr key={e.id} className="hover:bg-gray-50">
+                  <td className="border border-gray-300 px-3 py-2">{e.nom} {e.prenom}</td>
+                  <td className="border border-gray-300 px-3 py-2">{e.valeur}</td>
+                  <td className="border border-gray-300 px-3 py-2">{e.typeNoteName}</td>
+                  <td className="border border-gray-300 px-3 py-2">
+                    <span className={isValide ? "text-emerald-600 font-medium" : "text-rose-600 font-medium"}>
+                      {isValide ? "Valide" : "Non Valide"}
+                    </span>
+                  </td>
+                  <td className="border border-gray-300 px-3 py-2">
+                    {!isValide && (
+                      <button
+                        onClick={() => onValider(e)}
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs px-3 py-1 rounded"
+                      >
+                        Valider
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

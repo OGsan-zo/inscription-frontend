@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { rechercherEtudiants, getMockResultatEtudiant, getMockSemestres } from "../services/notesService";
+import { rechercherEtudiants, getResultatEtudiant, getMockSemestres } from "../services/notesService";
 import type { EtudiantRecherche, ResultatEtudiant, Semestre } from "../types/notes";
 import RechercheEtudiant from "@/components/shared/RechercheEtudiant";
 import SemestreSelect from "./resultats/form/SemestreSelect";
@@ -46,7 +46,7 @@ export default function ResultatsView() {
   const handleValiderSemestre = async () => {
     if (!etudiantSelectionne || !idSemestre) return;
     setLoadingResultat(true);
-    setResultat(await getMockResultatEtudiant(etudiantSelectionne.id, Number(idSemestre)));
+    setResultat(await getResultatEtudiant(etudiantSelectionne.id, Number(idSemestre)));
     setStep("resultats");
     setLoadingResultat(false);
   };

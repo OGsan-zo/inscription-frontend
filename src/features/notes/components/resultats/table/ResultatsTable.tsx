@@ -15,23 +15,20 @@ export default function ResultatsTable({ resultat }: Props) {
         <h3 className="text-base font-bold text-slate-900 uppercase tracking-wide">SESSION NORMALE</h3>
       </div>
 
-      {!resultat || resultat.resultats.length === 0 ? (
+      {!resultat || resultat.length === 0 ? (
         <p className="text-center py-12 text-slate-400">Aucun résultat disponible pour ce semestre.</p>
       ) : (
-        resultat.resultats.map((session) => (
-          <div key={session.semestre.id} className="overflow-x-auto">
+        resultat.map((session) => (
+          <div key={session.type} className="overflow-x-auto">
             <table className="w-full text-sm min-w-[600px]">
               <ResultatsTableHeader />
               <tbody>
-                {session.ues.map((ue) => (
-                  <Fragment key={ue.id}>
-                  
+                {session.notesListes.map((ue) => (
+                  <Fragment key={ue.ue}>
                     <ResultatsUERow ue={ue} />
-                    
-                    {ue.ecs.map((ec) => (
-                      <ResultatsECRow key={`ec-${ec.id}`} ec={ec} />
+                    {ue.notes.map((ec) => (
+                      <ResultatsECRow key={ec.matiere} ec={ec} isValid={ue.isValid} />
                     ))}
-                  
                   </Fragment>
                 ))}
               </tbody>

@@ -21,59 +21,41 @@ type FlatCoeff = {
 // ── Matières du professeur connecté ────────────────────────────────────────
 
 export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
-  const res = await fetch("/api/notes/matieres-coeff/professeur");
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
-    id: c.id,
-    ue: c.ue, 
-    matiere: { id: c.matiereId, nom: c.matiereNom },
-    semestre: { id: c.semestreId, name: c.semestreNom },
-    mention: { id: c.mentionId, nom: c.mentionNom },
-    coefficient: c.coefficient,
-    niveau: { id: c.niveauId, nom: c.niveauNom },
-    professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
-  }));
+  try {
+    const res = await fetch("/api/notes/matieres-coeff/professeur");
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
+      id: c.id,
+      ue: c.ue,
+      matiere: { id: c.matiereId, nom: c.matiereNom },
+      semestre: { id: c.semestreId, name: c.semestreNom },
+      mention: { id: c.mentionId, nom: c.mentionNom },
+      coefficient: c.coefficient,
+      niveau: { id: c.niveauId, nom: c.niveauNom },
+      professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
+    }));
+  } catch (err) {
+    console.error("[getProfesseurMatieres]", err);
+    return [];
+  }
 }
 
 // ── Étudiants (notes) pour un professeur et une année ──────────────────────
-
-type BackendNote = {
-  etudiantId: number;
-  matiereMentionCoefficientId: number;
-  typeNoteId: number; // 1 = Normale, 2 = Rattrapage
-  valeur: number;
-  annee: number;
-  dateValidation: string | null;
-};
-
-type BackendEtudiantNotes = {
-  details: {
-    etudiantId: number;
-    nom: string;
-    prenom: string;
-    niveauId: number;
-    mentionId: number;
-    annee: number;
-  };
-  notes: BackendNote[];
-};
 
 export async function getEtudiantsForMatiere(
   matiereCoeffId: number,
   annee: number
 ): Promise<EtudiantNotesProfesseur[]> {
-  const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
-  if (!res.ok) return [];
-  const json = await res.json();
-  const records: BackendEtudiantNotes[] = json.data ?? [];
-
-  return records.map((r) => ({
-    id: r.details.etudiantId,
-    nom: `${r.details.nom} ${r.details.prenom}`,
-    noteNormale: r.notes.find((n) => n.typeNoteId === 1)?.valeur ?? null,
-    noteRattrapage: r.notes.find((n) => n.typeNoteId === 2)?.valeur ?? null,
-  }));
+  try {
+    const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data ?? [];
+  } catch (err) {
+    console.error("[getEtudiantsForMatiere]", err);
+    return [];
+  }
 }
 
 // ── Soumettre des notes ─────────────────────────────────────────────────────
@@ -84,13 +66,18 @@ export async function soumettreNotes(
   isNormale: boolean,
   listeEtudiants: { etudiantId: number; valeur: number }[]
 ): Promise<void> {
-  const res = await fetch("/api/notes/matieres-coeff/professeur", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
-  });
-  if (!res.ok) {
-    const json = await res.json();
-    throw new Error(json.error || "Erreur lors de la soumission des notes");
+  try {
+    const res = await fetch("/api/notes/matieres-coeff/professeur", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
+    });
+    if (!res.ok) {
+      const json = await res.json();
+      throw new Error(json.error || "Erreur lors de la soumission des notes");
+    }
+  } catch (err) {
+    console.error("[soumettreNotes]", err);
+    throw err;
   }
 }
