@@ -41,6 +41,7 @@ export interface Niveau {
 
 export interface MatiereCoeffItem {
   id: number;
+  ue: string;
   matiere: Matiere;
   semestre: Semestre;
   mention: MentionNote;

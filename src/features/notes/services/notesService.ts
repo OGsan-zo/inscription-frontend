@@ -84,8 +84,10 @@ export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
   const res = await fetch("/api/notes/matieres-coeff");
   if (!res.ok) return [];
   const json = await res.json();
+
   return (json.data ?? []).map((c: {
     id: number;
+    ue:string;
     coefficient: number;
     matiereId: number;
     matiereNom: string;
@@ -100,6 +102,7 @@ export async function getMatieresCoeff(): Promise<MatiereCoeffItem[]> {
     professeurPrenom: string;
   }): MatiereCoeffItem => ({
     id: c.id,
+    ue: c.ue,
     matiere: { id: c.matiereId, nom: c.matiereNom },
     semestre: { id: c.semestreId, name: c.semestreNom },
     mention: { id: c.mentionId, nom: c.mentionNom },

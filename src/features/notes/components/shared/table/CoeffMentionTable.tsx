@@ -24,6 +24,7 @@ export default function CoeffMentionTable({ coeffMentions, onVoirEtudiant, onMod
           <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
+                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">UE</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Matière</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Semestre</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Mention</th>
@@ -38,6 +39,7 @@ export default function CoeffMentionTable({ coeffMentions, onVoirEtudiant, onMod
             <tbody>
               {coeffMentions.map((cm) => (
                 <tr key={cm.id} className="border-b border-slate-100 hover:bg-slate-50">
+                  <td className="px-6 py-3 font-medium text-slate-900">{cm.ue}</td>
                   <td className="px-6 py-3 font-medium text-slate-900">{cm.matiere.nom}</td>
                   <td className="px-6 py-3">
                     <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">
