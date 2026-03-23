@@ -8,18 +8,40 @@ interface Props {
   resultat: ResultatEtudiant | null;
 }
 
-export default function ResultatsTable({ resultat }: Props) {
-  return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
-        <h3 className="text-base font-bold text-slate-900 uppercase tracking-wide">SESSION NORMALE</h3>
-      </div>
+const SESSION_COLORS: Record<string, string> = {
+  Normale:    "bg-blue-900 text-white",
+  Rattrapage: "bg-amber-600 text-white",
+  Final:      "bg-emerald-700 text-white",
+};
 
-      {!resultat || resultat.length === 0 ? (
-        <p className="text-center py-12 text-slate-400">Aucun résultat disponible pour ce semestre.</p>
-      ) : (
-        resultat.map((session) => (
-          <div key={session.type} className="overflow-x-auto">
+export default function ResultatsTable({ resultat }: Props) {
+  if (!resultat || resultat.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200 px-6 py-12 text-center text-slate-400">
+        Aucun résultat disponible pour ce semestre.
+      </div>
+    );
+  }
+
+  const sessionsAvecDonnees = resultat.filter((s) => s.notesListes.length > 0);
+
+  if (sessionsAvecDonnees.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200 px-6 py-12 text-center text-slate-400">
+        Aucune note enregistrée pour ce semestre.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {sessionsAvecDonnees.map((session) => (
+        <div key={session.type} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className={`px-6 py-3 flex items-center justify-between ${SESSION_COLORS[session.type] ?? "bg-slate-800 text-white"}`}>
+            <h3 className="text-sm font-bold uppercase tracking-wide">Session {session.type}</h3>
+            <span className="text-sm font-semibold">Moyenne : {session.moyenne}/20</span>
+          </div>
+          <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[600px]">
               <ResultatsTableHeader />
               <tbody>
@@ -34,8 +56,8 @@ export default function ResultatsTable({ resultat }: Props) {
               </tbody>
             </table>
           </div>
-        ))
-      )}
+        </div>
+      ))}
     </div>
   );
 }
