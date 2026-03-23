@@ -30,6 +30,7 @@ export async function handleApiError(
     message = err.message;
   }
 
-  console.error(`[${context}]`, message, err ?? "");
-  toast.error(message, { description: `Source : ${context}` });
+  // console.error(`[${context}]`, message, err ?? "");
+  // toast.error(message, { description: `Source : ${context}` });
+  toast.message(`${message}`);
 }

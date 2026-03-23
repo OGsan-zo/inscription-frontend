@@ -19,6 +19,7 @@ import type {
   EtudiantNoteValidation,
 } from "../../types/notes";
 import { useInitialData } from "@/context/DataContext";
+import { useProfesseursWithSelf } from "../../hooks/useProfesseursWithSelf";
 
 const TABS = [
   { key: "coeff",      label: "Matières & Coefficients" },
@@ -31,7 +32,8 @@ interface ChefMentionViewProps {
 
 export default function ChefMentionView({ userId }: ChefMentionViewProps) {
   const [activeTab, setActiveTab] = useState("coeff");
-  const { mentions, niveaux, professeurs } = useInitialData();
+  const { mentions, niveaux, professeurs: professeursBruts } = useInitialData();
+  const professeurs = useProfesseursWithSelf(professeursBruts);
 
   const currentYear = new Date().getFullYear();
 

@@ -7,9 +7,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const requiredFields = [
-    "idMatiere",    // ID de la matière
-    "idMention",    // ID de la mention
-    "idNiveau",     // ID du niveau
+    "idMatiere",    
+    "idMention",    
+    "idNiveau",     
     "idProfesseur", // ID du professeur assigné
     "coefficient",  // Coefficient de la matière dans cette mention
   ];
