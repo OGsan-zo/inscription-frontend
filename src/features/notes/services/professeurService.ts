@@ -6,6 +6,7 @@ type FlatCoeff = {
   coefficient: number;
   matiereId: number;
   matiereNom: string;
+  ue: string;
   semestreId: number;
   semestreNom: string;
   mentionId: number;
@@ -25,6 +26,7 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
   const json = await res.json();
   return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
     id: c.id,
+    ue: c.ue,
     matiere: { id: c.matiereId, nom: c.matiereNom },
     semestre: { id: c.semestreId, name: c.semestreNom },
     mention: { id: c.mentionId, nom: c.mentionNom },

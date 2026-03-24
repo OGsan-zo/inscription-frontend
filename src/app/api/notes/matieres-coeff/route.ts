@@ -6,11 +6,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/matiere-coeff", [
+ 
+  return callApiPost(request, "/notes/matieres-coeff", [
     "idMatiere",
     "idMention",
     "idNiveau",
     "idProfesseur",
     "coefficient",
+    "credit"
   ]);
 }
