@@ -23,10 +23,11 @@ type FlatCoeff = {
 // --- Fonction utilitaire pour gérer la redirection ---
 const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
-const checkAuthAndRedirect = (res: Response, router: AppRouterInstance) => {
+const checkAuthAndRedirect = async (res: Response, router: AppRouterInstance) => {
   if (res.status === 401 || res.status === 403) {
-    router.push(login); // Remplace "/login" par le chemin réel de ta page de connexion
-    return true; // Indique qu'une redirection a eu lieu
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push(login);
+    return true;
   }
   return false;
 };
@@ -38,7 +39,7 @@ export async function getProfesseurMatieres(router: AppRouterInstance): Promise<
     const res = await fetch("/api/notes/matieres-coeff/professeur");
     
     if (!res.ok) {
-      if (checkAuthAndRedirect(res, router)) return []; // Stop si redirection
+      if (await checkAuthAndRedirect(res, router)) return []; // Stop si redirection
       await handleApiError("getProfesseurMatieres", res); 
       return []; 
     }
@@ -71,7 +72,7 @@ export async function getEtudiantsForMatiere(
     const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
     
     if (!res.ok) {
-      if (checkAuthAndRedirect(res, router)) return []; // Stop si redirection
+      if (await checkAuthAndRedirect(res, router)) return []; // Stop si redirection
       await handleApiError("getEtudiantsForMatiere", res); 
       return []; 
     }
@@ -101,7 +102,7 @@ export async function soumettreNotes(
     });
 
     if (!res.ok) {
-      if (checkAuthAndRedirect(res, router)) return; // Stop si redirection
+      if (await checkAuthAndRedirect(res, router)) return; // Stop si redirection
       await handleApiError("soumettreNotes", res);
       throw new Error("Échec de la soumission des notes");
     }

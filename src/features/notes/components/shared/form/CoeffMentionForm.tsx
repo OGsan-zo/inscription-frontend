@@ -75,6 +75,8 @@ export default function CoeffMentionForm({
       setNiveauId("");
       setMentionId("");
       setProfesseurId("");
+    } catch {
+      // noop
     } finally {
       setSaving(false);
     }

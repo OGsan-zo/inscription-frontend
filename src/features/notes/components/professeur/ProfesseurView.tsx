@@ -64,18 +64,33 @@ export default function ProfesseurView() {
 
   const handleValiderNormale = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, annee, true, items, router);
-    toast.success("Notes normales enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
-    setEtudiants(data);
+
+    try {
+      await soumettreNotes(selectedMatiere.id, annee, true, items, router);
+      toast.success("Notes normales enregistrées");
+      
+      // On rafraîchit la liste seulement si la soumission a réussi
+      const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
+      setEtudiants(data);
+    } catch (error) {
+      // L'erreur est déjà gérée par handleApiError dans soumettreNotes, 
+      // mais on catch ici pour arrêter le flux d'exécution.
+      // console.error("Erreur lors de la validation normale:", error);
+    }
   };
 
   const handleValiderRattrapage = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, annee, false, items, router);
-    toast.success("Notes de rattrapage enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
-    setEtudiants(data);
+
+    try {
+      await soumettreNotes(selectedMatiere.id, annee, false, items, router);
+      toast.success("Notes de rattrapage enregistrées");
+
+      const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
+      setEtudiants(data);
+    } catch (error) {
+      // console.error("Erreur lors de la validation rattrapage:", error);
+    }
   };
 
   return (

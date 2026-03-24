@@ -18,10 +18,11 @@ import type {
   MatiereUE,
   MatiereCoeffItem,
   EtudiantNoteValidation,
+  CoeffMentionSubmitValues
 } from "../../types/notes";
 import { useInitialData } from "@/context/DataContext";
 import { useProfesseursWithSelf } from "../../hooks/useProfesseursWithSelf";
-
+import toast from "react-hot-toast";
 const TABS = [
   { key: "coeff",      label: "Matières & Coefficients" },
   { key: "validation", label: "Voir Etudiant Validation" },
@@ -71,6 +72,27 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
       prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide" } : e))
     );
   };
+  const handleSubmitCoeff = async (values: CoeffMentionSubmitValues) => {
+    try {
+      await addMatiereCoeffMention(
+        values.matiereId,
+        values.coefficient,
+        values.niveauId,
+        values.mentionId,
+        router,
+        values.professeurId
+      );
+      
+      toast.success("Coefficient ajouté avec succès");
+      
+      // Rafraîchir la liste après l'ajout
+      const updatedList = await getMatieresCoeff(router);
+      setCoeffMentions(updatedList);
+    } catch (error: any) {
+      throw error;
+      // toast.error(error.message || "Erreur lors de l'ajout du coefficient");
+    }
+  };
 
   return (
     <div>
@@ -84,10 +106,7 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
           professeurs={professeurs}
           overrideMentionId={userId}
           coeffMentions={coeffMentions}
-          onSubmit={async ({ matiereId, mentionId, niveauId, professeurId, coefficient }) => {
-            await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId, router,professeurId);
-            setCoeffMentions(await getMatieresCoeff(router));
-          }}
+          onSubmit={handleSubmitCoeff}
           onModifier={(m) => console.log("Modifier", m)}
           onVoirEtudiant={handleVoirEtudiant}
         />

@@ -5,8 +5,9 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 // --- Utilitaire interne pour la redirection ---
 const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
 
-const checkAuth = (res: Response, router: AppRouterInstance) => {
+const checkAuth = async (res: Response, router: AppRouterInstance) => {
   if (res.status === 401 || res.status === 403) {
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push(login);
     return true;
   }
@@ -24,7 +25,7 @@ export async function getEtudiantNotesValidation(
     const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
     
     if (!res.ok) { 
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("getEtudiantNotesValidation", res); 
       return []; 
     }
@@ -55,11 +56,14 @@ export async function addMatiereCoeffMention(
     });
 
     if (!res.ok) {
-      if (checkAuth(res, router)) return;
+      const responseJson = await res.json();
+      if (await checkAuth(res, router)) return;
       await handleApiError("addMatiereCoeffMention", res);
+      throw new Error(responseJson.error || "Erreur lors de l'ajout du coefficient");
     }
   } catch (err) {
     await handleApiError("addMatiereCoeffMention", undefined, err);
+    throw err;
   }
 }
 
@@ -70,7 +74,7 @@ export async function validerNote(idNote: number, router: AppRouterInstance): Pr
     const res = await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
     
     if (!res.ok) {
-      if (checkAuth(res, router)) return;
+      if (await checkAuth(res, router)) return;
       await handleApiError("validerNote", res);
     }
   } catch (err) {

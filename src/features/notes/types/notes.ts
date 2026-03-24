@@ -179,3 +179,10 @@ export interface EtudiantValidationDetail {
   niveaux: NiveauValidation[];
 }
 
+export interface CoeffMentionSubmitValues {
+  matiereId: number;
+  mentionId: number;
+  niveauId: number;
+  professeurId?: number; // Optionnel : peut être undefined si aucun prof n'est assigné
+  coefficient: number;
+}
