@@ -7,6 +7,9 @@ import Menu from "@/components/static/Menu";
 import ProfesseurView from "@/features/notes/components/professeur/ProfesseurView";
 import { User } from "@/lib/db";
 
+const ALLOWED_ROLES = [ "Professeur", "Admin"];
+
+
 export default function ProfesseurPage() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
@@ -20,7 +23,7 @@ export default function ProfesseurPage() {
         return;
       }
       const data = await res.json();
-      if (data.user?.role !== 'Professeur' && data.user?.role !== 'Admin') {
+      if (!ALLOWED_ROLES.includes(data.user?.role)) {
         router.push(login);
         return;
       }
