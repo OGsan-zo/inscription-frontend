@@ -68,8 +68,9 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
 
   const handleValider = async (etudiant: EtudiantNoteValidation) => {
     await validerNote(etudiant.id, router);
+
     setValidations((prev) =>
-      prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide" } : e))
+      prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide" ,dateValidation: new Date().toISOString()} : e))
     );
   };
   const handleSubmitCoeff = async (values: CoeffMentionSubmitValues) => {

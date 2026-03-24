@@ -47,7 +47,7 @@ export async function addMatiereCoeffMention(
   idNiveau: number,
   idMention: number,
   router: AppRouterInstance, // Ajout du router ici
-  idProfesseur?: number
+  idProfesseur: number
 ): Promise<void> {
   try {
     const res = await fetch("/api/notes/matieres-coeff", {

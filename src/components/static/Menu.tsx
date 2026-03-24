@@ -99,7 +99,6 @@ export default function Menu({ user }: MenuProps) {
       { key: "/admin/export", label: "Exportation", icon: <Download size={18} /> },
       { key: "/notes/admin?tab=matieres", label: "Matières", icon: <Layers size={18} /> },
       { key: "/notes/admin?tab=ue", label: "UE", icon: <Library size={18} /> },
-      { key: "/notes/admin?tab=coeff", label: "Coeff & Mention", icon: <ClipboardList size={18} /> },
       { key: "/notes/chef-mention", label: "Matières & Coefficients", icon: <ClipboardList size={18} /> },
       { key: "/notes/resultats", label: "Résultats", icon: <BarChart3 size={18} /> },
       { key: "/notes/professeur", label: "Mes Matières", icon: <BookOpen size={18} /> },

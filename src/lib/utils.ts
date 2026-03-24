@@ -1,5 +1,6 @@
 // src/lib/utils.ts
 
+import { EtudiantNotesProfesseur } from '@/features/notes/types/notes';
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -93,6 +94,25 @@ export const sortStudentsAlphabetically = <T extends { nom?: string | null; pren
 
     const prenomA = (a.prenom ?? "").toLowerCase();
     const prenomB = (b.prenom ?? "").toLowerCase();
+    return prenomA.localeCompare(prenomB);
+  });
+};
+
+export const sortStudentsAlphabeticallyNote = (
+  students: EtudiantNotesProfesseur[]
+): EtudiantNotesProfesseur[] => {
+  return [...students].sort((a, b) => {
+    // 1. Comparaison du Nom (dans l'objet details)
+    const nomA = (a.details.nom ?? "").toLowerCase();
+    const nomB = (b.details.nom ?? "").toLowerCase();
+    const compareNom = nomA.localeCompare(nomB);
+
+    // Si les noms sont différents, on retourne le résultat du tri
+    if (compareNom !== 0) return compareNom;
+
+    // 2. Si les noms sont identiques, comparaison du Prénom
+    const prenomA = (a.details.prenom ?? "").toLowerCase();
+    const prenomB = (b.details.prenom ?? "").toLowerCase();
     return prenomA.localeCompare(prenomB);
   });
 };

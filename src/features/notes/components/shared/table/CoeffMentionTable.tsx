@@ -30,6 +30,7 @@ export default function CoeffMentionTable({ coeffMentions, onVoirEtudiant, onMod
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Mention</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Niveau</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Coef</th>
+                <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Crédit</th>
                 <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Professeur</th>
                 {showActions && (
                   <th className="text-left px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-400">Actions</th>
@@ -57,6 +58,7 @@ export default function CoeffMentionTable({ coeffMentions, onVoirEtudiant, onMod
                     </span>
                   </td>
                   <td className="px-6 py-3 font-bold text-slate-700">{cm.coefficient}</td>
+                  <td className="px-6 py-3 font-bold text-slate-700">{cm.credit}</td>
                   <td className="px-6 py-3 text-slate-600">
                     {cm.professeur.nom} {cm.professeur.prenom}
                   </td>
