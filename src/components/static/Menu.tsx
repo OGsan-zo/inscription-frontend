@@ -165,6 +165,21 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
         label: "Coeff & Mention",
         icon: <ClipboardList size={18} />,
       },
+      {
+        key: "/notes/chef-mention",
+        label: "Matières & Coefficients",
+        icon: <ClipboardList size={18} />,
+      },
+      {
+        key: "/notes/resultats",
+        label: "Résultats",
+        icon: <BarChart3 size={18} />,
+      },
+      {
+        key: "/notes/professeur",
+        label: "Mes Matières",
+        icon: <BookOpen size={18} />,
+      },
     );
   }
 

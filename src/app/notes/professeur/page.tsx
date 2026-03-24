@@ -20,7 +20,7 @@ export default function ProfesseurPage() {
         return;
       }
       const data = await res.json();
-      if (data.user?.role !== 'Professeur') {
+      if (data.user?.role !== 'Professeur' && data.user?.role !== 'Admin') {
         router.push(login);
         return;
       }
