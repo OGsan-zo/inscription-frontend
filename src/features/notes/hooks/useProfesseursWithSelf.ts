@@ -24,17 +24,17 @@ export function useProfesseursWithSelf(professeurs: User[]): User[] {
         }
 
         // Décompose le name en nom / prenom (ex: "RAKOTO Jean" → nom="RAKOTO" prenom="Jean")
-        const parts = (user.name ?? "").trim().split(/\s+/);
-        const self: User = {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          nom: parts[0] ?? user.name,
-          prenom: parts.slice(1).join(" ") || "",
-          name: user.name,
-        };
+        // const parts = (user.name ?? "").trim().split(/\s+/);
+        // const self: User = {
+        //   id: user.id,
+        //   email: user.email,
+        //   role: user.role,
+        //   nom: parts[0] ?? user.name,
+        //   prenom: parts.slice(1).join(" ") || "",
+        //   name: user.name,
+        // };
 
-        setEnriched([self, ...professeurs]);
+        setEnriched([  ...professeurs]);
       })
       .catch(() => setEnriched(professeurs));
   }, [professeurs]);
