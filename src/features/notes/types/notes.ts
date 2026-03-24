@@ -1,5 +1,7 @@
 // ── Types du module Notes ──────────────────────────────────────────────────
 
+import { Niveau } from "@/lib/db";
+
 export interface Matiere {
   id: number;
   nom: string;
@@ -32,12 +34,9 @@ export interface MentionNote {
   id: number;
   nom: string;
   abr?: string;
+  chefMentionId?: number;
 }
 
-export interface Niveau {
-  id: number | string;
-  nom: string;
-}
 
 export interface MatiereCoeffItem {
   id: number;

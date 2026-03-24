@@ -110,6 +110,7 @@ export interface Mention {
   id: number;
   nom: string;
   abr?: string;
+  chefMentionId?: number;
 }
 
 export interface PaiementData {

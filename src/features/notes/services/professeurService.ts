@@ -23,21 +23,6 @@ type FlatCoeff = {
 // ── Matières du professeur connecté ────────────────────────────────────────
 
 export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
-<<<<<<< HEAD
-  const res = await fetch("/api/notes/matieres-coeff/professeur");
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
-    id: c.id,
-    ue: c.ue,
-    matiere: { id: c.matiereId, nom: c.matiereNom },
-    semestre: { id: c.semestreId, name: c.semestreNom },
-    mention: { id: c.mentionId, nom: c.mentionNom },
-    coefficient: c.coefficient,
-    niveau: { id: c.niveauId, nom: c.niveauNom },
-    professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
-  }));
-=======
   try {
     const res = await fetch("/api/notes/matieres-coeff/professeur");
     if (!res.ok) { await handleApiError("getProfesseurMatieres", res); return []; }
@@ -56,7 +41,6 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
     await handleApiError("getProfesseurMatieres", undefined, err);
     return [];
   }
->>>>>>> 1b9f72b9833e95687515a769d347b2aab5ce154a
 }
 
 // ── Étudiants (notes) pour un professeur et une année ──────────────────────

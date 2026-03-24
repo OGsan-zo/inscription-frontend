@@ -1,5 +1,5 @@
-import type { User } from "@/lib/db";
-import type { MatiereUE, MentionNote, Niveau, MatiereCoeffItem } from "../../types/notes";
+import type { Niveau, User } from "@/lib/db";
+import type { MatiereUE, MentionNote, MatiereCoeffItem } from "../../types/notes";
 import CoeffMentionForm, { type CoeffMentionSubmitValues } from "./form/CoeffMentionForm";
 import CoeffMentionTable from "./table/CoeffMentionTable";
 

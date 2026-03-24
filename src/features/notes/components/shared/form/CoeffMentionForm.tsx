@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import type { User } from "@/lib/db";
-import type { MatiereUE, MentionNote, Niveau } from "../../../types/notes";
+import type { Niveau, User } from "@/lib/db";
+import type { MatiereUE, MentionNote } from "../../../types/notes";
 
 export interface CoeffMentionSubmitValues {
   matiereId: number;
@@ -22,7 +22,7 @@ interface Props {
   isAdmin?: boolean;
   /** Mention verrouillée en lecture seule */
   mentionFixe?: { id: number | string; nom: string; abr?: string };
-  /** Si fourni, le champ mention est masqué et cette valeur est utilisée directement (ex: userId du chef-mention) */
+  /** L'ID de l'utilisateur (chef de mention) pour filtrer ses propres mentions */
   overrideMentionId?: number | string;
   onSubmit: (values: CoeffMentionSubmitValues) => Promise<void>;
 }
@@ -47,17 +47,25 @@ export default function CoeffMentionForm({
   const [saving, setSaving] = useState(false);
 
   const showProfesseur = !!professeurs && professeurs.length > 0;
-  const effectiveMentionId = overrideMentionId !== undefined ? overrideMentionId : mentionId;
+
+
+  // 1. On filtre les mentions si overrideMentionId est défini
+  const mentionsFiltrees = overrideMentionId === undefined
+    ? mentions
+    : mentions.filter(m => m.chefMentionId === Number(overrideMentionId));
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const hasProfesseur = !showProfesseur || !!professeurId;
-    if (!matiereId || !coeff || !niveauId || !effectiveMentionId || !hasProfesseur) return;
+    
+    // 2. On utilise 'mentionId' direct car l'utilisateur doit le sélectionner dans la liste
+    if (!matiereId || !coeff || !niveauId || !mentionId || !hasProfesseur) return;
+    
     setSaving(true);
     try {
       await onSubmit({
         matiereId: Number(matiereId),
-        mentionId: Number(effectiveMentionId),
+        mentionId: Number(mentionId),
         niveauId: Number(niveauId),
         professeurId: professeurId ? Number(professeurId) : undefined,
         coefficient: Number(coeff),
@@ -65,7 +73,7 @@ export default function CoeffMentionForm({
       setMatiereId("");
       setCoeff("");
       setNiveauId("");
-      if (isAdmin) setMentionId("");
+      setMentionId("");
       setProfesseurId("");
     } finally {
       setSaving(false);
@@ -150,35 +158,34 @@ export default function CoeffMentionForm({
         </SelectWrapper>
       </div>
 
-      {overrideMentionId === undefined && (
-        <div className={rowCls}>
-          <label className={labelCls}>Mention :</label>
-          {isAdmin ? (
-            <SelectWrapper>
-              <select
-                value={mentionId}
-                onChange={(e) => setMentionId(e.target.value)}
-                required
-                className={selectCls}
-              >
-                <option value="">Sélectionner une mention</option>
-                {mentions.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.abr ?? m.nom}
-                  </option>
-                ))}
-              </select>
-            </SelectWrapper>
-          ) : (
-            <input
-              type="text"
-              value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
-              readOnly
-              className="w-full sm:flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
-            />
-          )}
-        </div>
-      )}
+      {/* 3. On affiche toujours le div Mention, mais on adapte le select */}
+      <div className={rowCls}>
+        <label className={labelCls}>Mention :</label>
+        {isAdmin || overrideMentionId !== undefined ? (
+          <SelectWrapper>
+            <select
+              value={mentionId}
+              onChange={(e) => setMentionId(e.target.value)}
+              required
+              className={selectCls}
+            >
+              <option value="">Sélectionner une mention</option>
+              {mentionsFiltrees.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.abr ?? m.nom}
+                </option>
+              ))}
+            </select>
+          </SelectWrapper>
+        ) : (
+          <input
+            type="text"
+            value={mentionFixe?.abr ?? mentionFixe?.nom ?? ""}
+            readOnly
+            className="w-full sm:flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
+          />
+        )}
+      </div>
 
       {showProfesseur && (
         <div className={rowCls}>
@@ -201,11 +208,11 @@ export default function CoeffMentionForm({
         </div>
       )}
 
-      <div className="pt-2 flex justify-end">
+      <div className={rowCls}>
         <button
           type="submit"
           disabled={saving}
-          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium px-6 py-2 rounded-md disabled:opacity-50 transition-colors w-full sm:w-auto"
+          className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium px-6 py-2 rounded-md disabled:opacity-50 transition-colors w-full sm:w-auto ml-auto"
         >
           {saving ? "Enregistrement..." : "Enregistrer"}
         </button>
