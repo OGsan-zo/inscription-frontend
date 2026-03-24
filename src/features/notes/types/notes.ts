@@ -45,6 +45,7 @@ export interface MatiereCoeffItem {
   semestre: Semestre;
   mention: MentionNote;
   coefficient: number;
+  credit: number;
   niveau: Niveau;
   professeur: Professeur;
 }
@@ -60,6 +61,7 @@ export interface MatiereCoefficientMention {
   matiereSemestre: MatiereSemestre;
   mention: MentionNote;
   coefficient: number;
+  credit: number;
 }
 
 // ── Résultats étudiant ─────────────────────────────────────────────────────
@@ -183,6 +185,7 @@ export interface CoeffMentionSubmitValues {
   matiereId: number;
   mentionId: number;
   niveauId: number;
-  professeurId?: number; // Optionnel : peut être undefined si aucun prof n'est assigné
+  professeurId?: number; // Obligatoire : doit toujours avoir une valeur
   coefficient: number;
+  credit: number;
 }

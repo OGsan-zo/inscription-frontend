@@ -76,11 +76,12 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
     try {
       await addMatiereCoeffMention(
         values.matiereId,
+        values.credit,
         values.coefficient,
         values.niveauId,
         values.mentionId,
         router,
-        values.professeurId
+        values.professeurId || 0
       );
       
       toast.success("Coefficient ajouté avec succès");
@@ -89,7 +90,7 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
       const updatedList = await getMatieresCoeff(router);
       setCoeffMentions(updatedList);
     } catch (error: any) {
-      throw error;
+      throw error;  
       // toast.error(error.message || "Erreur lors de l'ajout du coefficient");
     }
   };

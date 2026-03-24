@@ -10,6 +10,7 @@ export interface CoeffMentionSubmitValues {
   niveauId: number;
   professeurId?: number;
   coefficient: number;
+  credit: number;
 }
 
 interface Props {
@@ -39,6 +40,7 @@ export default function CoeffMentionForm({
 }: Props) {
   const [matiereId, setMatiereId] = useState("");
   const [coeff, setCoeff] = useState("");
+  const [credit, setCredit] = useState("");
   const [niveauId, setNiveauId] = useState("");
   const [mentionId, setMentionId] = useState(
     mentionFixe ? String(mentionFixe.id) : ""
@@ -69,6 +71,7 @@ export default function CoeffMentionForm({
         niveauId: Number(niveauId),
         professeurId: professeurId ? Number(professeurId) : undefined,
         coefficient: Number(coeff),
+        credit: Number(credit), // TODO: remplacer par la vraie valeur quand disponible
       });
       setMatiereId("");
       setCoeff("");
@@ -135,6 +138,19 @@ export default function CoeffMentionForm({
           min={1}
           value={coeff}
           onChange={(e) => setCoeff(e.target.value)}
+          placeholder="Ex: 2"
+          required
+          className={inputCls}
+        />
+      </div>
+      
+      <div className={rowCls}>
+        <label className={labelCls}>Crédit :</label>
+        <input
+          type="number"
+          min={1}
+          value={credit}
+          onChange={(e) => setCredit(e.target.value)}
           placeholder="Ex: 2"
           required
           className={inputCls}

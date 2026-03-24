@@ -18,19 +18,24 @@ export async function handleApiError(
   if (res) {
     try {
       const json = await res.json();
-      message =
-        json.error ||
-        json.message ||
-        (json.missingFields ? `Champs manquants : ${json.missingFields.join(", ")}` : null) ||
-        `Erreur HTTP ${res.status}`;
+      
+      // On cherche le message le plus précis possible
+      const specificError = 
+        json.error || 
+        json.message || 
+        (json.missingFields ? `Champs manquants : ${json.missingFields.join(", ")}` : null);
+
+      // Si on a trouvé un message précis dans le JSON, on l'utilise.
+      // Sinon, on affiche l'erreur HTTP par défaut.
+      message = specificError || `Erreur HTTP ${res.status}`;
+      
     } catch {
+      // Si le JSON ne peut pas être lu (ex: erreur 500 brute)
       message = `Erreur HTTP ${res.status}`;
     }
   } else if (err instanceof Error) {
     message = err.message;
   }
 
-  // console.error(`[${context}]`, message, err ?? "");
-  // toast.error(message, { description: `Source : ${context}` });
-  toast.error(`${message}`);
+  toast.error(message);
 }

@@ -42,6 +42,7 @@ export async function getEtudiantNotesValidation(
 
 export async function addMatiereCoeffMention(
   idMatiere: number,
+  credit: number,
   coefficient: number,
   idNiveau: number,
   idMention: number,
@@ -52,7 +53,7 @@ export async function addMatiereCoeffMention(
     const res = await fetch("/api/notes/matieres-coeff", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
+      body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient, credit }),
     });
 
     if (!res.ok) {

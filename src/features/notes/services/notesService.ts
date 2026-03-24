@@ -11,8 +11,9 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 
 // --- Utilitaire de redirection ---
 const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
-const checkAuth = (res: Response, router: AppRouterInstance) => {
+const checkAuth = async (res: Response, router: AppRouterInstance) => {
   if (res.status === 401 || res.status === 403) {
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push(login);
     return true;
   }
@@ -25,7 +26,7 @@ export async function getUEs(router: AppRouterInstance): Promise<UE[]> {
   try {
     const res = await fetch("/api/notes/ue");
     if (!res.ok) {
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("getUEs", res); 
       return []; 
     }
@@ -45,7 +46,7 @@ export async function createUE(name: string, router: AppRouterInstance): Promise
       body: JSON.stringify({ name }),
     });
     if (!res.ok) {
-      if (checkAuth(res, router)) return;
+      if (await checkAuth(res, router)) return;
       await handleApiError("createUE", res);
     }
   } catch (err) {
@@ -59,7 +60,7 @@ export async function getSemestres(router: AppRouterInstance): Promise<Semestre[
   try {
     const res = await fetch("/api/notes/semestres");
     if (!res.ok) {
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("getSemestres", res); 
       return []; 
     }
@@ -77,7 +78,7 @@ export async function getMatieres(router: AppRouterInstance): Promise<MatiereUE[
   try {
     const res = await fetch("/api/notes/matieres");
     if (!res.ok) {
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("getMatieres", res); 
       return []; 
     }
@@ -107,7 +108,7 @@ export async function createMatiere(
       body: JSON.stringify({ name, ueId, semestreId }),
     });
     if (!res.ok) {
-      if (checkAuth(res, router)) return;
+      if (await checkAuth(res, router)) return;
       await handleApiError("createMatiere", res);
     }
   } catch (err) {
@@ -121,7 +122,7 @@ export async function getMatieresCoeff(router: AppRouterInstance): Promise<Matie
   try {
     const res = await fetch("/api/notes/matieres-coeff");
     if (!res.ok) {
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("getMatieresCoeff", res); 
       return []; 
     }
@@ -134,6 +135,7 @@ export async function getMatieresCoeff(router: AppRouterInstance): Promise<Matie
       semestre: { id: c.semestreId, name: c.semestreNom },
       mention: { id: c.mentionId, nom: c.mentionNom },
       coefficient: c.coefficient,
+      credit: c.credit,
       niveau: { id: c.niveauId, nom: c.niveauNom },
       professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
     }));
@@ -158,7 +160,7 @@ export async function createMatiereCoeff(
       body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
     });
     if (!res.ok) {
-      if (checkAuth(res, router)) return;
+      if (await checkAuth(res, router)) return;
       await handleApiError("createMatiereCoeff", res);
     }
   } catch (err) {
@@ -176,7 +178,7 @@ export async function rechercherEtudiants(nom: string, prenom: string, router: A
       body: JSON.stringify({ nom, prenom }),
     });
     if (!res.ok) {
-      if (checkAuth(res, router)) return [];
+      if (await checkAuth(res, router)) return [];
       await handleApiError("rechercherEtudiants", res); 
       return []; 
     }
@@ -198,7 +200,7 @@ export async function getResultatEtudiant(idEtudiant: number, idSemestre: number
   try {
     const res = await fetch(`/api/notes/resultats/${idEtudiant}?idSemestre=${idSemestre}`);
     if (!res.ok) {
-      if (checkAuth(res, router)) return null;
+      if (await checkAuth(res, router)) return null;
       await handleApiError("getResultatEtudiant", res); 
       return null; 
     }
