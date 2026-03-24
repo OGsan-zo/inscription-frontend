@@ -1,7 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { BarChart3, Filter, Users, PlusCircle, ShieldCheck, UserPlus, Download, BookOpen, ClipboardList, Layers, Library, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  BarChart3, Filter, Users, PlusCircle, ShieldCheck, 
+  UserPlus, Download, BookOpen, ClipboardList, 
+  Layers, Library, ChevronLeft, ChevronRight 
+} from "lucide-react";
 import { User } from "@/lib/db";
 import { usePathname, useSearchParams } from "next/navigation";
 import React, { useRef, useState, useEffect, useCallback } from "react";
@@ -12,239 +16,138 @@ interface MenuProps {
   setActiveTab?: (tab: string) => void;
 }
 
-// Définition d'une interface pour les onglets pour sécuriser le typage
 interface TabItem {
   key: string;
   label: string;
   icon: React.ReactNode;
 }
 
-export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
+export default function Menu({ user }: MenuProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLAnchorElement>(null);
+  
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  // Vérifie si on peut scroller pour afficher/masquer les flèches et dégradés
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
+  }, []);
+
+  // Centre l'onglet actif automatiquement dans la vue
+  const scrollToActiveTab = useCallback(() => {
+    if (activeTabRef.current && scrollRef.current) {
+      const container = scrollRef.current;
+      const tab = activeTabRef.current;
+      const scrollLeft = tab.offsetLeft - (container.clientWidth / 2) + (tab.clientWidth / 2);
+      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
+    }
   }, []);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+    
     updateScrollState();
+    const timer = setTimeout(scrollToActiveTab, 150);
+
     el.addEventListener("scroll", updateScrollState);
     const ro = new ResizeObserver(updateScrollState);
     ro.observe(el);
+    
     return () => {
       el.removeEventListener("scroll", updateScrollState);
       ro.disconnect();
+      clearTimeout(timer);
     };
-  }, [updateScrollState]);
+  }, [updateScrollState, scrollToActiveTab, pathname, searchParams]);
 
   const scroll = (dir: "left" | "right") => {
-    scrollRef.current?.scrollBy({ left: dir === "left" ? -160 : 160, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -250 : 250, behavior: "smooth" });
   };
 
-  // On initialise le tableau avec le type TabItem[]
+  // --- Construction de la liste des onglets selon le rôle ---
   const tabs: TabItem[] = [];
 
-  // Onglets pour le rôle Utilisateur
   if (user?.role === "Utilisateur") {
     tabs.push(
-      {
-        key: "/utilisateur/dashboard",
-        label: "Dashboard",
-        icon: <BarChart3 size={18} />,
-      },
-      {
-        key: "/utilisateur/inscription",
-        label: "Réinscription",
-        icon: <Users size={18} />,
-      },
-      {
-        key: "/utilisateur/filtrage", // Corrigé : minuscule
-        label: "Filtrage",
-        icon: <Filter size={18} />, // Corrigé : minuscule
-      },
-      {
-        key: "/admin/modification",
-        label: "Modification",
-        icon: <Filter size={18} />,
-      },
-      /*    {
-   
-           key: "/admin/inscription",
-           label: "Ajout Etudiant",
-           icon: <BarChart3 size={18} />,
-         },
-         */
-      {
-        key: "/admin/pre-inscription",
-        label: "Pré-inscription",
-        icon: <UserPlus size={18} />,
-
-      },
-      {
-        key: "/notes/resultats",
-        label: "Résultats",
-        icon: <BarChart3 size={18} />,
-      },
+      { key: "/utilisateur/dashboard", label: "Dashboard", icon: <BarChart3 size={18} /> },
+      { key: "/utilisateur/inscription", label: "Réinscription", icon: <Users size={18} /> },
+      { key: "/utilisateur/filtrage", label: "Filtrage", icon: <Filter size={18} /> },
+      { key: "/admin/modification", label: "Modification", icon: <Filter size={18} /> },
+      { key: "/admin/pre-inscription", label: "Pré-inscription", icon: <UserPlus size={18} /> },
+      { key: "/notes/resultats", label: "Résultats", icon: <BarChart3 size={18} /> },
     );
   }
 
-  // Onglets pour le rôle Admin
   if (user?.role === "Admin") {
     tabs.push(
-      {
-        key: "/utilisateur/dashboard",
-        label: "Dashboard",
-        icon: <BarChart3 size={18} />,
-      },
-      {
-        key: "/admin/inscription",
-        label: "Inscription",
-        icon: <BarChart3 size={18} />,
-      },
-      {
-        key: "/admin/users",
-        label: "Users",
-        icon: <Users size={18} />,
-      },
-      {
-        key: "/utilisateur/inscription",
-        label: "Réinscription",
-        icon: <Users size={18} />,
-      },
-      {
-        key: "/utilisateur/filtrage", // Corrigé : minuscule
-        label: "Filtrage",
-        icon: <Filter size={18} />, // Corrigé : minuscule
-      },
-      {
-        key: "/admin/modification",
-        label: "Modification",
-        icon: <Filter size={18} />,
-      },
-      {
-        key: "/admin/changerNiveauEtudiant",
-        label: "Changer Niveau",
-        icon: <Filter size={18} />,
-      },
-      {
-        key: "/admin/pre-inscription",
-        label: "Pré-inscription",
-        icon: <UserPlus size={18} />,
-      },
-      {
-        key: "/admin/parcours",
-        label: "Parcours",
-        icon: <ShieldCheck size={18} />,
-      },
-      {
-        key: "/admin/export",
-        label: "Exportation des données",
-        icon: <Download size={18} />,
-      },
-      {
-        key: "/notes/admin?tab=matieres",
-        label: "Matières",
-        icon: <Layers size={18} />,
-      },
-      {
-        key: "/notes/admin?tab=ue",
-        label: "UE",
-        icon: <Library size={18} />,
-      },
-      {
-        key: "/notes/admin?tab=coeff",
-        label: "Coeff & Mention",
-        icon: <ClipboardList size={18} />,
-      },
-      {
-        key: "/notes/chef-mention",
-        label: "Matières & Coefficients",
-        icon: <ClipboardList size={18} />,
-      },
-      {
-        key: "/notes/resultats",
-        label: "Résultats",
-        icon: <BarChart3 size={18} />,
-      },
-      {
-        key: "/notes/professeur",
-        label: "Mes Matières",
-        icon: <BookOpen size={18} />,
-      },
+      { key: "/utilisateur/dashboard", label: "Dashboard", icon: <BarChart3 size={18} /> },
+      { key: "/admin/inscription", label: "Inscription", icon: <BarChart3 size={18} /> },
+      { key: "/admin/users", label: "Users", icon: <Users size={18} /> },
+      { key: "/utilisateur/inscription", label: "Réinscription", icon: <Users size={18} /> },
+      { key: "/utilisateur/filtrage", label: "Filtrage", icon: <Filter size={18} /> },
+      { key: "/admin/modification", label: "Modification", icon: <Filter size={18} /> },
+      { key: "/admin/changerNiveauEtudiant", label: "Changer Niveau", icon: <Filter size={18} /> },
+      { key: "/admin/pre-inscription", label: "Pré-inscription", icon: <UserPlus size={18} /> },
+      { key: "/admin/parcours", label: "Parcours", icon: <ShieldCheck size={18} /> },
+      { key: "/admin/export", label: "Exportation", icon: <Download size={18} /> },
+      { key: "/notes/admin?tab=matieres", label: "Matières", icon: <Layers size={18} /> },
+      { key: "/notes/admin?tab=ue", label: "UE", icon: <Library size={18} /> },
+      { key: "/notes/admin?tab=coeff", label: "Coeff & Mention", icon: <ClipboardList size={18} /> },
+      { key: "/notes/chef-mention", label: "Matières & Coefficients", icon: <ClipboardList size={18} /> },
+      { key: "/notes/resultats", label: "Résultats", icon: <BarChart3 size={18} /> },
+      { key: "/notes/professeur", label: "Mes Matières", icon: <BookOpen size={18} /> },
     );
   }
 
-  // Onglets pour le rôle Professeur
   if (user?.role === "Professeur") {
     tabs.push(
-      {
-        key: "/notes/professeur",
-        label: "Mes Matières",
-        icon: <BookOpen size={18} />,
-      },
+      { key: "/notes/professeur", label: "Mes Matières", icon: <BookOpen size={18} /> },
     );
   }
 
-  // Onglets pour le rôle ChefMention
   if (user?.role === "ChefMention") {
     tabs.push(
-      {
-        key: "/notes/chef-mention",
-        label: "Matières & Coefficients",
-        icon: <ClipboardList size={18} />,
-      },
-      {
-        key: "/notes/resultats",
-        label: "Résultats",
-        icon: <BarChart3 size={18} />,
-      },
+      { key: "/notes/chef-mention", label: "Matières & Coefficients", icon: <ClipboardList size={18} /> },
+      { key: "/notes/resultats", label: "Résultats", icon: <BarChart3 size={18} /> },
     );
   }
 
-  // Onglets pour le rôle Ecolage
   if (user?.role === "Ecolage") {
     tabs.push(
-      {
-        key: "/ecolage/insertion",
-        label: "Insertion Paiement",
-        icon: <PlusCircle size={18} />,
-      },
+      { key: "/ecolage/insertion", label: "Insertion Paiement", icon: <PlusCircle size={18} /> },
     );
   }
 
   return (
-    <div className="relative mb-8">
-      {/* Bouton gauche */}
+    <div className="relative mb-8 w-full bg-white/60 backdrop-blur-md rounded-2xl border border-gray-100 p-1.5 shadow-sm">
+      
+      {/* Overlay dégradé + bouton gauche */}
       {canScrollLeft && (
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
-          aria-label="Défiler à gauche"
-        >
-          <ChevronLeft size={16} className="text-gray-600" />
-        </button>
+        <>
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white via-white/80 to-transparent z-20 pointer-events-none rounded-l-2xl" />
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-xl border border-gray-100 text-gray-600 hover:text-indigo-600 hover:scale-110 active:scale-95 transition-all"
+          >
+            <ChevronLeft size={20} strokeWidth={2.5} />
+          </button>
+        </>
       )}
 
-      {/* Fondu gauche */}
-      {canScrollLeft && (
-        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-background to-transparent z-10" />
-      )}
-
+      {/* Zone de scroll */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto border-b border-border"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
+        className="overflow-x-auto scroll-smooth no-scrollbar flex items-center"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        <div className="flex min-w-max gap-1 px-1">
+        <div className="flex items-center gap-1.5 px-2">
           {tabs.map((tab) => {
             const [tabPath, tabQuery] = tab.key.split("?tab=");
             const isActive = tabQuery
@@ -255,37 +158,51 @@ export default function Menu({ user, activeTab, setActiveTab }: MenuProps) {
               <Link
                 key={tab.key}
                 href={tab.key}
-                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-t-md border-b-2 transition-all whitespace-nowrap ${
-                  isActive
-                    ? "border-indigo-600 text-indigo-600 bg-indigo-50"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                }`}
+                ref={isActive ? activeTabRef : null}
+                className={`
+                  group relative flex items-center gap-2.5 px-5 py-3 text-sm font-semibold rounded-xl whitespace-nowrap transition-all duration-300
+                  ${isActive 
+                    ? "text-indigo-700 bg-indigo-50 shadow-inner" 
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                  }
+                `}
               >
-                <span className={`${isActive ? "text-indigo-500" : "text-muted-foreground"} transition-colors`}>
+                <span className={`transition-transform duration-300 ${isActive ? "scale-110 text-indigo-600" : "text-gray-400 group-hover:text-gray-600"}`}>
                   {tab.icon}
                 </span>
                 {tab.label}
+                {isActive && (
+                  <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-600" />
+                )}
               </Link>
             );
           })}
         </div>
       </div>
 
-      {/* Fondu droit */}
+      {/* Overlay dégradé + bouton droit */}
       {canScrollRight && (
-        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-background to-transparent z-10" />
+        <>
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white via-white/80 to-transparent z-20 pointer-events-none rounded-r-2xl" />
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-xl border border-gray-100 text-gray-600 hover:text-indigo-600 hover:scale-110 active:scale-95 transition-all"
+          >
+            <ChevronRight size={20} strokeWidth={2.5} />
+          </button>
+        </>
       )}
 
-      {/* Bouton droit */}
-      {canScrollRight && (
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-7 h-7 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors"
-          aria-label="Défiler à droite"
-        >
-          <ChevronRight size={16} className="text-gray-600" />
-        </button>
-      )}
+      {/* Style injecté pour masquer la scrollbar proprement partout */}
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
