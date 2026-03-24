@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import PageTabs from "../shared/PageTabs";
 import CoeffMentionSection from "../shared/CoeffMentionSection";
 import VoirEtudiantValidationTable from "./table/VoirEtudiantValidationTable";
+import { useRouter } from 'next/navigation';
 import {
   getEtudiantNotesValidation,
   addMatiereCoeffMention,
@@ -42,9 +43,10 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
   const [validations, setValidations] = useState<EtudiantNoteValidation[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeffItem | null>(null);
   const [annee, setAnnee] = useState(currentYear);
+  const router = useRouter();
 
   useEffect(() => {
-    Promise.all([getMatieres(), getMatieresCoeff()]).then(([ms, cm]) => {
+    Promise.all([getMatieres(router), getMatieresCoeff(router)]).then(([ms, cm]) => {
       setMatieres(ms);
       setCoeffMentions(cm);
     });
@@ -52,19 +54,19 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
 
   const handleVoirEtudiant = async (matiere: MatiereCoeffItem) => {
     setSelectedMatiere(matiere);
-    setValidations(await getEtudiantNotesValidation(matiere.id, annee));
+    setValidations(await getEtudiantNotesValidation(matiere.id, annee, router));
     setActiveTab("validation");
   };
 
   const handleAnneeChange = async (nouvelleAnnee: number) => {
     setAnnee(nouvelleAnnee);
     if (selectedMatiere) {
-      setValidations(await getEtudiantNotesValidation(selectedMatiere.id, nouvelleAnnee));
+      setValidations(await getEtudiantNotesValidation(selectedMatiere.id, nouvelleAnnee, router));
     }
   };
 
   const handleValider = async (etudiant: EtudiantNoteValidation) => {
-    await validerNote(etudiant.id);
+    await validerNote(etudiant.id, router);
     setValidations((prev) =>
       prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide" } : e))
     );
@@ -83,8 +85,8 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
           overrideMentionId={userId}
           coeffMentions={coeffMentions}
           onSubmit={async ({ matiereId, mentionId, niveauId, professeurId, coefficient }) => {
-            await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId, professeurId);
-            setCoeffMentions(await getMatieresCoeff());
+            await addMatiereCoeffMention(matiereId, coefficient, niveauId, mentionId, router,professeurId);
+            setCoeffMentions(await getMatieresCoeff(router));
           }}
           onModifier={(m) => console.log("Modifier", m)}
           onVoirEtudiant={handleVoirEtudiant}

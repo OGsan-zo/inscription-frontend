@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import PageTabs from "../shared/PageTabs";
 import CoeffMentionTable from "../shared/table/CoeffMentionTable";
 import VoirListeEtudiantTable from "./VoirListeEtudiantTable";
+import { useRouter } from 'next/navigation';
 import {
   getProfesseurMatieres,
   getEtudiantsForMatiere,
@@ -26,17 +27,18 @@ export default function ProfesseurView() {
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeffItem | null>(null);
   const [loadingEtudiants, setLoadingEtudiants] = useState(false);
   const [annee, setAnnee] = useState(CURRENT_YEAR);
-
+  const router = useRouter();
+  
   useEffect(() => {
-    getProfesseurMatieres().then(setMatieres);
-  }, []);
+    getProfesseurMatieres(router).then(setMatieres);
+  }, [router]);
 
   const handleVoirEtudiant = async (matiere: MatiereCoeffItem) => {
     setSelectedMatiere(matiere);
     setActiveTab("etudiants");
     setLoadingEtudiants(true);
     try {
-      const data = await getEtudiantsForMatiere(matiere.id, annee);
+      const data = await getEtudiantsForMatiere(matiere.id, annee, router);
       setEtudiants(data);
     } catch {
       toast.error("Erreur lors du chargement des étudiants");
@@ -50,7 +52,7 @@ export default function ProfesseurView() {
     if (selectedMatiere) {
       setLoadingEtudiants(true);
       try {
-        const data = await getEtudiantsForMatiere(selectedMatiere.id, nouvelleAnnee);
+        const data = await getEtudiantsForMatiere(selectedMatiere.id, nouvelleAnnee, router);
         setEtudiants(data);
       } catch {
         toast.error("Erreur lors du chargement des étudiants");
@@ -62,17 +64,17 @@ export default function ProfesseurView() {
 
   const handleValiderNormale = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, annee, true, items);
+    await soumettreNotes(selectedMatiere.id, annee, true, items, router);
     toast.success("Notes normales enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee);
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
     setEtudiants(data);
   };
 
   const handleValiderRattrapage = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, annee, false, items);
+    await soumettreNotes(selectedMatiere.id, annee, false, items, router);
     toast.success("Notes de rattrapage enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee);
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee, router);
     setEtudiants(data);
   };
 

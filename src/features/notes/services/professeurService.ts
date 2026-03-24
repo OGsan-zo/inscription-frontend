@@ -1,5 +1,6 @@
 import type { MatiereCoeffItem, EtudiantNotesProfesseur } from "../types/notes";
 import { handleApiError } from "../utils/handleApiError";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 // Type plat retourné par GET /notes/matieres-coeff/professeur
 type FlatCoeff = {
@@ -8,7 +9,6 @@ type FlatCoeff = {
   coefficient: number;
   matiereId: number;
   matiereNom: string;
-  ue: string;
   semestreId: number;
   semestreNom: string;
   mentionId: number;
@@ -20,12 +20,29 @@ type FlatCoeff = {
   professeurPrenom: string;
 };
 
+// --- Fonction utilitaire pour gérer la redirection ---
+const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
+
+const checkAuthAndRedirect = (res: Response, router: AppRouterInstance) => {
+  if (res.status === 401 || res.status === 403) {
+    router.push(login); // Remplace "/login" par le chemin réel de ta page de connexion
+    return true; // Indique qu'une redirection a eu lieu
+  }
+  return false;
+};
+
 // ── Matières du professeur connecté ────────────────────────────────────────
 
-export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
+export async function getProfesseurMatieres(router: AppRouterInstance): Promise<MatiereCoeffItem[]> {
   try {
     const res = await fetch("/api/notes/matieres-coeff/professeur");
-    if (!res.ok) { await handleApiError("getProfesseurMatieres", res); return []; }
+    
+    if (!res.ok) {
+      if (checkAuthAndRedirect(res, router)) return []; // Stop si redirection
+      await handleApiError("getProfesseurMatieres", res); 
+      return []; 
+    }
+    
     const json = await res.json();
     return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
       id: c.id,
@@ -47,11 +64,18 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
 
 export async function getEtudiantsForMatiere(
   matiereCoeffId: number,
-  annee: number
+  annee: number,
+  router: AppRouterInstance
 ): Promise<EtudiantNotesProfesseur[]> {
   try {
     const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
-    if (!res.ok) { await handleApiError("getEtudiantsForMatiere", res); return []; }
+    
+    if (!res.ok) {
+      if (checkAuthAndRedirect(res, router)) return []; // Stop si redirection
+      await handleApiError("getEtudiantsForMatiere", res); 
+      return []; 
+    }
+    
     const json = await res.json();
     return json.data ?? [];
   } catch (err) {
@@ -66,7 +90,8 @@ export async function soumettreNotes(
   idMatiereCoefficient: number,
   annee: number,
   isNormale: boolean,
-  listeEtudiants: { etudiantId: number; valeur: number }[]
+  listeEtudiants: { etudiantId: number; valeur: number }[],
+  router: AppRouterInstance
 ): Promise<void> {
   try {
     const res = await fetch("/api/notes/matieres-coeff/professeur", {
@@ -74,7 +99,9 @@ export async function soumettreNotes(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
     });
+
     if (!res.ok) {
+      if (checkAuthAndRedirect(res, router)) return; // Stop si redirection
       await handleApiError("soumettreNotes", res);
       throw new Error("Échec de la soumission des notes");
     }
