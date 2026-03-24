@@ -1,8 +1,6 @@
-import { Fragment } from "react";
 import type { ResultatEtudiant } from "../../../types/notes";
 import ResultatsTableHeader from "./sub-component/ResultatsTableHeader";
-import ResultatsUERow from "./sub-component/ResultatsUERow";
-import ResultatsECRow from "./sub-component/ResultatsECRow";
+import ResultatsUEGroup from "./sub-component/ResultatsUEGroup";
 
 interface Props {
   resultat: ResultatEtudiant | null;
@@ -46,12 +44,7 @@ export default function ResultatsTable({ resultat }: Props) {
               <ResultatsTableHeader />
               <tbody>
                 {session.notesListes.map((ue) => (
-                  <Fragment key={ue.ue}>
-                    <ResultatsUERow ue={ue} />
-                    {ue.notes.map((ec) => (
-                      <ResultatsECRow key={ec.matiere} ec={ec} isValid={ue.isValid} />
-                    ))}
-                  </Fragment>
+                  <ResultatsUEGroup key={ue.ue} ue={ue} />
                 ))}
               </tbody>
             </table>

@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { rechercherEtudiants, getResultatEtudiant } from "../services/notesService";
 import type { EtudiantRecherche, ResultatEtudiant } from "../types/notes";
 import { useInitialData } from "@/context/DataContext";
 import RechercheEtudiant from "@/components/shared/RechercheEtudiant";
 import SemestreSelect from "./resultats/form/SemestreSelect";
 import ResultatsTable from "./resultats/table/ResultatsTable";
+import ResultatsPDFButton from "./resultats/ResultatsPDFButton";
 import { Card } from "@/components/ui/card";
 
 type Step = "recherche" | "semestre" | "resultats";
 
 export default function ResultatsView() {
+  const router = useRouter();
   const { semestres } = useInitialData();
   const [step, setStep] = useState<Step>("recherche");
 
@@ -32,7 +35,7 @@ export default function ResultatsView() {
   const handleRecherche = async () => {
     if (!nom.trim()) return;
     setSearching(true);
-    setResultatsRecherche(await rechercherEtudiants(nom, prenom));
+    setResultatsRecherche(await rechercherEtudiants(nom, prenom, router));
     setSearching(false);
   };
 
@@ -46,7 +49,7 @@ export default function ResultatsView() {
   const handleValiderSemestre = async () => {
     if (!etudiantSelectionne || !idSemestre) return;
     setLoadingResultat(true);
-    setResultat(await getResultatEtudiant(etudiantSelectionne.id, Number(idSemestre)));
+    setResultat(await getResultatEtudiant(etudiantSelectionne.id, Number(idSemestre), router));
     setStep("resultats");
     setLoadingResultat(false);
   };
@@ -60,6 +63,9 @@ export default function ResultatsView() {
     setIdSemestre("");
     setResultat(null);
   };
+
+  // Nom du semestre sélectionné (pour le PDF)
+  const semestreSelectionne = semestres.find((s) => String(s.id) === idSemestre);
 
   return (
     <Card className="max-w-4xl mx-auto p-6 shadow-lg border-t-4 border-blue-900 space-y-8">
@@ -87,8 +93,17 @@ export default function ResultatsView() {
         />
       )}
 
-      {step === "resultats" && (
-        <ResultatsTable resultat={resultat} />
+      {step === "resultats" && resultat && etudiantSelectionne && (
+        <>
+          <div className="flex justify-end">
+            <ResultatsPDFButton
+              etudiant={etudiantSelectionne}
+              semestreName={semestreSelectionne?.name ?? idSemestre}
+              resultat={resultat}
+            />
+          </div>
+          <ResultatsTable resultat={resultat} />
+        </>
       )}
     </Card>
   );
