@@ -1,4 +1,5 @@
 import type { EtudiantNoteValidation } from "../types/notes";
+import { handleApiError } from "../utils/handleApiError";
 
 // ── Notes étudiants pour une matière-coefficient ────────────────────────────
 
@@ -6,23 +7,15 @@ export async function getEtudiantNotesValidation(
   idMatiere: number,
   annee: number
 ): Promise<EtudiantNoteValidation[]> {
-  const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
-  if (!res.ok) return [];
-  const json = await res.json();
-  return (json.data ?? []).map((c: {
-    id: number;
-    nom: string;
-    prenom: string;
-    valeur: string;
-    typeNoteName: string;
-    dateValidation: string | null;
-  }): EtudiantNoteValidation => ({
-    id: c.id,
-    nom: `${c.nom} ${c.prenom}`,
-    note: parseFloat(c.valeur),
-    type: c.typeNoteName === "Normal" ? "Normale" : "Rattrapage",
-    status: c.dateValidation ? "Valide" : "Non Valide",
-  }));
+  try {
+    const res = await fetch(`/api/notes/matieres-coeff/etudiant/${idMatiere}?annee=${annee}`);
+    if (!res.ok) { await handleApiError("getEtudiantNotesValidation", res); return []; }
+    const json = await res.json();
+    return json.data ?? [];
+  } catch (err) {
+    await handleApiError("getEtudiantNotesValidation", undefined, err);
+    return [];
+  }
 }
 
 // ── Ajouter un coefficient ──────────────────────────────────────────────────
@@ -34,15 +27,25 @@ export async function addMatiereCoeffMention(
   idMention: number,
   idProfesseur?: number
 ): Promise<void> {
-  await fetch("/api/notes/matieres-coeff", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
-  });
+  try {
+    const res = await fetch("/api/notes/matieres-coeff", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idMatiere, idMention, idNiveau, idProfesseur, coefficient }),
+    });
+    if (!res.ok) await handleApiError("addMatiereCoeffMention", res);
+  } catch (err) {
+    await handleApiError("addMatiereCoeffMention", undefined, err);
+  }
 }
 
 // ── Valider une note ────────────────────────────────────────────────────────
 
 export async function validerNote(idNote: number): Promise<void> {
-  await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
+  try {
+    const res = await fetch(`/api/notes/valider/${idNote}`, { method: "PUT" });
+    if (!res.ok) await handleApiError("validerNote", res);
+  } catch (err) {
+    await handleApiError("validerNote", undefined, err);
+  }
 }

@@ -6,5 +6,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return callApiPost(request, "/notes/ue", ["name"]);
+  const requiredFields = [
+    "name", // Nom de l'UE
+  ];
+  return callApiPost(request, "/notes/ue", requiredFields);
 }

@@ -17,7 +17,7 @@ const TABS = [
   { key: "etudiants", label: "Voir Liste Etudiant" },
 ];
 
-const ANNEE = new Date().getFullYear();
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default function ProfesseurView() {
   const [activeTab, setActiveTab] = useState("liste");
@@ -25,6 +25,7 @@ export default function ProfesseurView() {
   const [etudiants, setEtudiants] = useState<EtudiantNotesProfesseur[]>([]);
   const [selectedMatiere, setSelectedMatiere] = useState<MatiereCoeffItem | null>(null);
   const [loadingEtudiants, setLoadingEtudiants] = useState(false);
+  const [annee, setAnnee] = useState(CURRENT_YEAR);
 
   useEffect(() => {
     getProfesseurMatieres().then(setMatieres);
@@ -35,7 +36,7 @@ export default function ProfesseurView() {
     setActiveTab("etudiants");
     setLoadingEtudiants(true);
     try {
-      const data = await getEtudiantsForMatiere(matiere.id, ANNEE);
+      const data = await getEtudiantsForMatiere(matiere.id, annee);
       setEtudiants(data);
     } catch {
       toast.error("Erreur lors du chargement des étudiants");
@@ -44,19 +45,34 @@ export default function ProfesseurView() {
     }
   };
 
+  const handleAnneeChange = async (nouvelleAnnee: number) => {
+    setAnnee(nouvelleAnnee);
+    if (selectedMatiere) {
+      setLoadingEtudiants(true);
+      try {
+        const data = await getEtudiantsForMatiere(selectedMatiere.id, nouvelleAnnee);
+        setEtudiants(data);
+      } catch {
+        toast.error("Erreur lors du chargement des étudiants");
+      } finally {
+        setLoadingEtudiants(false);
+      }
+    }
+  };
+
   const handleValiderNormale = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, ANNEE, true, items);
+    await soumettreNotes(selectedMatiere.id, annee, true, items);
     toast.success("Notes normales enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, ANNEE);
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee);
     setEtudiants(data);
   };
 
   const handleValiderRattrapage = async (items: { etudiantId: number; valeur: number }[]) => {
     if (!selectedMatiere) return;
-    await soumettreNotes(selectedMatiere.id, ANNEE, false, items);
+    await soumettreNotes(selectedMatiere.id, annee, false, items);
     toast.success("Notes de rattrapage enregistrées");
-    const data = await getEtudiantsForMatiere(selectedMatiere.id, ANNEE);
+    const data = await getEtudiantsForMatiere(selectedMatiere.id, annee);
     setEtudiants(data);
   };
 
@@ -65,20 +81,48 @@ export default function ProfesseurView() {
       <PageTabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
       {activeTab === "liste" && (
-        <CoeffMentionTable
-          coeffMentions={matieres}
-          onVoirEtudiant={handleVoirEtudiant}
-        />
+        <div>
+          <div className="flex items-center gap-2 justify-end mb-4">
+            <label className="text-xs text-gray-500 shrink-0">Année :</label>
+            <select
+              value={annee}
+              onChange={(e) => setAnnee(Number(e.target.value))}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            >
+              {[CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1].map((a) => (
+                <option key={a} value={a}>{a}</option>
+              ))}
+            </select>
+          </div>
+          <CoeffMentionTable
+            coeffMentions={matieres}
+            onVoirEtudiant={handleVoirEtudiant}
+          />
+        </div>
       )}
 
       {activeTab === "etudiants" && (
         <div>
-          {selectedMatiere && (
-            <p className="text-xs text-gray-500 mb-3">
-              Matière : <span className="font-medium text-gray-700">{selectedMatiere.matiere.nom}</span>
-              {" — "}{selectedMatiere.semestre.name} / {selectedMatiere.niveau.nom}
-            </p>
-          )}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+            {selectedMatiere && (
+              <p className="text-xs text-gray-500">
+                Matière : <span className="font-medium text-gray-700">{selectedMatiere.matiere.nom}</span>
+                {" — "}{selectedMatiere.semestre.name} / {selectedMatiere.niveau.nom}
+              </p>
+            )}
+            <div className="flex items-center gap-2 sm:ml-auto">
+              <label className="text-xs text-gray-500 shrink-0">Année :</label>
+              <select
+                value={annee}
+                onChange={(e) => handleAnneeChange(Number(e.target.value))}
+                className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                {[CURRENT_YEAR - 2, CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1].map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </div>
+          </div>
           <VoirListeEtudiantTable
             etudiants={etudiants}
             loading={loadingEtudiants}

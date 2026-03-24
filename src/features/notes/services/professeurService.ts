@@ -1,8 +1,10 @@
 import type { MatiereCoeffItem, EtudiantNotesProfesseur } from "../types/notes";
+import { handleApiError } from "../utils/handleApiError";
 
 // Type plat retourné par GET /notes/matieres-coeff/professeur
 type FlatCoeff = {
   id: number;
+  ue: string;
   coefficient: number;
   matiereId: number;
   matiereNom: string;
@@ -21,6 +23,7 @@ type FlatCoeff = {
 // ── Matières du professeur connecté ────────────────────────────────────────
 
 export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
+<<<<<<< HEAD
   const res = await fetch("/api/notes/matieres-coeff/professeur");
   if (!res.ok) return [];
   const json = await res.json();
@@ -34,46 +37,43 @@ export async function getProfesseurMatieres(): Promise<MatiereCoeffItem[]> {
     niveau: { id: c.niveauId, nom: c.niveauNom },
     professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
   }));
+=======
+  try {
+    const res = await fetch("/api/notes/matieres-coeff/professeur");
+    if (!res.ok) { await handleApiError("getProfesseurMatieres", res); return []; }
+    const json = await res.json();
+    return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
+      id: c.id,
+      ue: c.ue,
+      matiere: { id: c.matiereId, nom: c.matiereNom },
+      semestre: { id: c.semestreId, name: c.semestreNom },
+      mention: { id: c.mentionId, nom: c.mentionNom },
+      coefficient: c.coefficient,
+      niveau: { id: c.niveauId, nom: c.niveauNom },
+      professeur: { id: c.professeurId, nom: c.professeurNom, prenom: c.professeurPrenom },
+    }));
+  } catch (err) {
+    await handleApiError("getProfesseurMatieres", undefined, err);
+    return [];
+  }
+>>>>>>> 1b9f72b9833e95687515a769d347b2aab5ce154a
 }
 
 // ── Étudiants (notes) pour un professeur et une année ──────────────────────
-
-type BackendNote = {
-  etudiantId: number;
-  matiereMentionCoefficientId: number;
-  typeNoteId: number; // 1 = Normale, 2 = Rattrapage
-  valeur: number;
-  annee: number;
-  dateValidation: string | null;
-};
-
-type BackendEtudiantNotes = {
-  details: {
-    etudiantId: number;
-    nom: string;
-    prenom: string;
-    niveauId: number;
-    mentionId: number;
-    annee: number;
-  };
-  notes: BackendNote[];
-};
 
 export async function getEtudiantsForMatiere(
   matiereCoeffId: number,
   annee: number
 ): Promise<EtudiantNotesProfesseur[]> {
-  const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
-  if (!res.ok) return [];
-  const json = await res.json();
-  const records: BackendEtudiantNotes[] = json.data ?? [];
-
-  return records.map((r) => ({
-    id: r.details.etudiantId,
-    nom: `${r.details.nom} ${r.details.prenom}`,
-    noteNormale: r.notes.find((n) => n.typeNoteId === 1)?.valeur ?? null,
-    noteRattrapage: r.notes.find((n) => n.typeNoteId === 2)?.valeur ?? null,
-  }));
+  try {
+    const res = await fetch(`/api/notes/matieres-coeff/professeur/${matiereCoeffId}?annee=${annee}`);
+    if (!res.ok) { await handleApiError("getEtudiantsForMatiere", res); return []; }
+    const json = await res.json();
+    return json.data ?? [];
+  } catch (err) {
+    await handleApiError("getEtudiantsForMatiere", undefined, err);
+    return [];
+  }
 }
 
 // ── Soumettre des notes ─────────────────────────────────────────────────────
@@ -84,13 +84,20 @@ export async function soumettreNotes(
   isNormale: boolean,
   listeEtudiants: { etudiantId: number; valeur: number }[]
 ): Promise<void> {
-  const res = await fetch("/api/notes/matieres-coeff/professeur", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
-  });
-  if (!res.ok) {
-    const json = await res.json();
-    throw new Error(json.error || "Erreur lors de la soumission des notes");
+  try {
+    const res = await fetch("/api/notes/matieres-coeff/professeur", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idMatiereCoefficient, annee, isNormale, listeEtudiants }),
+    });
+    if (!res.ok) {
+      await handleApiError("soumettreNotes", res);
+      throw new Error("Échec de la soumission des notes");
+    }
+  } catch (err) {
+    if (!(err instanceof Error && err.message === "Échec de la soumission des notes")) {
+      await handleApiError("soumettreNotes", undefined, err);
+    }
+    throw err;
   }
 }

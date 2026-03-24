@@ -73,33 +73,30 @@ export interface EtudiantRecherche {
   niveau?: string;
 }
 
+// GET /notes/resultats/{id}?idSemestre=
 export interface NoteEC {
-  id: number;
-  nomEC: string;
+  matiere: string;
   coefficient: number;
-  credit: number;
-  noteSur20: number | null;
-  ecAvecCoef: number | null;
-  resultat?: "Validé" | "Non validé" | null;
+  note: number;
+  noteAvecCoefficient: number;
 }
 
 export interface NoteUE {
-  id: number;
-  nomUE: string;
-  ues20?: number | null;
-  ecs: NoteEC[];
+  ue: string;
+  notes: NoteEC[];
+  isValid: boolean;
+  sommeCoefficients: number;
+  sommeNotesAvecCoefficient: number;
+  moyenne: number;
 }
 
 export interface ResultatSession {
-  session: "Normale" | "Rattrapage";
-  semestre: Semestre;
-  ues: NoteUE[];
+  type: "Normale" | "Rattrapage" | "Final";
+  notesListes: NoteUE[];
+  moyenne: number;
 }
 
-export interface ResultatEtudiant {
-  etudiant: EtudiantRecherche;
-  resultats: ResultatSession[];
-}
+export type ResultatEtudiant = ResultatSession[];
 
 // ── Matière avec coefficient (vue Chef-Mention & Professeur) ───────────────
 
@@ -117,21 +114,41 @@ export interface MatiereCoeff {
 export type TypeNote = "Normale" | "Rattrapage";
 export type StatusValidation = "Valide" | "Non Valide";
 
+// GET /notes/matieres-coeff/etudiant/{id}?annee=
 export interface EtudiantNoteValidation {
   id: number;
+  valeur: string;
+  typeNoteId: number;
+  typeNoteName: string;
+  matiereMentionCoefficientId: number;
+  etudiantId: number;
   nom: string;
-  note: number;
-  type: TypeNote;
-  status: StatusValidation;
+  prenom: string;
+  annee: number;
+  dateValidation: string | null;
+  createdAt: string;
 }
 
-// ── Vue Professeur : étudiants d'une matière ──────────────────────────────
+// GET /notes/matieres-coeff/professeur/{id}?annee=
+export interface NoteEtudiant {
+  etudiantId: number;
+  matiereMentionCoefficientId: number;
+  typeNoteId: number;
+  valeur: number;
+  annee: number;
+  dateValidation: string | null;
+}
 
 export interface EtudiantNotesProfesseur {
-  id: number;
-  nom: string;
-  noteNormale: number | null;
-  noteRattrapage: number | null;
+  details: {
+    etudiantId: number;
+    nom: string;
+    prenom: string;
+    niveauId: number;
+    mentionId: number;
+    annee: number;
+  };
+  notes: NoteEtudiant[];
 }
 
 // ── Admin Validation Detail (vue par niveau) ──────────────────────────────

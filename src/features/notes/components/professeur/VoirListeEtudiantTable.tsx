@@ -25,13 +25,14 @@ export default function VoirListeEtudiantTable({
   const [savingN, setSavingN] = useState(false);
   const [savingR, setSavingR] = useState(false);
 
-  // Réinitialise les notes locales quand la liste change (nouvelle matière sélectionnée)
   useEffect(() => {
     const init: Record<number, { normale: string; rattrapage: string }> = {};
     for (const e of etudiants) {
-      init[e.id] = {
-        normale: e.noteNormale !== null ? String(e.noteNormale) : "",
-        rattrapage: e.noteRattrapage !== null ? String(e.noteRattrapage) : "",
+      const noteNormale = e.notes.find((n) => n.typeNoteId === 1)?.valeur ?? null;
+      const noteRattrapage = e.notes.find((n) => n.typeNoteId === 2)?.valeur ?? null;
+      init[e.details.etudiantId] = {
+        normale: noteNormale !== null ? String(noteNormale) : "",
+        rattrapage: noteRattrapage !== null ? String(noteRattrapage) : "",
       };
     }
     setLocalNotes(init);
@@ -91,53 +92,58 @@ export default function VoirListeEtudiantTable({
                 </td>
               </tr>
             )}
-            {etudiants.map((e) => (
-              <tr key={e.id} className={checked.has(e.id) ? "bg-blue-50" : "hover:bg-gray-50"}>
-                <td className="border border-gray-300 px-3 py-2 text-center">
-                  <input
-                    type="checkbox"
-                    checked={checked.has(e.id)}
-                    onChange={() => toggle(e.id)}
-                    className="w-4 h-4"
-                  />
-                </td>
-                <td className="border border-gray-300 px-3 py-2 font-medium">{e.nom}</td>
-                <td className="border border-gray-300 px-2 py-1">
-                  <input
-                    type="number"
-                    min={0}
-                    max={20}
-                    step={0.5}
-                    placeholder="—"
-                    value={localNotes[e.id]?.normale ?? ""}
-                    onChange={(ev) =>
-                      setLocalNotes((prev) => ({
-                        ...prev,
-                        [e.id]: { ...prev[e.id], normale: ev.target.value },
-                      }))
-                    }
-                    className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-                  />
-                </td>
-                <td className="border border-gray-300 px-2 py-1">
-                  <input
-                    type="number"
-                    min={0}
-                    max={20}
-                    step={0.5}
-                    placeholder="—"
-                    value={localNotes[e.id]?.rattrapage ?? ""}
-                    onChange={(ev) =>
-                      setLocalNotes((prev) => ({
-                        ...prev,
-                        [e.id]: { ...prev[e.id], rattrapage: ev.target.value },
-                      }))
-                    }
-                    className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
-                  />
-                </td>
-              </tr>
-            ))}
+            {etudiants.map((e) => {
+              const id = e.details.etudiantId;
+              return (
+                <tr key={id} className={checked.has(id) ? "bg-blue-50" : "hover:bg-gray-50"}>
+                  <td className="border border-gray-300 px-3 py-2 text-center">
+                    <input
+                      type="checkbox"
+                      checked={checked.has(id)}
+                      onChange={() => toggle(id)}
+                      className="w-4 h-4"
+                    />
+                  </td>
+                  <td className="border border-gray-300 px-3 py-2 font-medium">
+                    {e.details.nom} {e.details.prenom}
+                  </td>
+                  <td className="border border-gray-300 px-2 py-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={20}
+                      step={0.5}
+                      placeholder="—"
+                      value={localNotes[id]?.normale ?? ""}
+                      onChange={(ev) =>
+                        setLocalNotes((prev) => ({
+                          ...prev,
+                          [id]: { ...prev[id], normale: ev.target.value },
+                        }))
+                      }
+                      className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    />
+                  </td>
+                  <td className="border border-gray-300 px-2 py-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={20}
+                      step={0.5}
+                      placeholder="—"
+                      value={localNotes[id]?.rattrapage ?? ""}
+                      onChange={(ev) =>
+                        setLocalNotes((prev) => ({
+                          ...prev,
+                          [id]: { ...prev[id], rattrapage: ev.target.value },
+                        }))
+                      }
+                      className="w-full h-8 px-2 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
