@@ -7,6 +7,9 @@ import Menu from "@/components/static/Menu";
 import ChefMentionView from "@/features/notes/components/chef-mention/ChefMentionView";
 import { User } from "@/lib/db";
 
+const ALLOWED_ROLES = ["ChefMention", "Admin"];
+
+
 export default function ChefMentionPage() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
@@ -20,7 +23,7 @@ export default function ChefMentionPage() {
         return;
       }
       const data = await res.json();
-      if (data.user?.role !== 'ChefMention') {
+      if (!ALLOWED_ROLES.includes(data.user?.role)) {
         router.push(login);
         return;
       }
