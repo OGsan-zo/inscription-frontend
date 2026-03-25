@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Toaster } from 'sonner';
-git 
 import { getInitialData } from '@/lib/appConfig';
 import { DataProvider } from '@/context/DataContext';
 import { UserProvider } from '@/context/UserContext';
