@@ -9,6 +9,7 @@ import {
   getEtudiantNotesValidation,
   addMatiereCoeffMention,
   validerNote,
+  updateMatiereCoeff,
 } from "../../services/chefMentionService";
 import {
   getMatieres,
@@ -18,11 +19,12 @@ import type {
   MatiereUE,
   MatiereCoeffItem,
   EtudiantNoteValidation,
-  CoeffMentionSubmitValues
+  CoeffMentionSubmitValues,
 } from "../../types/notes";
 import { useInitialData } from "@/context/DataContext";
 import { useProfesseursWithSelf } from "../../hooks/useProfesseursWithSelf";
 import toast from "react-hot-toast";
+
 const TABS = [
   { key: "coeff",      label: "Matières & Coefficients" },
   { key: "validation", label: "Voir Etudiant Validation" },
@@ -68,11 +70,11 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
 
   const handleValider = async (etudiant: EtudiantNoteValidation) => {
     await validerNote(etudiant.id, router);
-
     setValidations((prev) =>
-      prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide" ,dateValidation: new Date().toISOString()} : e))
+      prev.map((e) => (e.id === etudiant.id ? { ...e, status: "Valide", dateValidation: new Date().toISOString() } : e))
     );
   };
+
   const handleSubmitCoeff = async (values: CoeffMentionSubmitValues) => {
     try {
       await addMatiereCoeffMention(
@@ -84,16 +86,35 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
         router,
         values.professeurId || 0
       );
-      
       toast.success("Coefficient ajouté avec succès");
-      
-      // Rafraîchir la liste après l'ajout
       const updatedList = await getMatieresCoeff(router);
       setCoeffMentions(updatedList);
     } catch (error: any) {
-      throw error;  
-      // toast.error(error.message || "Erreur lors de l'ajout du coefficient");
+      throw error;
     }
+  };
+
+  const handleSaveEdit = async (
+    id: number,
+    values: { coefficient: number; credit: number; professeurId: number }
+  ) => {
+    const item = coeffMentions.find((c) => c.id === id);
+    if (!item) return;
+    await updateMatiereCoeff(
+      id,
+      {
+        matiereId: item.matiere.id,
+        mentionId: item.mention.id,
+        niveauId: Number(item.niveau.id),
+        professeurId: values.professeurId,
+        coefficient: values.coefficient,
+        credit: values.credit,
+      },
+      router
+    );
+    toast.success("Coefficient mis à jour");
+    const updatedList = await getMatieresCoeff(router);
+    setCoeffMentions(updatedList);
   };
 
   return (
@@ -109,7 +130,7 @@ export default function ChefMentionView({ userId }: ChefMentionViewProps) {
           overrideMentionId={userId}
           coeffMentions={coeffMentions}
           onSubmit={handleSubmitCoeff}
-          onModifier={(m) => console.log("Modifier", m)}
+          onSaveEdit={handleSaveEdit}
           onVoirEtudiant={handleVoirEtudiant}
         />
       )}
