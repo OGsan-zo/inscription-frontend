@@ -6,5 +6,5 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  return callApiGet(request, `/notes/resultats/${id}`, ["idSemestre"]);
+  return callApiGet(request, `/notes/resultats/${id}`, ["idSemestre","isCredit"]);
 }

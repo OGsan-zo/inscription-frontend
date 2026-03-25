@@ -77,6 +77,7 @@ export interface EtudiantRecherche {
 // GET /notes/resultats/{id}?idSemestre=
 export interface NoteEC {
   matiere: string;
+  credit: number;
   coefficient: number;
   note: number;
   noteAvecCoefficient: number;
@@ -86,9 +87,11 @@ export interface NoteUE {
   ue: string;
   notes: NoteEC[];
   isValid: boolean;
+  sommeCredit: number;
   sommeCoefficients: number;
   sommeNotesAvecCoefficient: number;
   moyenne: number;
+  sommeNotes: number;
 }
 
 export interface ResultatSession {

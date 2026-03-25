@@ -8,6 +8,8 @@ interface Props {
   onSemestreChange: (v: string) => void;
   onValider: () => void;
   onReset: () => void;
+  isCredit: number;
+  setIsCredit:(v: number) => void;
 }
 
 export default function SemestreSelect({
@@ -18,6 +20,8 @@ export default function SemestreSelect({
   onSemestreChange,
   onValider,
   onReset,
+  isCredit,
+  setIsCredit
 }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
@@ -28,11 +32,27 @@ export default function SemestreSelect({
             Étudiant : <span className="font-semibold text-slate-700">{etudiant.nom} {etudiant.prenom}</span>
           </p>
         </div>
-        <button onClick={onReset} className="text-xs text-slate-400 hover:text-slate-600 underline">
-          Recommencer
-        </button>
+ <button 
+  onClick={onReset} 
+  className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1 border border-slate-300 text-slate-500 rounded-full hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95"
+>
+  Recommencer
+</button>
       </div>
 
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Type</label>
+          <select
+            value={isCredit}
+            onChange={(e) => setIsCredit(Number(e.target.value))}
+            className="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:min-w-[140px]"
+          >
+            <option value="1">Par credit</option>
+            <option value="2">Par coefficient</option>
+          </select>
+        </div>
+      </div>
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:items-end">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">Semestre</label>

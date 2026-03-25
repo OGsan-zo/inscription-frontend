@@ -3,6 +3,7 @@
 import { EtudiantNotesProfesseur } from '@/features/notes/types/notes';
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { EtudiantRecherche } from './db';
 
 /**
  * Fonction pour fusionner des chaînes de classes CSS,
@@ -114,5 +115,26 @@ export const sortStudentsAlphabeticallyNote = (
     const prenomA = (a.details.prenom ?? "").toLowerCase();
     const prenomB = (b.details.prenom ?? "").toLowerCase();
     return prenomA.localeCompare(prenomB);
+  });
+};
+
+/**
+ * Trie un tableau d'EtudiantRecherche par nom, puis par prénom.
+ * Utilise localeCompare pour une gestion parfaite des accents et de la casse.
+ */
+export const trierEtudiantsRecherche = (students: EtudiantRecherche[]): EtudiantRecherche[] => {
+  return [...students].sort((a, b) => {
+    // 1. Normalisation et comparaison des noms
+    const nomA = (a.nom ?? "").trim().toLowerCase();
+    const nomB = (b.nom ?? "").trim().toLowerCase();
+    const compareNom = nomA.localeCompare(nomB, 'fr');
+
+    // Si les noms sont différents, on retourne le résultat du tri
+    if (compareNom !== 0) return compareNom;
+
+    // 2. Si les noms sont identiques, comparaison des prénoms
+    const prenomA = (a.prenom ?? "").trim().toLowerCase();
+    const prenomB = (b.prenom ?? "").trim().toLowerCase();
+    return prenomA.localeCompare(prenomB, 'fr');
   });
 };
