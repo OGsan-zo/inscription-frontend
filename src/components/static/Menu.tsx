@@ -96,6 +96,7 @@ export default function Menu({ user }: MenuProps) {
       { key: "/admin/changerNiveauEtudiant", label: "Changer Niveau", icon: <Filter size={18} /> },
       { key: "/admin/pre-inscription", label: "Pré-inscription", icon: <UserPlus size={18} /> },
       { key: "/admin/parcours", label: "Parcours", icon: <ShieldCheck size={18} /> },
+      { key: "/admin/mentions", label: "Chef Mention", icon: <Users size={18} /> },
       { key: "/admin/export", label: "Exportation", icon: <Download size={18} /> },
       { key: "/notes/admin?tab=matieres", label: "Matières", icon: <Layers size={18} /> },
       { key: "/notes/admin?tab=ue", label: "UE", icon: <Library size={18} /> },

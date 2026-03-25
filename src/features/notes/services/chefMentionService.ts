@@ -57,10 +57,9 @@ export async function addMatiereCoeffMention(
     });
 
     if (!res.ok) {
-      const responseJson = await res.json();
       if (await checkAuth(res, router)) return;
       await handleApiError("addMatiereCoeffMention", res);
-      throw new Error(responseJson.error || "Erreur lors de l'ajout du coefficient");
+      throw new Error("Erreur lors de l'ajout du coefficient");
     }
   } catch (err) {
     await handleApiError("addMatiereCoeffMention", undefined, err);
@@ -94,6 +93,30 @@ export async function updateMatiereCoeff(
     }
   } catch (err) {
     await handleApiError("updateMatiereCoeff", undefined, err);
+    throw err;
+  }
+}
+
+// ── Assigner un chef de mention ─────────────────────────────────────────────
+
+export async function assignerChefMention(
+  mentionId: number,
+  chefId: number,
+  router: AppRouterInstance
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/etudiants/mentions/${mentionId}/chef`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chefId }),
+    });
+    if (!res.ok) {
+      if (await checkAuth(res, router)) return;
+      await handleApiError("assignerChefMention", res);
+      throw new Error("Erreur lors de l'assignation du chef de mention");
+    }
+  } catch (err) {
+    await handleApiError("assignerChefMention", undefined, err);
     throw err;
   }
 }

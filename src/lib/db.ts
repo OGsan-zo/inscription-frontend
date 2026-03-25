@@ -111,6 +111,8 @@ export interface Mention {
   nom: string;
   abr?: string;
   chefMentionId?: number;
+  chefMentionNom?: string;
+  chefMentionPrenom?: string;
 }
 
 export interface PaiementData {
