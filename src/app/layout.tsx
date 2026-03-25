@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Toaster } from 'sonner';
@@ -11,8 +10,6 @@ import { UserProvider } from '@/context/UserContext';
 // ✅ 1. DÉSACTIVER LE CACHE ICI (Dans le composant serveur)
 export const dynamic = "force-dynamic";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: 'Gestion des inscriptions',
