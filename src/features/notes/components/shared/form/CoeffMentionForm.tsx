@@ -52,7 +52,7 @@ export default function CoeffMentionForm({
 
 
   // 1. On filtre les mentions si overrideMentionId est défini
-  const mentionsFiltrees = overrideMentionId === undefined
+  const mentionsFiltrees = overrideMentionId === 1 || !overrideMentionId
     ? mentions
     : mentions.filter(m => m.chefMentionId === Number(overrideMentionId));
 
@@ -75,6 +75,7 @@ export default function CoeffMentionForm({
       });
       setMatiereId("");
       setCoeff("");
+      setCredit("");
       setNiveauId("");
       setMentionId("");
       setProfesseurId("");
@@ -135,10 +136,11 @@ export default function CoeffMentionForm({
         <label className={labelCls}>Coefficient :</label>
         <input
           type="number"
-          min={1}
+          min={0.01}        // Autorise une valeur minimale positive très petite
+          step="0.01"       // CRUCIAL : Permet 2 chiffres après la virgule
           value={coeff}
           onChange={(e) => setCoeff(e.target.value)}
-          placeholder="Ex: 2"
+          placeholder="Ex: 2.50"
           required
           className={inputCls}
         />
