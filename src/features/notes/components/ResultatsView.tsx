@@ -10,6 +10,7 @@ import SemestreSelect from "./resultats/form/SemestreSelect";
 import ResultatsTable from "./resultats/table/ResultatsTable";
 import ResultatsPDFButton from "./resultats/ResultatsPDFButton";
 import { Card } from "@/components/ui/card";
+import { trierEtudiantsRecherche } from "@/lib/utils";
 
 type Step = "recherche" | "semestre" | "resultats";
 
@@ -34,9 +35,19 @@ export default function ResultatsView() {
   const [loadingResultat, setLoadingResultat] = useState(false);
 
   const handleRecherche = async () => {
-    if (!nom.trim()) return;
+  if (!nom.trim()) return;
     setSearching(true);
-    setResultatsRecherche(await rechercherEtudiants(nom, prenom, router));
+
+    const result = await rechercherEtudiants(nom, prenom, router);
+    const resultTrier = trierEtudiantsRecherche(result);
+
+    // On convertit les IDs en Number pour satisfaire le type du useState
+    const resultFinal = resultTrier.map(etudiant => ({
+      ...etudiant,
+      id: Number(etudiant.id) // Convertit le string en number
+    }));
+
+    setResultatsRecherche(resultFinal);
     setSearching(false);
   };
 
