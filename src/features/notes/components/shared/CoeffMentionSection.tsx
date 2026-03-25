@@ -3,6 +3,12 @@ import type { MatiereUE, MentionNote, MatiereCoeffItem } from "../../types/notes
 import CoeffMentionForm, { type CoeffMentionSubmitValues } from "./form/CoeffMentionForm";
 import CoeffMentionTable from "./table/CoeffMentionTable";
 
+interface SaveEditValues {
+  coefficient: number;
+  credit: number;
+  professeurId: number;
+}
+
 interface Props {
   matieres: MatiereUE[];
   mentions: MentionNote[];
@@ -14,7 +20,7 @@ interface Props {
   coeffMentions: MatiereCoeffItem[];
   onSubmit: (values: CoeffMentionSubmitValues) => Promise<void>;
   onVoirEtudiant?: (item: MatiereCoeffItem) => void;
-  onModifier?: (item: MatiereCoeffItem) => void;
+  onSaveEdit?: (id: number, values: SaveEditValues) => Promise<void>;
 }
 
 export default function CoeffMentionSection({
@@ -28,7 +34,7 @@ export default function CoeffMentionSection({
   coeffMentions,
   onSubmit,
   onVoirEtudiant,
-  onModifier,
+  onSaveEdit,
 }: Props) {
   return (
     <div className="space-y-6">
@@ -44,8 +50,9 @@ export default function CoeffMentionSection({
       />
       <CoeffMentionTable
         coeffMentions={coeffMentions}
+        professeurs={professeurs}
         onVoirEtudiant={onVoirEtudiant}
-        onModifier={onModifier}
+        onSaveEdit={onSaveEdit}
       />
     </div>
   );

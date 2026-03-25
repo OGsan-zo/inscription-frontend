@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getUEs, createUE } from "../services/notesService";
+import { getUEs, createUE, updateUE } from "../services/notesService";
 import { useInitialData } from "@/context/DataContext";
 import type { UE } from "../types/notes";
 import { useRouter } from "next/navigation";
@@ -20,5 +20,13 @@ export function useUE() {
     setSaving(false);
   };
 
-  return { ues, name, saving, setName, handleCreate };
+  const handleUpdate = async (id: number, newName: string) => {
+    if (!newName.trim()) return;
+    setSaving(true);
+    await updateUE(id, newName.trim(), router);
+    setUEs(await getUEs(router));
+    setSaving(false);
+  };
+
+  return { ues, name, saving, setName, handleCreate, handleUpdate };
 }

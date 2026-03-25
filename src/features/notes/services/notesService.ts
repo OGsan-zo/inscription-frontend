@@ -168,6 +168,44 @@ export async function createMatiereCoeff(
   }
 }
 
+export async function updateUE(id: number, name: string, router: AppRouterInstance): Promise<void> {
+  try {
+    const res = await fetch(`/api/notes/ue/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    if (!res.ok) {
+      if (await checkAuth(res, router)) return;
+      await handleApiError("updateUE", res);
+    }
+  } catch (err) {
+    await handleApiError("updateUE", undefined, err);
+  }
+}
+
+export async function updateMatiere(
+  id: number,
+  name: string,
+  ueId: number,
+  semestreId: number,
+  router: AppRouterInstance
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/notes/matieres/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, ueId, semestreId }),
+    });
+    if (!res.ok) {
+      if (await checkAuth(res, router)) return;
+      await handleApiError("updateMatiere", res);
+    }
+  } catch (err) {
+    await handleApiError("updateMatiere", undefined, err);
+  }
+}
+
 // ── Résultats étudiant ────────────────────────────────────────────────────
 
 export async function rechercherEtudiants(nom: string, prenom: string, router: AppRouterInstance): Promise<EtudiantRecherche[]> {

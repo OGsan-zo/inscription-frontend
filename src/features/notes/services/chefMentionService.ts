@@ -1,4 +1,4 @@
-import type { EtudiantNoteValidation } from "../types/notes";
+import type { EtudiantNoteValidation, CoeffMentionSubmitValues } from "../types/notes";
 import { handleApiError } from "../utils/handleApiError";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
@@ -64,6 +64,36 @@ export async function addMatiereCoeffMention(
     }
   } catch (err) {
     await handleApiError("addMatiereCoeffMention", undefined, err);
+    throw err;
+  }
+}
+
+// ── Mettre à jour un coefficient matière ───────────────────────────────────
+
+export async function updateMatiereCoeff(
+  id: number,
+  values: CoeffMentionSubmitValues,
+  router: AppRouterInstance
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/notes/matieres-coeff/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        idMatiere: values.matiereId,
+        idMention: values.mentionId,
+        idNiveau: values.niveauId,
+        idProfesseur: values.professeurId ?? 0,
+        coefficient: values.coefficient,
+        credit: values.credit,
+      }),
+    });
+    if (!res.ok) {
+      if (await checkAuth(res, router)) return;
+      await handleApiError("updateMatiereCoeff", res);
+    }
+  } catch (err) {
+    await handleApiError("updateMatiereCoeff", undefined, err);
     throw err;
   }
 }

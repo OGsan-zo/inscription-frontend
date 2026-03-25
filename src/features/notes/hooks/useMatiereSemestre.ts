@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getMatieres, createMatiere } from "../services/notesService";
+import { getMatieres, createMatiere, updateMatiere } from "../services/notesService";
 import { useInitialData } from "@/context/DataContext";
 import type { MatiereUE } from "../types/notes";
 import { useRouter } from "next/navigation";
@@ -28,10 +28,18 @@ export function useMatiereSemestre() {
     setSaving(false);
   };
 
+  const handleUpdate = async (id: number, newName: string, newUeId: number, newSemestreId: number) => {
+    if (!newName.trim() || !newUeId || !newSemestreId) return;
+    setSaving(true);
+    await updateMatiere(id, newName.trim(), newUeId, newSemestreId, router);
+    setMatieres(await getMatieres(router));
+    setSaving(false);
+  };
+
   return {
     matieres, semestres, ues,
     name, ueId, semestreId, saving,
     setName, setUeId, setSemestreId,
-    handleCreate,
+    handleCreate, handleUpdate,
   };
 }
