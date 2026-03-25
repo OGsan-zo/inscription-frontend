@@ -17,7 +17,7 @@ export default function MentionsChefPage() {
   const [mentions, setMentions] = useState<Mention[]>([]);
   const router = useRouter();
   const login = process.env.NEXT_PUBLIC_LOGIN_URL || "/login";
-  const { mentions: mentionsCtx } = useInitialData();
+  const { mentions: mentionsCtx, chefsMention } = useInitialData();
 
   // Auth
   useEffect(() => {
@@ -41,14 +41,11 @@ export default function MentionsChefPage() {
     checkAuth();
   }, [login]);
 
-  // Fetch chefs disponibles
+  // Utiliser les données du contexte
   useEffect(() => {
-    fetch("/api/utilisateur/professeurChefMention")
-      .then((r) => r.json())
-      .then((d) => setChefs(d.data || []));
-  }, []);
+    setChefs(chefsMention);
+  }, [chefsMention]);
 
-  // Utiliser les mentions du contexte (avec chefMentionId si disponible)
   useEffect(() => {
     setMentions(mentionsCtx);
   }, [mentionsCtx]);

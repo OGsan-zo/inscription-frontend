@@ -27,7 +27,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   try {
-    const [resNiveaux, resMentions, resFormations, resNationalites, resParcours, resUEs, resSemestres, resProfesseurs] = await Promise.all([
+    const [resNiveaux, resMentions, resFormations, resNationalites, resParcours, resUEs, resSemestres, resProfesseurs, resChefsMention] = await Promise.all([
       fetch(`${baseUrl}/api/etudiants/niveaux`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/etudiants/mentions`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/etudiants/formations`, { cache: 'no-store' }),
@@ -36,6 +36,7 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
       fetch(`${baseUrl}/api/notes/ue`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/notes/semestres`, { cache: 'no-store' }),
       fetch(`${baseUrl}/api/users/professeurs`, { cache: 'no-store' }),
+      fetch(`${baseUrl}/api/utilisateur/chefMention`, { cache: 'no-store' }),
     ]);
 
     const niveaux = await safeParse<Niveau>(resNiveaux);
@@ -45,11 +46,12 @@ export const getInitialData = cache(async (): Promise<InitialData> => {
     const parcours = await safeParse<Parcours>(resParcours);
     const ues = await safeParse<UE>(resUEs);
     const semestres = await safeParse<Semestre>(resSemestres);
-    const professeurs = (await safeParse<User>(resProfesseurs));
+    const professeurs = await safeParse<User>(resProfesseurs);
+    const chefsMention = await safeParse<User>(resChefsMention);
 
-    return { niveaux, mentions, formations, nationalites, parcours, ues, semestres, professeurs };
+    return { niveaux, mentions, formations, nationalites, parcours, ues, semestres, professeurs, chefsMention };
   } catch (error) {
     console.error("❌ Erreur getInitialData:", error);
-    return { niveaux: [], mentions: [], formations: [], nationalites: [], parcours: [], ues: [], semestres: [], professeurs: [] };
+    return { niveaux: [], mentions: [], formations: [], nationalites: [], parcours: [], ues: [], semestres: [], professeurs: [], chefsMention: [] };
   }
 });

@@ -343,6 +343,7 @@ export interface InitialData {
   ues: UE[];
   semestres: Semestre[];
   professeurs: User[];
+  chefsMention: User[];
 }
 
 // In-memory storage (replace with database)
