@@ -53,12 +53,12 @@ export default function AdminMatieresView() {
   const [annee, setAnnee] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    getMatieresCoeff().then(setCoeffMentions);
+    getMatieresCoeff(router).then(setCoeffMentions);
   }, []);
 
   const handleVoirEtudiant = async (matiere: MatiereCoeffItem) => {
     setSelectedMatiere(matiere);
-    setValidations(await getEtudiantNotesValidation(matiere.id, annee));
+    setValidations(await getEtudiantNotesValidation(matiere.id, annee, router));
     handleTabChange("validation");
   };
 
