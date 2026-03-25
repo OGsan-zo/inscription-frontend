@@ -18,6 +18,7 @@ type FlatCoeff = {
   professeurId: number;
   professeurNom: string;
   professeurPrenom: string;
+  credit:number;
 };
 
 // --- Fonction utilitaire pour gérer la redirection ---
@@ -48,6 +49,7 @@ export async function getProfesseurMatieres(router: AppRouterInstance): Promise<
     return (json.data ?? []).map((c: FlatCoeff): MatiereCoeffItem => ({
       id: c.id,
       ue: c.ue,
+      credit: c.credit,
       matiere: { id: c.matiereId, nom: c.matiereNom },
       semestre: { id: c.semestreId, name: c.semestreNom },
       mention: { id: c.mentionId, nom: c.mentionNom },

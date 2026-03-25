@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import NiveauValidationTable from "./NiveauValidationTable";
-import { getEtudiantValidationDetail } from "../../../services/professeurService";
+// import { getEtudiantValidationDetail } from "../../../services/professeurService";
 import { EtudiantValidationDetail } from "../../../types/notes";
 
 interface AdminValidationDetailViewProps {
@@ -13,11 +13,11 @@ export default function AdminValidationDetailView({ idEtudiant }: AdminValidatio
   const [detail, setDetail] = useState<EtudiantValidationDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getEtudiantValidationDetail(idEtudiant)
-      .then(setDetail)
-      .finally(() => setLoading(false));
-  }, [idEtudiant]);
+  // useEffect(() => {
+  //   getEtudiantValidationDetail(idEtudiant)
+  //     .then(setDetail)
+  //     .finally(() => setLoading(false));
+  // }, [idEtudiant]);
 
   const handleValiderNormale = async (idNiveau: number, ucIds: number[]) => {
     // TODO: appel API
