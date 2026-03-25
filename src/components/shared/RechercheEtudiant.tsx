@@ -100,9 +100,9 @@ export default function RechercheEtudiant<T extends EtudiantBase>({
         </div>
       )}
 
-      {resultats.length === 0 && nom && !loading && (
+      {/* {resultats.length === 0 && nom && !loading && (
         <p className="mt-4 text-sm text-slate-400">Aucun étudiant trouvé.</p>
-      )}
+      )} */}
     </div>
   );
 }

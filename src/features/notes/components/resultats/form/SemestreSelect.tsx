@@ -32,9 +32,12 @@ export default function SemestreSelect({
             Étudiant : <span className="font-semibold text-slate-700">{etudiant.nom} {etudiant.prenom}</span>
           </p>
         </div>
-        <button onClick={onReset} className="text-xs text-slate-400 hover:text-slate-600 underline">
-          Recommencer
-        </button>
+ <button 
+  onClick={onReset} 
+  className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1 border border-slate-300 text-slate-500 rounded-full hover:bg-slate-100 hover:text-slate-700 transition-all active:scale-95"
+>
+  Recommencer
+</button>
       </div>
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:items-end">
