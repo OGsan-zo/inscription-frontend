@@ -27,6 +27,7 @@ export default function ResultatsView() {
   // Étape 2 — Semestre
   const [etudiantSelectionne, setEtudiantSelectionne] = useState<EtudiantRecherche | null>(null);
   const [idSemestre, setIdSemestre] = useState("");
+  const [isCredit,setIsCredit] = useState(1);
 
   // Étape 3 — Résultats
   const [resultat, setResultat] = useState<ResultatEtudiant | null>(null);
@@ -49,7 +50,7 @@ export default function ResultatsView() {
   const handleValiderSemestre = async () => {
     if (!etudiantSelectionne || !idSemestre) return;
     setLoadingResultat(true);
-    setResultat(await getResultatEtudiant(etudiantSelectionne.id, Number(idSemestre), router));
+    setResultat(await getResultatEtudiant(etudiantSelectionne.id, Number(idSemestre),isCredit, router));
     setStep("resultats");
     setLoadingResultat(false);
   };
@@ -90,6 +91,9 @@ export default function ResultatsView() {
           onSemestreChange={setIdSemestre}
           onValider={handleValiderSemestre}
           onReset={reset}
+          isCredit={isCredit}
+          setIsCredit={setIsCredit}
+          
         />
       )}
 

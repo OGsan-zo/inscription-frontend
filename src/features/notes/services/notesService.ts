@@ -234,9 +234,9 @@ export async function rechercherEtudiants(nom: string, prenom: string, router: A
   }
 }
 
-export async function getResultatEtudiant(idEtudiant: number, idSemestre: number, router: AppRouterInstance): Promise<ResultatEtudiant | null> {
+export async function getResultatEtudiant(idEtudiant: number, idSemestre: number,isCredit :number, router: AppRouterInstance): Promise<ResultatEtudiant | null> {
   try {
-    const res = await fetch(`/api/notes/resultats/${idEtudiant}?idSemestre=${idSemestre}`);
+    const res = await fetch(`/api/notes/resultats/${idEtudiant}?idSemestre=${idSemestre}&isCredit=${isCredit}`);
     if (!res.ok) {
       if (await checkAuth(res, router)) return null;
       await handleApiError("getResultatEtudiant", res); 

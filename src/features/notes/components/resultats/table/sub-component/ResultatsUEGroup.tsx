@@ -6,8 +6,8 @@ export default function ResultatsUEGroup({ ue }: { ue: NoteUE }) {
       {/* ── UE Header Row ─────────────────────────────────────────────── */}
       <tr className="bg-indigo-100 border-t-2 border-indigo-200">
         <td
-          colSpan={6}
-          className="px-4 py-2 font-bold text-indigo-900 text-sm uppercase tracking-wide"
+          colSpan={7}
+          className="px-4 py-2 font-bold text-indigo-900 text-sm uppercase tracking-wide text-center"
         >
           {ue.ue}
         </td>
