@@ -7,11 +7,13 @@ import UEForm from "./admin/form/UEForm";
 import UETable from "./admin/table/UETable";
 import MatiereSemestreForm from "./admin/form/MatiereSemestreForm";
 import MatiereSemestreTable from "./admin/table/MatiereSemestreTable";
+import AdminNotesDashboard from "./admin/AdminNotesDashboard";
 import { useUE } from "../hooks/useUE";
 import { useMatiereSemestre } from "../hooks/useMatiereSemestre";
 import toast from "react-hot-toast";
 
 const TABS = [
+  { key: "dashboard", label: "Dashboard" },
   { key: "matieres", label: "Matières" },
   { key: "ue", label: "UE" },
 ];
@@ -19,10 +21,10 @@ const TABS = [
 export default function AdminMatieresView() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "matieres");
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "dashboard");
 
   useEffect(() => {
-    const tab = searchParams.get("tab") ?? "matieres";
+    const tab = searchParams.get("tab") ?? "dashboard";
     setActiveTab(tab);
   }, [searchParams]);
 
@@ -47,6 +49,10 @@ export default function AdminMatieresView() {
   return (
     <div>
       <PageTabs tabs={TABS} activeTab={activeTab} onChange={handleTabChange} />
+
+      {activeTab === "dashboard" && (
+        <AdminNotesDashboard onTabChange={handleTabChange} />
+      )}
 
       {activeTab === "matieres" && (
         <div className="space-y-6">
