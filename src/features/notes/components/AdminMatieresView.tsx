@@ -14,8 +14,8 @@ import toast from "react-hot-toast";
 
 const TABS = [
   { key: "dashboard", label: "Dashboard" },
-  { key: "matieres", label: "Matières" },
-  { key: "ue", label: "UE" },
+  { key: "ue",        label: "UE" },
+  { key: "matieres",  label: "Matières" },
 ];
 
 export default function AdminMatieresView() {

@@ -41,6 +41,9 @@ export default function AdminNotesDashboard({ onTabChange }: Props) {
     totalCoeffs,
     matieresNonAssignees,
     mentionsSansChef,
+    totalProfesseurs,
+    totalChefMentions,
+    matieresParMention,
     loading,
   } = useAdminNotesDashboard();
 
@@ -59,10 +62,42 @@ export default function AdminNotesDashboard({ onTabChange }: Props) {
 
       {/* ── Cartes statistiques ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <StatCard label="Unités d'Enseignement" value={totalUE}       color="blue"   />
-        <StatCard label="Matières enregistrées"  value={totalMatieres} color="indigo" />
-        <StatCard label="Coefficients assignés"  value={totalCoeffs}  color="violet" />
+        <StatCard label="Unités d'Enseignement" value={totalUE}           color="blue"   />
+        <StatCard label="Matières enregistrées"  value={totalMatieres}     color="indigo" />
+        <StatCard label="Coefficients assignés"  value={totalCoeffs}       color="violet" />
+        <StatCard label="Professeurs"            value={totalProfesseurs}  color="green"  />
+        <StatCard label="Chefs de Mention"       value={totalChefMentions} color="indigo" />
       </div>
+
+      {/* ── Matières par mention ── */}
+      {matieresParMention.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100">
+            <h3 className="text-base font-bold text-slate-900">Matières par mention</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Nombre de matières assignées (avec coefficient) par mention</p>
+          </div>
+          <div className="px-6 py-4">
+            <div className="space-y-2">
+              {matieresParMention.map(({ mentionNom, count }) => {
+                const max = matieresParMention[0].count;
+                const pct = Math.round((count / max) * 100);
+                return (
+                  <div key={mentionNom} className="flex items-center gap-3">
+                    <span className="text-sm text-slate-700 w-40 shrink-0 truncate">{mentionNom}</span>
+                    <div className="flex-1 bg-slate-100 rounded-full h-2">
+                      <div
+                        className="bg-indigo-500 h-2 rounded-full transition-all"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-semibold text-slate-900 w-8 text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Alertes ── */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
