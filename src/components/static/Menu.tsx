@@ -98,11 +98,12 @@ export default function Menu({ user }: MenuProps) {
       { key: "/admin/parcours", label: "Parcours", icon: <ShieldCheck size={18} /> },
       { key: "/admin/mentions", label: "Chef Mention", icon: <Users size={18} /> },
       { key: "/admin/export", label: "Exportation", icon: <Download size={18} /> },
-      { key: "/notes/admin?tab=matieres", label: "Matières", icon: <Layers size={18} /> },
-      { key: "/notes/admin?tab=ue", label: "UE", icon: <Library size={18} /> },
+      { key: "/notes/admin?tab=dashboard", label: "Dashboard Notes", icon: <BarChart3 size={18} /> },
+      { key: "/notes/admin?tab=ue",        label: "UE",               icon: <Library size={18} /> },
+      { key: "/notes/admin?tab=matieres",  label: "Matières",         icon: <Layers size={18} /> },
       { key: "/notes/chef-mention", label: "Matières & Coefficients", icon: <ClipboardList size={18} /> },
-      { key: "/notes/resultats", label: "Résultats", icon: <BarChart3 size={18} /> },
-      { key: "/notes/professeur", label: "Mes Matières", icon: <BookOpen size={18} /> },
+      { key: "/notes/resultats",    label: "Résultats",               icon: <BarChart3 size={18} /> },
+      { key: "/notes/professeur",   label: "Mes Matières",            icon: <BookOpen size={18} /> },
     );
   }
 
