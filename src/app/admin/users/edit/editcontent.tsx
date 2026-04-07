@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { User } from "@/lib/db"; 
+import Header from "@/components/static/Header";
+import Menu from "@/components/static/Menu"; 
 
 type UserUpdatePayload = User & { password?: string };
 
@@ -13,9 +15,11 @@ export default function EditUserContent() {
     const searchParams = useSearchParams();
     const userId = searchParams.get("id");
     
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
+    const [activeTab, setActiveTab] = useState("admin/users");
     const login = process.env.NEXT_PUBLIC_LOGIN_URL || '/login';
     
     const [formData, setFormData] = useState({
@@ -26,6 +30,24 @@ export default function EditUserContent() {
         role: "Utilisateur" as "Utilisateur" | "Admin" | "Ecolage" | "Professeur" | "ChefMention",
         password: "",
     });
+
+    // Auth check
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch(`/api/auth/me`);
+                if (!response.ok) {
+                    window.location.href = login;
+                    return
+                }
+                const data = await response.json()
+                setUser(data.user)
+            } catch (err) {
+                window.location.href = login;
+            }
+        }
+        checkAuth()
+    }, [login]);
 
     useEffect(() => {
         if (!userId) {
@@ -118,148 +140,141 @@ export default function EditUserContent() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-        );
+            <main className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-slate-600 font-medium">Chargement du profil...</p>
+                </div>
+            </main>
+            );
     }
 
     return (
         <main className="min-h-screen bg-slate-50">
-            {/* Header Harmonisé */}
-            <header className="bg-primary text-primary-foreground shadow-lg sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 py-6 flex items-center gap-4">
-                    <Link 
-                        href="/admin/users" 
-                        className="p-2 hover:bg-white/10 rounded-full transition-colors text-white"
-                    >
-                        <ArrowLeft size={22} />
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Modifier le profil</h1>
+            <Header user={user} />
 
-                    </div>
-                </div>
-            </header>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Menu user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="max-w-3xl mx-auto px-4 py-10">
-                {error && (
-                    <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-3">
-                        <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse"></span>
-                        {error}
-                    </div>
-                )}
+                <div className="mt-8 max-w-3xl mx-auto">
+                    {error && (
+                        <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 text-sm font-medium flex items-center gap-3">
+                            <span className="w-2 h-2 bg-rose-600 rounded-full animate-pulse"></span>
+                            {error}
+                        </div>
+                    )}
 
-                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                    <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6">
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Nom */}
+                    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6">
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Nom */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1">Nom</label>
+                                    <input
+                                        name="nom"
+                                        type="text"
+                                        required
+                                        value={formData.nom}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                </div>
+
+                                {/* Prénom */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1">Prénom</label>
+                                    <input
+                                        name="prenom"
+                                        type="text"
+                                        required
+                                        value={formData.prenom}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Email */}
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 ml-1">Nom</label>
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Adresse Email</label>
                                 <input
-                                    name="nom"
-                                    type="text"
+                                    name="email"
+                                    type="email"
                                     required
-                                    value={formData.nom}
+                                    value={formData.email}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                                 />
                             </div>
 
-                            {/* Prénom */}
+                            {/* Password */}
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 ml-1">Prénom</label>
+                                <label className="text-sm font-semibold text-slate-700 ml-1">Nouveau mot de passe</label>
                                 <input
-                                    name="prenom"
-                                    type="text"
-                                    required
-                                    value={formData.prenom}
+                                    name="password"
+                                    type="password"
+                                    value={formData.password}
+                                    placeholder="Laisser vide pour ne pas modifier"
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
                                 />
                             </div>
-                        </div>
 
-                        {/* Email */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 ml-1">Adresse Email</label>
-                            <input
-                                name="email"
-                                type="email"
-                                required
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                            />
-                        </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                {/* Status */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1">Statut du compte</label>
+                                    <select
+                                        name="status"
+                                        value={formData.status}
+                                        onChange={handleChange}
+                                        className={`w-full px-4 py-3 rounded-xl border border-slate-200 font-bold transition-all outline-none appearance-none cursor-pointer ${
+                                            formData.status === 'Actif' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
+                                        }`}
+                                    >
+                                        <option value="Actif">Actif</option>
+                                        <option value="Inactif">Inactif</option>
+                                    </select>
+                                </div>
 
-                        {/* Password */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 ml-1">Nouveau mot de passe</label>
-                            <input
-                                name="password"
-                                type="password"
-                                value={formData.password}
-                                placeholder="Laisser vide pour ne pas modifier"
-                                onChange={handleChange}
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                            {/* Status */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 ml-1">Statut du compte</label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className={`w-full px-4 py-3 rounded-xl border border-slate-200 font-bold transition-all outline-none appearance-none cursor-pointer ${
-                                        formData.status === 'Actif' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'
-                                    }`}
-                                >
-                                    <option value="Actif">Actif</option>
-                                    <option value="Inactif">Inactif</option>
-                                </select>
+                                {/* Role */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1">Rôle</label>
+                                    <select
+                                        name="role"
+                                        value={formData.role}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white transition-all outline-none appearance-none cursor-pointer font-medium"
+                                    >
+                                        <option value="Utilisateur">Utilisateur</option>
+                                        <option value="Admin">Administrateur</option>
+                                        <option value="Ecolage">Écolage</option>
+                                        <option value="Professeur">Professeur</option>
+                                        <option value="ChefMention">Chef de Mention</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            {/* Role */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700 ml-1">Rôle</label>
-                                <select
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white transition-all outline-none appearance-none cursor-pointer font-medium"
+                            <div className="flex flex-col sm:flex-row gap-4 pt-10">
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="flex-1 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                                 >
-                                    <option value="Utilisateur">Utilisateur</option>
-                                    <option value="Admin">Administrateur</option>
-                                    <option value="Ecolage">Écolage</option>
-                                    <option value="Professeur">Professeur</option>
-                                    <option value="ChefMention">Chef de Mention</option>
-                                </select>
+                                    {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                                    {saving ? "Sauvegarde..." : "Enregistrer les modifications"}
+                                </button>
+
+                                <Link
+                                    href="/admin/users"
+                                    className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition-all text-center"
+                                >
+                                    Annuler
+                                </Link>
                             </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-4 pt-10">
-                            <button
-                                type="submit"
-                                disabled={saving}
-                                className="flex-1 bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
-                            >
-                                {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                                {saving ? "Sauvegarde..." : "Enregistrer les modifications"}
-                            </button>
-
-                            <Link
-                                href="/admin/users"
-                                className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-xl font-bold hover:bg-slate-200 transition-all text-center"
-                            >
-                                Annuler
-                            </Link>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </main>
